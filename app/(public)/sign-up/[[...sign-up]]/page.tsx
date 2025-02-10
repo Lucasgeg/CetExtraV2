@@ -1,52 +1,28 @@
 "use client";
 import * as React from "react";
 import { useSignUp } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import logo from "@/assets/cetextralogo.jpeg";
+import Link from "next/link";
+import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
+import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
+
+export enum SignUpStep {
+  Initial,
+  MoreInformation,
+  Verifying,
+}
 
 export default function SignUpPage() {
   const { isLoaded, signUp, setActive } = useSignUp();
-  const [emailAddress, setEmailAddress] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [verifying, setVerifying] = React.useState(false);
+  const [signUpStep, setSignUpStep] = React.useState<SignUpStep>(
+    SignUpStep.Initial
+  );
   const [code, setCode] = React.useState("");
-  const router = useRouter();
 
-  // Handle submission of the sign-up form
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!isLoaded) return;
-
-    if (password !== confirmPassword) {
-      alert("Les mots de passe ne correspondent pas");
-      return;
-    }
-    // Start the sign-up process using the email and password provided
-    try {
-      await signUp.create({
-        emailAddress,
-        password,
-      });
-
-      // Send the user an email with the verification code
-      await signUp.prepareEmailAddressVerification({
-        strategy: "email_code",
-      });
-
-      // Set 'verifying' true to display second form
-      // and capture the OTP code
-      setVerifying(true);
-    } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2));
-    }
-  };
+  // const router = useRouter();
 
   // TODO: Implement OAuth
   // const signUpWith = (strategy: OAuthStrategy) => {
@@ -88,7 +64,7 @@ export default function SignUpPage() {
         await setActive({ session: signUpAttempt.createdSessionId });
         console.log("Sign-up complete!");
 
-        router.push("/");
+        //router.push('/');
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
@@ -101,68 +77,87 @@ export default function SignUpPage() {
     }
   };
 
-  const SignUpDisplay = () => {
-    return (
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 xs:pl-5 w-3/4 items-center"
-      >
-        <div className="flex flex-col item gap-1 w-full">
-          <label htmlFor="email">Entrez votre adresse email:</label>
-          <Input
-            id="email"
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={emailAddress}
-            onChange={(e) => setEmailAddress(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-1 w-full">
-          <label htmlFor="password">Entrez votre mot de passe:</label>
-          <Input
-            id="password"
-            type="password"
-            name="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col gap-1 w-full">
-          <label htmlFor="confirmPassword">Confirmez votre mot de passe:</label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirmation mot de passe"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
-        {/* CAPTCHA Widget */}
-        <div id="clerk-captcha" />
-        <div className="flex flex-col xs:flex-row w-full items-center">
-          <button
-            type="submit"
-            className="border rounded-lg bg-blue-500 text-white py-2 px-4 my-4 hover:bg-blue-600"
-          >
-            S'inscrire
-          </button>
+  // const InitialDisplay = () => {
+  //   return (
+  //     <>
+  //       <form
+  //         onSubmit={handleSubmitInitialStep}
+  //         className="flex flex-col gap-4 xs:pl-5 w-3/4 items-center"
+  //       >
+  //         <div className="flex flex-col item gap-1 w-full">
+  //           <label htmlFor="email">Entrez votre adresse email:</label>
+  //           <Input
+  //             id="email"
+  //             type="email"
+  //             name="email"
+  //             placeholder="Email"
+  //             value={emailAddress}
+  //             onChange={(e) => setEmailAddress(e.target.value)}
+  //           />
+  //         </div>
+  //         <div className="flex flex-col gap-1 w-full">
+  //           <label htmlFor="password">Entrez votre mot de passe:</label>
+  //           <Input
+  //             id="password"
+  //             type="password"
+  //             name="password"
+  //             placeholder="Mot de passe"
+  //             value={password}
+  //             onChange={(e) => setPassword(e.target.value)}
+  //           />
+  //         </div>
+  //         <div className="flex flex-col gap-1 w-full">
+  //           <label htmlFor="confirmPassword">
+  //             Confirmez votre mot de passe:
+  //           </label>
+  //           <Input
+  //             id="confirmPassword"
+  //             type="password"
+  //             name="confirmPassword"
+  //             placeholder="Confirmation mot de passe"
+  //             value={confirmPassword}
+  //             onChange={(e) => setConfirmPassword(e.target.value)}
+  //           />
+  //         </div>
+  //         {/* CAPTCHA Widget */}
+  //         <div id="clerk-captcha" />
+  //         <div className="flex flex-col xs:flex-row w-full items-center">
+  //           <button
+  //             type="submit"
+  //             className="border rounded-lg bg-blue-500 text-white py-2 px-4 my-4 hover:bg-blue-600"
+  //           >
+  //             S'inscrire
+  //           </button>
 
-          {/* 
-                //TODO: Implement OAuth 
-                <div className="flex flex-col items-center gap-2">
-                  <span>Ou bien</span>
-                  <button onClick={() => signUpWith("oauth_google")}>
-                    <GoogleLogo />
-                  </button>
-                </div>
-                */}
-        </div>
-      </form>
-    );
-  };
+  //           {/*
+  //               //TODO: Implement OAuth
+  //               <div className="flex flex-col items-center gap-2">
+  //                 <span>Ou bien</span>
+  //                 <button onClick={() => signUpWith("oauth_google")}>
+  //                   <GoogleLogo />
+  //                 </button>
+  //               </div>
+  //               */}
+  //         </div>
+  //       </form>
+  //       <Link className="text-xs hover:underline" href="/sign-in">
+  //         Déjà un compte? Par ici!
+  //       </Link>
+  //     </>
+  //   );
+  // };
+
+  // const MoreInformationdisplay = () => {
+  //   return (
+  //     <>
+  //       <h2 className="text-xl">
+  //         Nous avons besoin de quelques informations supplémentaire pour valider
+  //         ton compte:
+  //       </h2>
+  //       <form></form>
+  //     </>
+  //   );
+  // };
 
   const VerifyingDisplay = () => {
     return (
@@ -200,32 +195,55 @@ export default function SignUpPage() {
   };
 
   // Display the verification form to capture the OTP code
-  if (verifying) {
-    return (
-      <>
-        <h1>Verify your email</h1>
-        <form onSubmit={handleVerify}>
-          <label id="code">
-            Enter your verification code
-            <input
-              value={code}
-              id="code"
-              name="code"
-              onChange={(e) => setCode(e.target.value)}
-            />
-          </label>
-          <button type="submit">Verify</button>
-        </form>
-      </>
-    );
-  }
+  // if (verifying) {
+  //   return (
+  //     <>
+  //       <h1>Verify your email</h1>
+  //       <form onSubmit={handleVerify}>
+  //         <label id="code">
+  //           Enter your verification code
+  //           <input
+  //             value={code}
+  //             id="code"
+  //             name="code"
+  //             onChange={(e) => setCode(e.target.value)}
+  //           />
+  //         </label>
+  //         <button type="submit">Verify</button>
+  //       </form>
+  //     </>
+  //   );
+  // }
 
-  // Display the initial sign-up form to capture the email and password
+  const renderDisplay = () => {
+    switch (signUpStep) {
+      case SignUpStep.Initial:
+        return (
+          <MoreInformationDisplay
+            handleSubmit={() => setSignUpStep(SignUpStep.Verifying)}
+          />
+        );
+      case SignUpStep.MoreInformation:
+        return (
+          <InitialDisplay
+            handleSubmit={() => setSignUpStep(SignUpStep.MoreInformation)}
+          />
+        );
+      case SignUpStep.Verifying:
+        return <VerifyingDisplay />;
+      default:
+        return (
+          <InitialDisplay
+            handleSubmit={() => setSignUpStep(SignUpStep.MoreInformation)}
+          />
+        );
+    }
+  };
   return (
     <>
       <AnimatedBG />
       <div className="flex justify-center items-center h-screen">
-        <div className="rounded-lg shadow-lg  relative flex flex-col md:grid md:grid-cols-2 w-4/5 md:w-1/2">
+        <div className="rounded-lg shadow-lg  relative flex flex-col md:grid md:grid-cols-2 w-4/5 md:w-3/4">
           <div className="flex justify-center items-center bg-[#30325F] w-full">
             <Image
               src={logo}
@@ -234,11 +252,14 @@ export default function SignUpPage() {
             />
           </div>
           <div className=" flex flex-col items-center justify-center border bg-white align-middle px-6  py-3">
-            <h1 className="flex flex-col items-center justify-center pb-8">
+            <h1 className="flex flex-col pb-8 text-center">
               <span className="text-5xl">Cet Extra!</span>
               <span className=" text-2xl">Inscription</span>
             </h1>
-            {verifying ? <VerifyingDisplay /> : <SignUpDisplay />}
+            {renderDisplay()}
+            <Link className="text-xs hover:underline" href="/sign-in">
+              Déjà un compte? Par ici!
+            </Link>
           </div>
         </div>
       </div>
