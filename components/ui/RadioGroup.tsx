@@ -32,7 +32,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
     <TooltipProvider>
       <div className="flex items-center">
         {options.map((option) => (
-          <label key={option.value} className="flex items-center space-x-2">
+          <label key={option.value} className="flex text-center space-x-2">
             <input
               type="radio"
               name={name}
@@ -44,7 +44,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
             <Tooltip>
               <TooltipTrigger
                 asChild
-                className={`cursor-pointer p-2 rounded ${
+                className={`cursor-pointer p-1 rounded ${
                   selectedValue === option.value
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200"

@@ -243,13 +243,9 @@ export default function SignUpPage() {
     <>
       <AnimatedBG />
       <div className="flex justify-center items-center h-screen">
-        <div className="rounded-lg shadow-lg  relative flex flex-col md:grid md:grid-cols-2 w-4/5 md:w-3/4">
+        <div className="rounded-lg shadow-lg  relative flex flex-col md:grid md:grid-cols-[0.5fr_1fr] w-4/5 md:w-8/12">
           <div className="flex justify-center items-center bg-[#30325F] w-full">
-            <Image
-              src={logo}
-              alt="logo cet-extra"
-              className="w-1/2 md:w-full"
-            />
+            <Image src={logo} alt="logo cet-extra" className="w-full" />
           </div>
           <div className=" flex flex-col items-center justify-center border bg-white align-middle px-6  py-3">
             <h1 className="flex flex-col pb-8 text-center">
