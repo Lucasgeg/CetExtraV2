@@ -3,7 +3,7 @@ import { Input } from "../input";
 
 interface LabelledInputProps {
   label: string;
-  value: string;
+  value: string | number | readonly string[] | undefined;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   containerClassName?: string;
   inputClassName?: string;

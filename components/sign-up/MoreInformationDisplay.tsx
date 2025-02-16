@@ -4,9 +4,12 @@ import { useSignUpStore } from "@/store/store";
 import { MissionJob, Role } from "@prisma/client";
 import { RadioGroup } from "../ui/RadioGroup";
 import { LabelledInput } from "../ui/atom/LabelledInput";
-import { Popover, PopoverContent } from "../ui/popover";
-import { PopoverTrigger } from "@radix-ui/react-popover";
 import AddressAutocomplete from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
+import { DatePickerInput } from "../ui/atom/DatePickerInput/DatePickerInput";
+import {
+  Items,
+  LabelledSelect,
+} from "../ui/atom/LabelledSelect/LabelledSelect";
 
 type MoreInformationDisplayProps = {
   handleSubmit: (e: React.FormEvent) => void;
@@ -20,6 +23,9 @@ export const MoreInformationDisplay = ({
   const [selectedMissionJob, setSelectedMissionJob] = useState<MissionJob>(
     MissionJob.waiter
   );
+  const [selectedMaxTravelDistance, setSelectedMaxTravelDistance] = useState<
+    number | undefined
+  >(undefined);
 
   const handleRoleChange = (value: string) => {
     const role = value as Role;
@@ -31,6 +37,12 @@ export const MoreInformationDisplay = ({
     const missionJob = value as MissionJob;
     setSelectedMissionJob(missionJob);
     updateUserProperty("missionJob", missionJob);
+  };
+
+  const handleMaxTravelDistanceChange = (value: string) => {
+    setSelectedMaxTravelDistance(Number(value));
+    if (selectedMaxTravelDistance)
+      updateUserProperty("max_travel_distance", selectedMaxTravelDistance);
   };
 
   const roleOptions = [
@@ -62,6 +74,15 @@ export const MoreInformationDisplay = ({
       label: "Les deux",
       description: "Travail en cuisine et en salle",
     },
+  ];
+
+  const maxRangeOptions: Items[] = [
+    { value: "5", label: "5 km" },
+    { value: "10", label: "10 km" },
+    { value: "15", label: "15 km" },
+    { value: "20", label: "20 km" },
+    { value: "25", label: "25 km" },
+    { value: "30", label: "30 km" },
   ];
 
   return (
@@ -103,6 +124,21 @@ export const MoreInformationDisplay = ({
             value={user?.first_name || ""}
           />
           <AddressAutocomplete />
+          <DatePickerInput
+            onSelectedDate={(e) => updateUserProperty("birthdate", e)}
+            label="Date de naissance"
+          />
+          <LabelledSelect
+            items={maxRangeOptions}
+            label="Distance maximale des missions"
+            onValueChange={handleMaxTravelDistanceChange}
+            defaultValue={maxRangeOptions[0].value}
+          />
+          <LabelledInput
+            label="Ton numéro de téléphone"
+            onChange={(e) => updateUserProperty("phone", e.target.value)}
+            value={user?.phone || ""}
+          />
         </div>
         <button
           type="submit"

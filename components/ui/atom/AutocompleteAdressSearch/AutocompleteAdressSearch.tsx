@@ -1,13 +1,13 @@
-import { getSuggestions } from "@/app/(public)/sign-up/[[...sign-up]]/actions";
-import { KeyboardEvent, MouseEvent, useState } from "react";
+import { useEffect, useState } from "react";
 import { Popover, PopoverAnchor, PopoverContent } from "../../popover";
-import axios from "axios";
-
-interface Suggestion {
-  display_name: string;
-  lat: string;
-  lon: string;
-}
+import {
+  getSuggestions,
+  Suggestion,
+} from "@/app/(public)/sign-up/[[...sign-up]]/actions";
+import { Input } from "../../input";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useSignUpStore } from "@/store/store";
+import { Location } from "@prisma/client";
 
 const AddressAutocomplete: React.FC = () => {
   const [query, setQuery] = useState<string>("");
@@ -15,90 +15,53 @@ const AddressAutocomplete: React.FC = () => {
   const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
     null
   );
-  /*   const [searchValue, setSearchValue] = useState<string>("")
+  const debouncedValue = useDebounce(query, 500);
+  const { updateUserProperty } = useSignUpStore();
 
-  const handleInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setQuery(value);
-
-    if (value.length > 8) {
-      const response = await getSuggestions(value);
-      setSuggestions(response?.data);
-    } else {
-      setSuggestions([]);
-    }
-  }; */
-
-  const handleSubmitSearch = async (
-    e: MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    if (query.length > 8) {
-      console.log(query);
-
-      //const response = await getSuggestions(query);
-      try {
-        const response = await axios.get(
-          "https://nominatim.openstreetmap.org/search",
-          {
-            params: {
-              q: query,
-              format: "jsonv2",
-              addressdetails: 1,
-              limit: 5,
-              countrycodes: "fr",
-            },
-          }
-        );
-        setSuggestions(response.data);
-      } catch (error) {
-        console.log(error);
+  useEffect(() => {
+    const searchQuery = async () => {
+      if (debouncedValue.length > 5) {
+        const results = await getSuggestions(debouncedValue);
+        setSuggestions(results);
       }
-
-      //setSuggestions(response?.data);
-    } else {
-      setSuggestions([]);
-    }
-  };
+    };
+    searchQuery();
+  }, [debouncedValue]);
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
     setSelectedAddress(suggestion);
     setQuery(suggestion.display_name);
+    setQuery("");
     setSuggestions([]);
-    console.log("Coordonnées sélectionnées :", {
-      lat: suggestion.lat,
-      lon: suggestion.lon,
-    });
+    const userAdress: Omit<Location, Location["id"]> = {
+      fullName: suggestion.display_name,
+      lat: Number(suggestion.lat),
+      lon: Number(suggestion.lon),
+    };
+    updateUserProperty("location", userAdress);
   };
 
-  /*   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      return handleSubmitSearch();
-    }
-  }; */
-
   return (
-    <div className="relative w-96">
+    <div>
       <Popover open={suggestions?.length > 0}>
-        <PopoverAnchor
-          asChild
-          className="w-full p-2 border border-gray-300 rounded-md"
-        >
-          <input
-            type="text"
-            value={selectedAddress?.display_name || query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Entrez une adresse"
-          />
-        </PopoverAnchor>
-        <button type="button" onClick={(e) => handleSubmitSearch(e)}>
-          Search
-        </button>
+        <div className="flex justify-between items-center">
+          <span className="">Ton adresse:</span>
+          <PopoverAnchor
+            asChild
+            className="w-auto p-2 border border-gray-300 rounded-md"
+          >
+            <Input
+              type="text"
+              value={selectedAddress?.display_name || query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </PopoverAnchor>
+        </div>
         <PopoverContent>
           <ul className="w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-y-auto">
             {suggestions.map((suggestion) => (
               <li
-                key={suggestion.display_name}
+                key={suggestion.place_id}
                 onClick={() => handleSuggestionClick(suggestion)}
                 className="p-2 cursor-pointer hover:bg-gray-100"
               >

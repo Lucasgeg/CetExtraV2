@@ -34,8 +34,9 @@ model User {
 
 model Location {
   id       String    @id @default(uuid())
-  x        Int
-  y        Int
+  lat      Int
+  lon      Int
+  fullName String
   users    User[]
   missions Mission[]
 }

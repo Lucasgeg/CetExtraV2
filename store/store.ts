@@ -1,10 +1,19 @@
-import { User } from "@prisma/client";
+import { Location, MissionJob, Role, User } from "@prisma/client";
 import { create } from "zustand";
 
+export type UserSignUpSchema = User & {
+  password: string;
+  confirmPassword: string;
+  location: Omit<Location, Location["id"]>;
+};
+
 export type SignUpStore = {
-  user: User | null;
+  user: Partial<User> | null;
   setUser: (user: Partial<User>) => void;
-  updateUserProperty: <K extends keyof User>(key: K, value: User[K]) => void;
+  updateUserProperty: <K extends keyof UserSignUpSchema>(
+    key: K,
+    value: UserSignUpSchema[K]
+  ) => void;
   password: string;
   setPassword: (password: string) => void;
   confirmPassword: string;
@@ -12,7 +21,10 @@ export type SignUpStore = {
 };
 
 export const useSignUpStore = create<SignUpStore>((set) => ({
-  user: null,
+  user: {
+    missionJob: MissionJob.waiter,
+    role: Role.extra,
+  },
   password: "",
   confirmPassword: "",
   setUser: (newUser: Partial<User>) =>
