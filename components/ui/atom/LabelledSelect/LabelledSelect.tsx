@@ -28,7 +28,7 @@ export const LabelledSelect = ({
   defaultValue,
 }: LabelledSelectProps) => {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between items-center flex-col lg:flex-row">
       <Select onValueChange={onValueChange} defaultValue={defaultValue}>
         <span>{label}</span>
         <SelectTrigger className="max-w-40 w-auto">

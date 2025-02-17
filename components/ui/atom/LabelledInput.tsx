@@ -19,7 +19,7 @@ export const LabelledInput = ({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-1 ",
+        "flex items-center justify-between gap-1 flex-col lg:flex-row",
         containerClassName
       )}
     >
@@ -27,7 +27,7 @@ export const LabelledInput = ({
       <Input
         value={value}
         onChange={onChange}
-        className={`w-auto max-w-40  ${inputClassName}`}
+        className={`w-full max-w-40  ${inputClassName}`}
       />
     </div>
   );

@@ -217,16 +217,10 @@ export default function SignUpPage() {
 
   const renderDisplay = () => {
     switch (signUpStep) {
-      case SignUpStep.Initial:
-        return (
-          <MoreInformationDisplay
-            handleSubmit={() => setSignUpStep(SignUpStep.Verifying)}
-          />
-        );
       case SignUpStep.MoreInformation:
         return (
-          <InitialDisplay
-            handleSubmit={() => setSignUpStep(SignUpStep.MoreInformation)}
+          <MoreInformationDisplay
+            handleSubmitAction={() => setSignUpStep(SignUpStep.Verifying)}
           />
         );
       case SignUpStep.Verifying:

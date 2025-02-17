@@ -44,7 +44,7 @@ const AddressAutocomplete: React.FC = () => {
   return (
     <div>
       <Popover open={suggestions?.length > 0}>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-col lg:flex-row">
           <span className="">Ton adresse:</span>
           <PopoverAnchor
             asChild
@@ -54,6 +54,7 @@ const AddressAutocomplete: React.FC = () => {
               type="text"
               value={selectedAddress?.display_name || query}
               onChange={(e) => setQuery(e.target.value)}
+              className="w-full max-w-40"
             />
           </PopoverAnchor>
         </div>

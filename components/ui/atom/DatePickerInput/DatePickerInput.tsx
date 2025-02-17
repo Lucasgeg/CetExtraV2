@@ -15,26 +15,26 @@ import { fr } from "date-fns/locale";
 
 type DatePickerInputProps = {
   label?: string;
-  onSelectedDate: (date: Date) => void;
+  onSelectedDateAction: (date: Date) => void;
 };
 
 export function DatePickerInput({
   label,
-  onSelectedDate: onChange,
-}: DatePickerInputProps) {
+  onSelectedDateAction,
+}: Readonly<DatePickerInputProps>) {
   const [date, setDate] = useState<Date>();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (date) {
-      onChange(date);
+      onSelectedDateAction(date);
       setIsOpen(false);
     }
   }, [date]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-col lg:flex-row">
         {label && <span className="text-left">{label}</span>}
         <PopoverTrigger>
           <Button

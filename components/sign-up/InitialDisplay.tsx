@@ -1,4 +1,5 @@
 "use client";
+import { ChangeEvent, useState } from "react";
 import { Input } from "../ui/input";
 import { useSignUpStore } from "@/store/store";
 
@@ -7,6 +8,9 @@ type InitialDisplayProps = {
 };
 
 export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
+  const [isError, setIsError] = useState(false);
+  const ERROR_MESSAGE = "Les mots de passe ne correspondent pas";
+
   const {
     password,
     confirmPassword,
@@ -20,11 +24,22 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Les mots de passe ne correspondent pas");
+      setIsError(true);
       return;
     }
 
     handleSubmit();
+  };
+
+  const handleSetPassword = (
+    e: ChangeEvent<HTMLInputElement>,
+    value: "password" | "confirm"
+  ) => {
+    setIsError(false);
+    if (value === "password") {
+      return setPassword(e.target.value);
+    }
+    return setConfirmPassword(e.target.value);
   };
 
   return (
@@ -51,7 +66,8 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           name="password"
           placeholder="Mot de passe"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => handleSetPassword(e, "password")}
+          errorMessage={isError ? ERROR_MESSAGE : undefined}
         />
       </div>
       <div className="flex flex-col gap-1 w-full">
@@ -62,7 +78,8 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           name="confirmPassword"
           placeholder="Confirmation mot de passe"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e) => handleSetPassword(e, "confirm")}
+          errorMessage={isError ? ERROR_MESSAGE : undefined}
         />
       </div>
       {/* CAPTCHA Widget */}
