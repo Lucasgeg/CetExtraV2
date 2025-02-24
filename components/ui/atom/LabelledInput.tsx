@@ -7,6 +7,7 @@ interface LabelledInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   containerClassName?: string;
   inputClassName?: string;
+  errorMessage?: string;
 }
 
 export const LabelledInput = ({
@@ -15,6 +16,7 @@ export const LabelledInput = ({
   onChange,
   inputClassName,
   containerClassName,
+  errorMessage,
 }: LabelledInputProps) => {
   return (
     <div
@@ -28,6 +30,7 @@ export const LabelledInput = ({
         value={value}
         onChange={onChange}
         className={`w-full max-w-40  ${inputClassName}`}
+        errorMessage={errorMessage}
       />
     </div>
   );

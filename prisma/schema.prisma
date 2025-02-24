@@ -14,31 +14,44 @@ datasource db {
 }
 
 model User {
-  id                  String        @id @default(uuid())
-  role                Role          @default(extra)
+  id               String        @id @default(uuid())
+  role             Role
+  email            String        @unique
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+  address          Location      @relation(fields: [locationId], references: [id])
+  locationId       String
+  active           Boolean       @default(true)
+  assignedMissions UserMission[]
+
+  // Champs spécifiques à Extra
+  extra Extra?
+
+  // Champs spécifiques à Company
+  company Company?
+}
+
+model Extra {
+  id                  String     @id @default(uuid())
+  user                User       @relation(fields: [userId], references: [id])
+  userId              String     @unique
   first_name          String
   last_name           String
-  created_at          DateTime      @default(now())
-  updated_at          DateTime      @updatedAt
-  address             Location      @relation(fields: [locationId], references: [id])
-  locationId          String
-  email               String        @unique
   birthdate           DateTime
   phone               String?
-  active              Boolean       @default(true)
-  missions            Mission[]     @relation("CreatedMissions")
-  assignedMissions    UserMission[]
-  missionJob          MissionJob    @default(waiter)
+  missionJob          MissionJob @default(waiter)
   max_travel_distance Int
 }
 
-model Location {
-  id       String    @id @default(uuid())
-  lat      Int
-  lon      Int
-  fullName String
-  users    User[]
-  missions Mission[]
+model Company {
+  id                  String    @id @default(uuid())
+  user                User      @relation(fields: [userId], references: [id])
+  userId              String    @unique
+  company_name        String
+  registration_number String
+  contact_person      String
+  company_phone       String
+  createdMissions     Mission[] // Nouvelle relation pour les missions créées
 }
 
 model Mission {
@@ -48,9 +61,18 @@ model Mission {
   location     Location      @relation(fields: [locationId], references: [id])
   locationId   String
   mission_date DateTime
-  creator      User          @relation("CreatedMissions", fields: [creatorId], references: [id])
+  creator      Company       @relation(fields: [creatorId], references: [id]) // Changé de User à Company
   creatorId    String
   employees    UserMission[]
+}
+
+model Location {
+  id       String    @id @default(uuid())
+  lat      Int
+  lon      Int
+  fullName String
+  users    User[]
+  missions Mission[]
 }
 
 model UserMission {

@@ -8,6 +8,7 @@ import logo from "@/assets/cetextralogo.jpeg";
 import Link from "next/link";
 import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
 import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
+import { useSignUpStore } from "@/store/store";
 
 export enum SignUpStep {
   Initial,
@@ -21,6 +22,8 @@ export default function SignUpPage() {
     SignUpStep.Initial
   );
   const [code, setCode] = React.useState("");
+
+  const { user } = useSignUpStore();
 
   // const router = useRouter();
 
@@ -214,6 +217,36 @@ export default function SignUpPage() {
   //     </>
   //   );
   // }
+  const handleSubmitAction = () => {
+    // vérification des champs d'inscription de l'utilisateur
+    // si tout est ok, on passe à l'étape de vérification
+    if (user) {
+      const {
+        email,
+        birthdate,
+        last_name,
+        first_name,
+        role,
+        missionJob,
+        max_travel_distance,
+      } = user;
+      if (
+        email &&
+        birthdate &&
+        last_name &&
+        first_name &&
+        role &&
+        missionJob &&
+        max_travel_distance
+      ) {
+        setSignUpStep(SignUpStep.Verifying);
+      } else {
+        console.error("All fields must be filled");
+      }
+    } else {
+      console.error("User object is not defined");
+    }
+  };
 
   const renderDisplay = () => {
     switch (signUpStep) {
