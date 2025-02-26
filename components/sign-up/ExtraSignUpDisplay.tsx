@@ -11,7 +11,7 @@ import {
 import { RadioGroup } from "../ui/RadioGroup";
 
 export const ExtraSignUpDisplay = () => {
-  const { user, updateUserProperty } = useSignUpStore();
+  const { user, updateExtraProperty } = useSignUpStore();
 
   const [selectedMissionJob, setSelectedMissionJob] = useState<MissionJob>(
     MissionJob.waiter
@@ -23,13 +23,13 @@ export const ExtraSignUpDisplay = () => {
   const handleMissionJobChange = (value: string) => {
     const missionJob = value as MissionJob;
     setSelectedMissionJob(missionJob);
-    updateUserProperty("missionJob", missionJob);
+    updateExtraProperty("missionJob", missionJob);
   };
 
   const handleMaxTravelDistanceChange = (value: string) => {
     setSelectedMaxTravelDistance(Number(value));
     if (selectedMaxTravelDistance)
-      updateUserProperty("max_travel_distance", selectedMaxTravelDistance);
+      updateExtraProperty("max_travel_distance", selectedMaxTravelDistance);
   };
 
   const missionJobOptions = [
@@ -72,18 +72,19 @@ export const ExtraSignUpDisplay = () => {
 
       <LabelledInput
         label="Ton nom"
-        onChange={(e) => updateUserProperty("last_name", e.target.value)}
-        value={user?.last_name || ""}
+        onChange={(e) => updateExtraProperty("last_name", e.target.value)}
+        value={user?.extra?.last_name || ""}
       />
       <LabelledInput
         label="Ton prénom"
-        onChange={(e) => updateUserProperty("first_name", e.target.value)}
-        value={user?.first_name || ""}
+        onChange={(e) => updateExtraProperty("first_name", e.target.value)}
+        value={user?.extra?.first_name || ""}
       />
       <AddressAutocomplete />
       <DatePickerInput
-        onSelectedDateAction={(e) => updateUserProperty("birthdate", e)}
+        onSelectedDateAction={(e) => updateExtraProperty("birthdate", e)}
         label="Date de naissance"
+        value={user?.extra?.birthdate}
       />
       <LabelledSelect
         items={maxRangeOptions}
@@ -93,8 +94,8 @@ export const ExtraSignUpDisplay = () => {
       />
       <LabelledInput
         label="Ton numéro de téléphone"
-        onChange={(e) => updateUserProperty("phone", e.target.value)}
-        value={user?.phone || ""}
+        onChange={(e) => updateExtraProperty("phone", e.target.value)}
+        value={user?.extra?.phone || ""}
       />
     </>
   );

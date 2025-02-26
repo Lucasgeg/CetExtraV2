@@ -15,14 +15,15 @@ import { fr } from "date-fns/locale";
 
 type DatePickerInputProps = {
   label?: string;
-  onSelectedDateAction: (date: Date) => void;
+  onSelectedDateAction: (date?: Date) => void;
+  value?: Date;
 };
 
 export function DatePickerInput({
   label,
   onSelectedDateAction,
+  value: date,
 }: Readonly<DatePickerInputProps>) {
-  const [date, setDate] = useState<Date>();
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -58,7 +59,11 @@ export function DatePickerInput({
         </PopoverTrigger>
       </div>
       <PopoverContent className="w-auto p-0 ">
-        <Calendar mode="single" selected={date} onSelect={setDate} />
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(d) => onSelectedDateAction(d)}
+        />
       </PopoverContent>
     </Popover>
   );

@@ -15,6 +15,7 @@ datasource db {
 
 model User {
   id               String        @id @default(uuid())
+  clerkId          String        @unique
   role             Role
   email            String        @unique
   created_at       DateTime      @default(now())

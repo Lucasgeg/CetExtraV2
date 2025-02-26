@@ -1,34 +1,31 @@
 "use client";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Input } from "../ui/input";
 import { useSignUpStore } from "@/store/store";
 
 type InitialDisplayProps = {
-  handleSubmit: () => void;
+  handleSubmit: (e: FormEvent) => void;
 };
 
 export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   const [isError, setIsError] = useState(false);
   const ERROR_MESSAGE = "Les mots de passe ne correspondent pas";
 
-  const {
-    password,
-    confirmPassword,
-    setPassword,
-    setConfirmPassword,
-    user,
-    setUser,
-  } = useSignUpStore();
+  const { user, setUser, updateUserProperty } = useSignUpStore();
 
   const handleSubmitInitialStep = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
+    if (
+      user?.password !== user?.confirmPassword ||
+      !user?.password ||
+      !user?.confirmPassword
+    ) {
       setIsError(true);
       return;
     }
 
-    handleSubmit();
+    handleSubmit(e);
   };
 
   const handleSetPassword = (
@@ -37,9 +34,9 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   ) => {
     setIsError(false);
     if (value === "password") {
-      return setPassword(e.target.value);
+      return updateUserProperty("password", e.target.value);
     }
-    return setConfirmPassword(e.target.value);
+    return updateUserProperty("confirmPassword", e.target.value);
   };
 
   return (
@@ -54,7 +51,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           type="email"
           name="email"
           placeholder="Email"
-          value={user?.email}
+          value={user?.email || ""}
           onChange={(e) => setUser({ ...user, email: e.target.value })}
         />
       </div>
@@ -65,7 +62,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           type="password"
           name="password"
           placeholder="Mot de passe"
-          value={password}
+          value={user?.password || ""}
           onChange={(e) => handleSetPassword(e, "password")}
           errorMessage={isError ? ERROR_MESSAGE : undefined}
         />
@@ -77,13 +74,13 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           type="password"
           name="confirmPassword"
           placeholder="Confirmation mot de passe"
-          value={confirmPassword}
+          value={user?.confirmPassword || ""}
           onChange={(e) => handleSetPassword(e, "confirm")}
           errorMessage={isError ? ERROR_MESSAGE : undefined}
         />
       </div>
       {/* CAPTCHA Widget */}
-      <div id="clerk-captcha" />
+      {/* <div id="clerk-captcha" /> */}
       <div className="flex flex-col xs:flex-row w-full items-center">
         <button
           type="submit"
