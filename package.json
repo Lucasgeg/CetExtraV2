@@ -7,7 +7,15 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky",
+    "lint-staged": {
+      "app/**/*.+(ts|tsx)": [
+        "eslint --fix",
+        "eslint --max-warnings 0 ."
+      ],
+      "*.js": "eslint --cache --fix"
+    }
   },
   "dependencies": {
     "@clerk/elements": "^0.22.19",
@@ -25,6 +33,7 @@
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "husky": "^9.1.7",
     "install": "^0.13.0",
     "lucide-react": "^0.474.0",
     "next": "15.1.6",
@@ -42,6 +51,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.6",
+    "lint-staged": "^15.4.3",
     "postcss": "^8",
     "prisma": "^6.3.1",
     "studio": "prisma/studio",

@@ -17,12 +17,14 @@ type DatePickerInputProps = {
   label?: string;
   onSelectedDateAction: (date?: Date) => void;
   value?: Date;
+  errorMessage?: string;
 };
 
 export function DatePickerInput({
   label,
   onSelectedDateAction,
   value: date,
+  errorMessage,
 }: Readonly<DatePickerInputProps>) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,7 +39,7 @@ export function DatePickerInput({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <div className="flex items-center justify-between flex-col lg:flex-row">
         {label && <span className="text-left">{label}</span>}
-        <PopoverTrigger>
+        <PopoverTrigger className="flex flex-col">
           <Button
             asChild
             type="button"
@@ -56,6 +58,9 @@ export function DatePickerInput({
               )}
             </div>
           </Button>
+          {errorMessage && (
+            <div className="text-red-500 text-sm mt-1">{errorMessage}</div>
+          )}
         </PopoverTrigger>
       </div>
       <PopoverContent className="w-auto p-0 ">

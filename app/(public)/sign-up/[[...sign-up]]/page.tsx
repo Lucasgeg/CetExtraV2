@@ -7,15 +7,22 @@ import logo from "@/assets/cetextralogo.jpeg";
 import Link from "next/link";
 import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
 import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
-import { useSignUpStore } from "@/store/store";
+import { UserSignUpSchema, useSignUpStore } from "@/store/store";
 import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
 import { useRouter } from "next/navigation";
+import { Role } from "@prisma/client";
 
 export enum SignUpStep {
   Initial,
   MoreInformation,
   Verifying,
 }
+
+export type ExtraErrorMessages = {
+  firstName?: string;
+  lastName?: string;
+  birthDate?: string;
+};
 
 export default function SignUpPage() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -24,6 +31,9 @@ export default function SignUpPage() {
   );
   const [code, setCode] = React.useState("");
   const { user } = useSignUpStore();
+  const [errorMessages, setErrorMessages] = React.useState<ExtraErrorMessages>(
+    {}
+  );
 
   const router = useRouter();
 
@@ -32,18 +42,16 @@ export default function SignUpPage() {
     e.preventDefault();
 
     if (!isLoaded) return;
-
     try {
       // Use the code the user provided to attempt verification
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
         code,
       });
-
       // If verification was completed, set the session to active
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        console.log("Sign-up complete!");
+        console.log(`Sign-up complete! userId: ${signUpAttempt.createdUserId}`);
 
         router.push("/");
       } else {
@@ -58,10 +66,40 @@ export default function SignUpPage() {
     }
   };
 
+  const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
+    if (user.role === Role.extra) {
+      if (!user.extra?.birthdate) {
+        setErrorMessages((prev) => ({
+          ...prev,
+          birthDate: "Ce champ est obligatoire",
+        }));
+      }
+      if (!user.extra?.first_name) {
+        setErrorMessages((prev) => ({
+          ...prev,
+          firstName: "Ce champ est obligatoire",
+        }));
+      }
+      if (!user.extra?.last_name) {
+        setErrorMessages((prev) => ({
+          ...prev,
+          lastName: "Ce champ est obligatoire",
+        }));
+      }
+    }
+  };
+
   const handleSubmitAction = async (e: React.FormEvent) => {
     // vérification des champs d'inscription de l'utilisateur
     // si tout est ok, on passe à l'étape de vérification
     e.preventDefault();
+
+    if (!user) return;
+    console.log(user);
+    console.log(errorMessages);
+    verifySignupErrors(user);
+    if (Object.keys(errorMessages).length) return;
+
     await signUp?.prepareEmailAddressVerification({
       strategy: "email_code",
     });
@@ -89,7 +127,10 @@ export default function SignUpPage() {
     switch (signUpStep) {
       case SignUpStep.MoreInformation:
         return (
-          <MoreInformationDisplay handleSubmitAction={handleSubmitAction} />
+          <MoreInformationDisplay
+            handleSubmitAction={handleSubmitAction}
+            errors={errorMessages}
+          />
         );
       case SignUpStep.Verifying:
         return (

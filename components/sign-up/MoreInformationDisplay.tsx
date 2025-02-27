@@ -4,14 +4,19 @@ import { useSignUpStore } from "@/store/store";
 import { Role } from "@prisma/client";
 import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
+import { ExtraErrorMessages } from "@/app/(public)/sign-up/[[...sign-up]]/page";
 
 type MoreInformationDisplayProps = {
   handleSubmitAction: (e: React.FormEvent) => void;
+  errors?: ExtraErrorMessages;
 };
 
 export const MoreInformationDisplay = ({
   handleSubmitAction,
+  errors,
 }: MoreInformationDisplayProps) => {
+  console.log(errors);
+
   const { updateUserProperty } = useSignUpStore();
   const [selectedRole, setSelectedRole] = useState<Role>(Role.extra);
 
@@ -51,7 +56,9 @@ export const MoreInformationDisplay = ({
               onChange={handleRoleChange}
             />
           </div>
-          {selectedRole === Role.extra && <ExtraSignUpDisplay />}
+          {selectedRole === Role.extra && (
+            <ExtraSignUpDisplay errors={errors} />
+          )}
         </div>
         <button
           type="submit"

@@ -9,8 +9,13 @@ import {
   LabelledSelect,
 } from "../ui/atom/LabelledSelect/LabelledSelect";
 import { RadioGroup } from "../ui/RadioGroup";
+import { ExtraErrorMessages } from "@/app/(public)/sign-up/[[...sign-up]]/page";
 
-export const ExtraSignUpDisplay = () => {
+type ExtraSignUpDisplayProps = {
+  errors?: ExtraErrorMessages;
+};
+
+export const ExtraSignUpDisplay = ({ errors }: ExtraSignUpDisplayProps) => {
   const { user, updateExtraProperty } = useSignUpStore();
 
   const [selectedMissionJob, setSelectedMissionJob] = useState<MissionJob>(
@@ -74,17 +79,20 @@ export const ExtraSignUpDisplay = () => {
         label="Ton nom"
         onChange={(e) => updateExtraProperty("last_name", e.target.value)}
         value={user?.extra?.last_name || ""}
+        errorMessage={errors?.lastName}
       />
       <LabelledInput
         label="Ton prénom"
         onChange={(e) => updateExtraProperty("first_name", e.target.value)}
         value={user?.extra?.first_name || ""}
+        errorMessage={errors?.firstName}
       />
       <AddressAutocomplete />
       <DatePickerInput
         onSelectedDateAction={(e) => updateExtraProperty("birthdate", e)}
         label="Date de naissance"
         value={user?.extra?.birthdate}
+        errorMessage={errors?.birthDate}
       />
       <LabelledSelect
         items={maxRangeOptions}
