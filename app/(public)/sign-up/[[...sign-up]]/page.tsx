@@ -22,6 +22,7 @@ export type ExtraErrorMessages = {
   firstName?: string;
   lastName?: string;
   birthDate?: string;
+  location?: string;
 };
 
 export default function SignUpPage() {
@@ -37,6 +38,70 @@ export default function SignUpPage() {
 
   const router = useRouter();
 
+  const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
+    const errors: ExtraErrorMessages = {};
+
+    if (user.role === Role.extra) {
+      if (!user.extra?.birthdate) {
+        errors.birthDate = "Ce champ est obligatoire";
+      }
+      if (user.extra?.birthdate) {
+        const birthDate = new Date(user.extra.birthdate);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (
+          age < 16 ||
+          (age === 16 && monthDiff < 0) ||
+          (age === 16 &&
+            monthDiff === 0 &&
+            today.getDate() < birthDate.getDate())
+        ) {
+          errors.birthDate =
+            "Vous devez avoir au moins 16 ans pour vous inscrire.";
+        }
+      }
+      if (!user.extra?.first_name) {
+        errors.firstName = "Ce champ est obligatoire";
+      }
+      if (!user.extra?.last_name) {
+        errors.lastName = "Ce champ est obligatoire";
+      }
+      if (!user.location) {
+        errors.location = "Merci de sélectionner une adresse proposée";
+      }
+    }
+
+    return errors;
+  };
+
+  const handleSubmitAction = async (e: React.FormEvent) => {
+    // vérification des champs d'inscription de l'utilisateur
+    // si tout est ok, on passe à l'étape de vérification
+    e.preventDefault();
+
+    if (!user) return;
+    const errors = verifySignupErrors(user);
+    if (Object.keys(errors).length) {
+      setErrorMessages(errors);
+      return;
+    }
+
+    // await signUp?.prepareEmailAddressVerification({
+    //   strategy: "email_code",
+    // });
+    const response = await fetch("/api/users/sign-up", {
+      method: "POST",
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(response);
+
+    // setSignUpStep(SignUpStep.Verifying);
+  };
   // Handle the submission of the verification form
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,46 +129,6 @@ export default function SignUpPage() {
       // for more info on error handling
       console.error("Error:", JSON.stringify(err, null, 2));
     }
-  };
-
-  const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
-    if (user.role === Role.extra) {
-      if (!user.extra?.birthdate) {
-        setErrorMessages((prev) => ({
-          ...prev,
-          birthDate: "Ce champ est obligatoire",
-        }));
-      }
-      if (!user.extra?.first_name) {
-        setErrorMessages((prev) => ({
-          ...prev,
-          firstName: "Ce champ est obligatoire",
-        }));
-      }
-      if (!user.extra?.last_name) {
-        setErrorMessages((prev) => ({
-          ...prev,
-          lastName: "Ce champ est obligatoire",
-        }));
-      }
-    }
-  };
-
-  const handleSubmitAction = async (e: React.FormEvent) => {
-    // vérification des champs d'inscription de l'utilisateur
-    // si tout est ok, on passe à l'étape de vérification
-    e.preventDefault();
-
-    if (!user) return;
-    console.log(user);
-    console.log(errorMessages);
-    verifySignupErrors(user);
-    if (Object.keys(errorMessages).length) return;
-
-    await signUp?.prepareEmailAddressVerification({
-      strategy: "email_code",
-    });
-    setSignUpStep(SignUpStep.Verifying);
   };
 
   const handleRegistrationStartAction = async (e: React.FormEvent) => {
@@ -141,7 +166,13 @@ export default function SignUpPage() {
           />
         );
       default:
-        return <InitialDisplay handleSubmit={handleRegistrationStartAction} />;
+        return (
+          <MoreInformationDisplay
+            handleSubmitAction={handleSubmitAction}
+            errors={errorMessages}
+          />
+        );
+      //return <InitialDisplay handleSubmit={handleRegistrationStartAction} />;
     }
   };
   return (

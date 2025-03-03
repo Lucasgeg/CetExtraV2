@@ -71,7 +71,7 @@ model Location {
   id       String    @id @default(uuid())
   lat      Int
   lon      Int
-  fullName String
+  fullName String?
   users    User[]
   missions Mission[]
 }

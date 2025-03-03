@@ -9,7 +9,11 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useSignUpStore } from "@/store/store";
 import { Location } from "@prisma/client";
 
-const AddressAutocomplete: React.FC = () => {
+export const AddressAutocomplete = ({
+  errorMessage,
+}: {
+  errorMessage?: string;
+}) => {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
@@ -33,7 +37,7 @@ const AddressAutocomplete: React.FC = () => {
     setQuery(suggestion.display_name);
     setQuery("");
     setSuggestions([]);
-    const userAdress: Omit<Location, Location["id"]> = {
+    const userAdress: Omit<Location, "id"> = {
       fullName: suggestion.display_name,
       lat: Number(suggestion.lat),
       lon: Number(suggestion.lon),
@@ -54,7 +58,8 @@ const AddressAutocomplete: React.FC = () => {
               type="text"
               value={selectedAddress?.display_name || query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full max-w-40"
+              className="w-full max-w-40 lg:max-w-max"
+              errorMessage={errorMessage}
             />
           </PopoverAnchor>
         </div>
@@ -75,5 +80,3 @@ const AddressAutocomplete: React.FC = () => {
     </div>
   );
 };
-
-export default AddressAutocomplete;

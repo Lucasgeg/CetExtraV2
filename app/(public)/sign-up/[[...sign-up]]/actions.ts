@@ -12,7 +12,9 @@ type Address = {
   house_number: string;
   road: string;
   postcode: string;
-  village: string;
+  city?: string;
+  town?: string;
+  village?: string;
   country: string;
 };
 
@@ -39,12 +41,27 @@ export const getSuggestions = async (query: string): Promise<Suggestion[]> => {
         }
       );
 
-      const suggestions: Suggestion[] = response.data.map((suggestion) => ({
-        display_name: `${suggestion.address.house_number} ${suggestion.address.road}, ${suggestion.address.postcode} ${suggestion.address.village}, ${suggestion.address.country}`,
-        lat: suggestion.lat,
-        lon: suggestion.lon,
-        place_id: suggestion.place_id,
-      }));
+      const suggestions: Suggestion[] = response.data.map((suggestion) => {
+        const city =
+          suggestion.address.city ||
+          suggestion.address.town ||
+          suggestion.address.village ||
+          "";
+        const houseNumber = suggestion.address.house_number || "";
+        const road = suggestion.address.road || "";
+        const postcode = suggestion.address.postcode || "";
+        const country = suggestion.address.country || "";
+
+        return {
+          display_name:
+            `${houseNumber} ${road}, ${postcode} ${city}, ${country}`
+              .replace(/  +/g, " ")
+              .trim(), // Supprime les doubles espaces
+          lat: suggestion.lat,
+          lon: suggestion.lon,
+          place_id: suggestion.place_id,
+        };
+      });
 
       return suggestions;
     } catch (error) {

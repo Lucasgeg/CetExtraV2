@@ -30,22 +30,21 @@ export function DatePickerInput({
 
   useEffect(() => {
     if (date) {
-      onSelectedDateAction(date);
       setIsOpen(false);
     }
   }, [date]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex items-center justify-between flex-col lg:flex-row">
+      <div className="flex items-center justify-between gap-1 flex-col lg:flex-row">
         {label && <span className="text-left">{label}</span>}
-        <PopoverTrigger className="flex flex-col">
+        <PopoverTrigger className="flex flex-col max-w-40 lg:max-w-none">
           <Button
             asChild
             type="button"
             variant={"outline"}
             className={cn(
-              "w-auto justify-start text-left font-normal",
+              "flex h-9 rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-full max-w-40 lg:max-w-max undefined border-red-500",
               !date && "text-muted-foreground"
             )}
           >
@@ -59,7 +58,9 @@ export function DatePickerInput({
             </div>
           </Button>
           {errorMessage && (
-            <div className="text-red-500 text-sm mt-1">{errorMessage}</div>
+            <div className="text-red-500 text-sm mt-1 max-w-40 text-justify">
+              {errorMessage}
+            </div>
           )}
         </PopoverTrigger>
       </div>

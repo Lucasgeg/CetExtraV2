@@ -29,7 +29,7 @@ export const LabelledInput = ({
       <Input
         value={value}
         onChange={onChange}
-        className={`w-full max-w-40  ${inputClassName}`}
+        className={`w-full max-w-40 lg:max-w-max  ${inputClassName}`}
         errorMessage={errorMessage}
       />
     </div>

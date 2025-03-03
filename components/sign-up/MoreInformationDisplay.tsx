@@ -15,8 +15,6 @@ export const MoreInformationDisplay = ({
   handleSubmitAction,
   errors,
 }: MoreInformationDisplayProps) => {
-  console.log(errors);
-
   const { updateUserProperty } = useSignUpStore();
   const [selectedRole, setSelectedRole] = useState<Role>(Role.extra);
 

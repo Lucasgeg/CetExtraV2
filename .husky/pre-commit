@@ -1,1 +1,2 @@
-echo ":ambulance: :wrench: No valid configuration found. to fix"
+echo "Vérification du linting"
+bun next lint

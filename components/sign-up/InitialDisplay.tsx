@@ -80,7 +80,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
         />
       </div>
       {/* CAPTCHA Widget */}
-      {/* <div id="clerk-captcha" /> */}
+      <div id="clerk-captcha" />
       <div className="flex flex-col xs:flex-row w-full items-center">
         <button
           type="submit"

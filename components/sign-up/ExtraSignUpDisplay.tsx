@@ -1,7 +1,6 @@
 import { useSignUpStore } from "@/store/store";
 import { MissionJob } from "@prisma/client";
 import { useState } from "react";
-import AddressAutocomplete from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
 import { DatePickerInput } from "../ui/atom/DatePickerInput/DatePickerInput";
 import { LabelledInput } from "../ui/atom/LabelledInput";
 import {
@@ -10,6 +9,7 @@ import {
 } from "../ui/atom/LabelledSelect/LabelledSelect";
 import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraErrorMessages } from "@/app/(public)/sign-up/[[...sign-up]]/page";
+import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
 
 type ExtraSignUpDisplayProps = {
   errors?: ExtraErrorMessages;
@@ -87,7 +87,7 @@ export const ExtraSignUpDisplay = ({ errors }: ExtraSignUpDisplayProps) => {
         value={user?.extra?.first_name || ""}
         errorMessage={errors?.firstName}
       />
-      <AddressAutocomplete />
+      <AddressAutocomplete errorMessage={errors?.location} />
       <DatePickerInput
         onSelectedDateAction={(e) => updateExtraProperty("birthdate", e)}
         label="Date de naissance"
