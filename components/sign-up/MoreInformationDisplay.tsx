@@ -1,22 +1,18 @@
 "use client";
 import { useState } from "react";
 import { useSignUpStore } from "@/store/store";
-import { Role } from "@prisma/client";
 import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
-import { ExtraErrorMessages } from "@/app/(public)/sign-up/[[...sign-up]]/page";
-
-type MoreInformationDisplayProps = {
-  handleSubmitAction: (e: React.FormEvent) => void;
-  errors?: ExtraErrorMessages;
-};
+import { ExtraErrorMessages, Role, UserSignUpSchema } from "@/store/types";
 
 export const MoreInformationDisplay = ({
-  handleSubmitAction,
-  errors,
-}: MoreInformationDisplayProps) => {
-  const { updateUserProperty } = useSignUpStore();
-  const [selectedRole, setSelectedRole] = useState<Role>(Role.extra);
+  actionSubmitAction,
+}: {
+  actionSubmitAction: () => void;
+}) => {
+  const { updateUserProperty, user, setErrorMessages, errorMessages } =
+    useSignUpStore();
+  const [selectedRole, setSelectedRole] = useState<Role>(Role.EXTRA);
 
   const handleRoleChange = (value: string) => {
     const role = value as Role;
@@ -24,19 +20,81 @@ export const MoreInformationDisplay = ({
     updateUserProperty("role", role);
   };
 
+  const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
+    const errors: ExtraErrorMessages = {};
+
+    if (user.role === Role.EXTRA) {
+      if (!user.extra?.birthdate) {
+        errors.birthDate = "Ce champ est obligatoire";
+      }
+      if (user.extra?.birthdate) {
+        const birthDate = new Date(user.extra.birthdate);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (
+          age < 16 ||
+          (age === 16 && monthDiff < 0) ||
+          (age === 16 &&
+            monthDiff === 0 &&
+            today.getDate() < birthDate.getDate())
+        ) {
+          errors.birthDate =
+            "Vous devez avoir au moins 16 ans pour vous inscrire.";
+        }
+      }
+      if (!user.extra?.first_name) {
+        errors.firstName = "Ce champ est obligatoire";
+      }
+      if (!user.extra?.last_name) {
+        errors.lastName = "Ce champ est obligatoire";
+      }
+      if (!user.location) {
+        errors.location = "Merci de sélectionner une adresse proposée";
+      }
+    }
+
+    return errors;
+  };
+
   const roleOptions = [
     {
-      value: Role.extra,
+      value: Role.EXTRA,
       label: "Extra",
       description: "Une personne à la recherche de missions ponctuelles",
     },
     {
-      value: Role.company,
+      value: Role.COMPANY,
       label: "Employeur",
       description: "Une entreprise à la recherche de candidats",
     },
   ];
 
+  const handleSubmitAction = async (e: React.FormEvent) => {
+    // vérification des champs d'inscription de l'utilisateur
+    // si tout est ok, on passe à l'étape de vérification
+    e.preventDefault();
+
+    if (!user) return;
+    const errors = verifySignupErrors(user);
+    if (Object.keys(errors).length) {
+      setErrorMessages({ extra: errors });
+      return;
+    }
+
+    // await signUp?.prepareEmailAddressVerification({
+    //   strategy: "email_code",
+    // });
+    // const response = await fetch("/api/users/sign-up", {
+    //   method: "POST",
+    //   body: JSON.stringify(user),
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
+    actionSubmitAction();
+  };
   return (
     <>
       <h2 className="text-xl">
@@ -54,8 +112,8 @@ export const MoreInformationDisplay = ({
               onChange={handleRoleChange}
             />
           </div>
-          {selectedRole === Role.extra && (
-            <ExtraSignUpDisplay errors={errors} />
+          {selectedRole === Role.EXTRA && (
+            <ExtraSignUpDisplay errorMessages={errorMessages.extra} />
           )}
         </div>
         <button

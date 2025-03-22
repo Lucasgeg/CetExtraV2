@@ -1,42 +1,71 @@
 "use client";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import { Input } from "../ui/input";
 import { useSignUpStore } from "@/store/store";
+import { GlobalErrorMessages, UserSignUpSchema } from "@/store/types";
+import { useSignUp } from "@clerk/nextjs";
 
 type InitialDisplayProps = {
   handleSubmit: (e: FormEvent) => void;
 };
 
 export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
-  const [isError, setIsError] = useState(false);
-  const ERROR_MESSAGE = "Les mots de passe ne correspondent pas";
+  const { user, errorMessages, setErrorMessages, updateUserProperty } =
+    useSignUpStore();
+  const { isLoaded, signUp } = useSignUp();
+  const verifyGlobalErrors = () => {
+    let hasError = false;
+    const newErrorMessages: GlobalErrorMessages = {};
 
-  const { user, setUser, updateUserProperty } = useSignUpStore();
+    if (!user?.email) {
+      newErrorMessages.email = "Ce champ est obligatoire";
+      hasError = true;
+    }
 
-  const handleSubmitInitialStep = (e: React.FormEvent) => {
+    if (!user?.password) {
+      newErrorMessages.password = "Ce champ est obligatoire";
+      hasError = true;
+    }
+
+    if (!user?.confirmPassword) {
+      newErrorMessages.confirmPassword = "Ce champ est obligatoire";
+      hasError = true;
+    }
+
+    if (user?.password !== user?.confirmPassword) {
+      newErrorMessages.confirmPassword =
+        "Les mots de passe ne correspondent pas";
+      hasError = true;
+    }
+
+    setErrorMessages({ global: newErrorMessages });
+
+    return hasError;
+  };
+
+  const handleChange = (key: keyof UserSignUpSchema, value: string) => {
+    if (errorMessages) {
+      setErrorMessages({});
+    }
+    updateUserProperty(key, value);
+  };
+
+  const handleSubmitInitialStep = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded || verifyGlobalErrors()) return;
 
-    if (
-      user?.password !== user?.confirmPassword ||
-      !user?.password ||
-      !user?.confirmPassword
-    ) {
-      setIsError(true);
+    try {
+      await signUp.create({
+        emailAddress: user?.email,
+        password: user?.password,
+      });
+    } catch (error: unknown) {
+      console.error("Error:", JSON.stringify(error, null, 2));
+      alert(JSON.stringify(error, null, 2));
       return;
     }
 
     handleSubmit(e);
-  };
-
-  const handleSetPassword = (
-    e: ChangeEvent<HTMLInputElement>,
-    value: "password" | "confirm"
-  ) => {
-    setIsError(false);
-    if (value === "password") {
-      return updateUserProperty("password", e.target.value);
-    }
-    return updateUserProperty("confirmPassword", e.target.value);
   };
 
   return (
@@ -52,7 +81,8 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           name="email"
           placeholder="Email"
           value={user?.email || ""}
-          onChange={(e) => setUser({ ...user, email: e.target.value })}
+          onChange={(e) => handleChange("email", e.target.value)}
+          errorMessage={errorMessages?.global?.email}
         />
       </div>
       <div className="flex flex-col gap-1 w-full">
@@ -63,8 +93,8 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           name="password"
           placeholder="Mot de passe"
           value={user?.password || ""}
-          onChange={(e) => handleSetPassword(e, "password")}
-          errorMessage={isError ? ERROR_MESSAGE : undefined}
+          onChange={(e) => handleChange("password", e.target.value)}
+          errorMessage={errorMessages?.global?.password}
         />
       </div>
       <div className="flex flex-col gap-1 w-full">
@@ -75,8 +105,8 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           name="confirmPassword"
           placeholder="Confirmation mot de passe"
           value={user?.confirmPassword || ""}
-          onChange={(e) => handleSetPassword(e, "confirm")}
-          errorMessage={isError ? ERROR_MESSAGE : undefined}
+          onChange={(e) => handleChange("confirmPassword", e.target.value)}
+          errorMessage={errorMessages?.global?.confirmPassword}
         />
       </div>
       {/* CAPTCHA Widget */}

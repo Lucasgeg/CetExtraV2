@@ -7,10 +7,8 @@ import logo from "@/assets/cetextralogo.jpeg";
 import Link from "next/link";
 import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
 import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
-import { UserSignUpSchema, useSignUpStore } from "@/store/store";
 import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
 import { useRouter } from "next/navigation";
-import { Role } from "@prisma/client";
 
 export enum SignUpStep {
   Initial,
@@ -18,90 +16,19 @@ export enum SignUpStep {
   Verifying,
 }
 
-export type ExtraErrorMessages = {
-  firstName?: string;
-  lastName?: string;
-  birthDate?: string;
-  location?: string;
-};
-
 export default function SignUpPage() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const [signUpStep, setSignUpStep] = React.useState<SignUpStep>(
     SignUpStep.Initial
   );
   const [code, setCode] = React.useState("");
-  const { user } = useSignUpStore();
-  const [errorMessages, setErrorMessages] = React.useState<ExtraErrorMessages>(
-    {}
-  );
 
   const router = useRouter();
 
-  const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
-    const errors: ExtraErrorMessages = {};
-
-    if (user.role === Role.extra) {
-      if (!user.extra?.birthdate) {
-        errors.birthDate = "Ce champ est obligatoire";
-      }
-      if (user.extra?.birthdate) {
-        const birthDate = new Date(user.extra.birthdate);
-        const today = new Date();
-        const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (
-          age < 16 ||
-          (age === 16 && monthDiff < 0) ||
-          (age === 16 &&
-            monthDiff === 0 &&
-            today.getDate() < birthDate.getDate())
-        ) {
-          errors.birthDate =
-            "Vous devez avoir au moins 16 ans pour vous inscrire.";
-        }
-      }
-      if (!user.extra?.first_name) {
-        errors.firstName = "Ce champ est obligatoire";
-      }
-      if (!user.extra?.last_name) {
-        errors.lastName = "Ce champ est obligatoire";
-      }
-      if (!user.location) {
-        errors.location = "Merci de sélectionner une adresse proposée";
-      }
-    }
-
-    return errors;
-  };
-
-  const handleSubmitAction = async (e: React.FormEvent) => {
-    // vérification des champs d'inscription de l'utilisateur
-    // si tout est ok, on passe à l'étape de vérification
-    e.preventDefault();
-
-    if (!user) return;
-    const errors = verifySignupErrors(user);
-    if (Object.keys(errors).length) {
-      setErrorMessages(errors);
-      return;
-    }
-
-    // await signUp?.prepareEmailAddressVerification({
-    //   strategy: "email_code",
-    // });
-    const response = await fetch("/api/users/sign-up", {
-      method: "POST",
-      body: JSON.stringify(user),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log(response);
-
+  const handleSubmitAction = () => {
     // setSignUpStep(SignUpStep.Verifying);
   };
+
   // Handle the submission of the verification form
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +43,7 @@ export default function SignUpPage() {
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        console.log(`Sign-up complete! userId: ${signUpAttempt.createdUserId}`);
+        // console.log(`Sign-up complete! userId: ${signUpAttempt.createdUserId}`);
 
         router.push("/");
       } else {
@@ -131,31 +58,16 @@ export default function SignUpPage() {
     }
   };
 
-  const handleRegistrationStartAction = async (e: React.FormEvent) => {
+  const handleRegistrationStartAction = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isLoaded || !user?.email || !user?.password) return;
-
-    try {
-      await signUp.create({
-        emailAddress: user?.email,
-        password: user.password,
-      });
-
-      setSignUpStep(SignUpStep.MoreInformation);
-    } catch (error: unknown) {
-      console.error("Error:", JSON.stringify(error, null, 2));
-    }
+    setSignUpStep(SignUpStep.MoreInformation);
   };
 
   const renderDisplay = () => {
     switch (signUpStep) {
       case SignUpStep.MoreInformation:
         return (
-          <MoreInformationDisplay
-            handleSubmitAction={handleSubmitAction}
-            errors={errorMessages}
-          />
+          <MoreInformationDisplay actionSubmitAction={handleSubmitAction} />
         );
       case SignUpStep.Verifying:
         return (
@@ -166,13 +78,13 @@ export default function SignUpPage() {
           />
         );
       default:
-        return (
-          <MoreInformationDisplay
-            handleSubmitAction={handleSubmitAction}
-            errors={errorMessages}
-          />
-        );
-      //return <InitialDisplay handleSubmit={handleRegistrationStartAction} />;
+        // return (
+        //   <MoreInformationDisplay
+        //     handleSubmitAction={handleSubmitAction}
+        //     errors={errorMessages}
+        //   />
+        // );
+        return <InitialDisplay handleSubmit={handleRegistrationStartAction} />;
     }
   };
   return (

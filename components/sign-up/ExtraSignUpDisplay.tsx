@@ -1,5 +1,4 @@
 import { useSignUpStore } from "@/store/store";
-import { MissionJob } from "@prisma/client";
 import { useState } from "react";
 import { DatePickerInput } from "../ui/atom/DatePickerInput/DatePickerInput";
 import { LabelledInput } from "../ui/atom/LabelledInput";
@@ -8,18 +7,18 @@ import {
   LabelledSelect,
 } from "../ui/atom/LabelledSelect/LabelledSelect";
 import { RadioGroup } from "../ui/RadioGroup";
-import { ExtraErrorMessages } from "@/app/(public)/sign-up/[[...sign-up]]/page";
 import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
+import { Extra, ExtraErrorMessages, MissionJob } from "@/store/types";
 
-type ExtraSignUpDisplayProps = {
-  errors?: ExtraErrorMessages;
-};
-
-export const ExtraSignUpDisplay = ({ errors }: ExtraSignUpDisplayProps) => {
-  const { user, updateExtraProperty } = useSignUpStore();
+export const ExtraSignUpDisplay = ({
+  errorMessages,
+}: {
+  errorMessages?: ExtraErrorMessages;
+}) => {
+  const { user, updateExtraProperty, setErrorMessages } = useSignUpStore();
 
   const [selectedMissionJob, setSelectedMissionJob] = useState<MissionJob>(
-    MissionJob.waiter
+    MissionJob.WAITER
   );
   const [selectedMaxTravelDistance, setSelectedMaxTravelDistance] = useState<
     number | undefined
@@ -39,21 +38,31 @@ export const ExtraSignUpDisplay = ({ errors }: ExtraSignUpDisplayProps) => {
 
   const missionJobOptions = [
     {
-      value: MissionJob.waiter,
+      value: MissionJob.WAITER,
       label: "Serveur",
       description: "Travail en salle",
     },
     {
-      value: MissionJob.cook,
+      value: MissionJob.COOK,
       label: "Cuisinier",
       description: "Travail en cuisine",
     },
     {
-      value: MissionJob.both,
+      value: MissionJob.BOTH,
       label: "Les deux",
       description: "Travail en cuisine et en salle",
     },
   ];
+
+  const handleChange = (
+    key: keyof Omit<Extra, "id">,
+    value?: string | Date
+  ) => {
+    if (errorMessages) {
+      setErrorMessages({});
+    }
+    updateExtraProperty(key, value);
+  };
 
   const maxRangeOptions: Items[] = [
     { value: "5", label: "5 km" },
@@ -77,22 +86,22 @@ export const ExtraSignUpDisplay = ({ errors }: ExtraSignUpDisplayProps) => {
 
       <LabelledInput
         label="Ton nom"
-        onChange={(e) => updateExtraProperty("last_name", e.target.value)}
+        onChange={(e) => handleChange("last_name", e.target.value)}
         value={user?.extra?.last_name || ""}
-        errorMessage={errors?.lastName}
+        errorMessage={errorMessages?.lastName}
       />
       <LabelledInput
         label="Ton prénom"
-        onChange={(e) => updateExtraProperty("first_name", e.target.value)}
+        onChange={(e) => handleChange("first_name", e.target.value)}
         value={user?.extra?.first_name || ""}
-        errorMessage={errors?.firstName}
+        errorMessage={errorMessages?.firstName}
       />
-      <AddressAutocomplete errorMessage={errors?.location} />
+      <AddressAutocomplete errorMessage={errorMessages?.location} />
       <DatePickerInput
-        onSelectedDateAction={(e) => updateExtraProperty("birthdate", e)}
+        onSelectedDateAction={(e) => handleChange("birthdate", e)}
         label="Date de naissance"
         value={user?.extra?.birthdate}
-        errorMessage={errors?.birthDate}
+        errorMessage={errorMessages?.birthDate}
       />
       <LabelledSelect
         items={maxRangeOptions}
@@ -102,7 +111,7 @@ export const ExtraSignUpDisplay = ({ errors }: ExtraSignUpDisplayProps) => {
       />
       <LabelledInput
         label="Ton numéro de téléphone"
-        onChange={(e) => updateExtraProperty("phone", e.target.value)}
+        onChange={(e) => handleChange("phone", e.target.value)}
         value={user?.extra?.phone || ""}
       />
     </>

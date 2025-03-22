@@ -1,22 +1,13 @@
-import { Company, Extra, Location, MissionJob, Role } from "@prisma/client";
 import { create } from "zustand";
-
-export type UserSignUpSchema = {
-  email: string;
-  role: Role;
-  location: Omit<Location, "id">;
-  password: string;
-  confirmPassword: string;
-  // Champs communs à Extra et Company
-  active?: boolean;
-  // Champs spécifiques à Extra
-  extra?: Partial<Omit<Extra, "id">>;
-  // Champs spécifiques à Company
-  company?: Partial<Omit<Company, "id">>;
-};
+import { SignupErrorMessages, UserSignUpSchema } from "./types/signupType";
+import { Extra, MissionJob, Role } from "./types";
 
 export type SignUpStore = {
   user: Partial<UserSignUpSchema> | null;
+  errorMessages: SignupErrorMessages;
+};
+
+export type Actions = {
   setUser: (user: Partial<UserSignUpSchema>) => void;
   updateUserProperty: <K extends keyof UserSignUpSchema>(
     key: K,
@@ -30,21 +21,17 @@ export type SignUpStore = {
     key: K,
     value: UserSignUpSchema["company"][K]
   ) => void;
-  password: string;
-  setPassword: (password: string) => void;
-  confirmPassword: string;
-  setConfirmPassword: (confirmPassword: string) => void;
+  setErrorMessages: (errors: SignupErrorMessages) => void;
 };
 
-export const useSignUpStore = create<SignUpStore>((set) => ({
+export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
   user: {
-    role: Role.extra,
+    role: Role.EXTRA,
     extra: {
-      missionJob: MissionJob.waiter,
+      missionJob: MissionJob.WAITER,
     },
   },
-  password: "",
-  confirmPassword: "",
+  errorMessages: {},
   setUser: (newUser: Partial<UserSignUpSchema>) =>
     set((state) => ({
       user: state.user ? { ...state.user, ...newUser } : newUser,
@@ -67,6 +54,6 @@ export const useSignUpStore = create<SignUpStore>((set) => ({
           ? { ...state.user, company: { ...state.user.company, [key]: value } }
           : { ...state.user, company: { [key]: value } },
     })),
-  setPassword: (password: string) => set({ password }),
-  setConfirmPassword: (confirmPassword: string) => set({ confirmPassword }),
+  setErrorMessages: (errors) =>
+    set((prev) => ({ ...prev, errorMessages: errors })),
 }));
