@@ -1,17 +1,18 @@
-import { Company, Extra, Location, Role } from "./dbType";
+import { Company, Extra, UserLocation, Role } from "./dbType";
 
 export type UserSignUpSchema = {
   email: string;
+  clerkId: string;
   role: Role;
-  location: Omit<Location, "id">;
+  location: Omit<UserLocation, "id">;
   password: string;
   confirmPassword: string;
   // Champs communs à Extra et Company
   active?: boolean;
   // Champs spécifiques à Extra
-  extra?: Partial<Omit<Extra, "id">>;
+  extra?: Extra;
   // Champs spécifiques à Company
-  company?: Partial<Omit<Company, "id">>;
+  company?: Omit<Company, "id">;
 };
 
 export type ExtraErrorMessages = {

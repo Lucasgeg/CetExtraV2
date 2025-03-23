@@ -20,16 +20,11 @@ model User {
   email            String        @unique
   created_at       DateTime      @default(now())
   updated_at       DateTime      @updatedAt
-  address          Location      @relation(fields: [locationId], references: [id])
-  locationId       String
+  userLocation     UserLocation?
   active           Boolean       @default(true)
   assignedMissions UserMission[]
-
-  // Champs spécifiques à Extra
-  extra Extra?
-
-  // Champs spécifiques à Company
-  company Company?
+  extra            Extra?
+  company          Company?
 }
 
 model Extra {
@@ -52,28 +47,38 @@ model Company {
   registration_number String
   contact_person      String
   company_phone       String
-  createdMissions     Mission[] // Nouvelle relation pour les missions créées
+  createdMissions     Mission[]
 }
 
 model Mission {
-  id           String        @id @default(uuid())
-  name         String
-  description  String?
-  location     Location      @relation(fields: [locationId], references: [id])
-  locationId   String
-  mission_date DateTime
-  creator      Company       @relation(fields: [creatorId], references: [id]) // Changé de User à Company
-  creatorId    String
-  employees    UserMission[]
+  id                String           @id @default(uuid())
+  name              String
+  description       String?
+  missionLocation   MissionLocation? @relation(fields: [missionLocationId], references: [id])
+  missionLocationId String?          @unique
+  mission_date      DateTime
+  creator           Company          @relation(fields: [creatorId], references: [id])
+  creatorId         String
+  employees         UserMission[]
 }
 
-model Location {
-  id       String    @id @default(uuid())
-  lat      Int
-  lon      Int
-  fullName String?
-  users    User[]
-  missions Mission[]
+model UserLocation {
+  id             String  @id @default(uuid())
+  lat            Float
+  lon            Float
+  fullName       String?
+  user           User?   @relation(fields: [userLocationId], references: [id], onDelete: Cascade)
+  userLocationId String? @unique
+  userId         String? @unique
+}
+
+model MissionLocation {
+  id        String   @id @default(uuid())
+  lat       Float
+  lon       Float
+  fullName  String?
+  mission   Mission?
+  missionId String   @unique
 }
 
 model UserMission {

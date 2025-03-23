@@ -1,4 +1,3 @@
-"use client";
 import { FormEvent } from "react";
 import { Input } from "../ui/input";
 import { useSignUpStore } from "@/store/store";

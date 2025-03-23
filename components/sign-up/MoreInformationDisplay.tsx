@@ -4,15 +4,17 @@ import { useSignUpStore } from "@/store/store";
 import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
 import { ExtraErrorMessages, Role, UserSignUpSchema } from "@/store/types";
+import { useSignUp } from "@clerk/nextjs";
 
 export const MoreInformationDisplay = ({
   actionSubmitAction,
 }: {
   actionSubmitAction: () => void;
 }) => {
-  const { updateUserProperty, user, setErrorMessages, errorMessages } =
+  const { updateUserProperty, user, extra, setErrorMessages, errorMessages } =
     useSignUpStore();
   const [selectedRole, setSelectedRole] = useState<Role>(Role.EXTRA);
+  const { isLoaded, signUp } = useSignUp();
 
   const handleRoleChange = (value: string) => {
     const role = value as Role;
@@ -24,11 +26,11 @@ export const MoreInformationDisplay = ({
     const errors: ExtraErrorMessages = {};
 
     if (user.role === Role.EXTRA) {
-      if (!user.extra?.birthdate) {
+      if (!extra?.birthdate) {
         errors.birthDate = "Ce champ est obligatoire";
       }
-      if (user.extra?.birthdate) {
-        const birthDate = new Date(user.extra.birthdate);
+      if (extra?.birthdate) {
+        const birthDate = new Date(extra.birthdate);
         const today = new Date();
         const age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -44,13 +46,13 @@ export const MoreInformationDisplay = ({
             "Vous devez avoir au moins 16 ans pour vous inscrire.";
         }
       }
-      if (!user.extra?.first_name) {
+      if (!extra?.first_name) {
         errors.firstName = "Ce champ est obligatoire";
       }
-      if (!user.extra?.last_name) {
+      if (!extra?.last_name) {
         errors.lastName = "Ce champ est obligatoire";
       }
-      if (!user.location) {
+      if (!location) {
         errors.location = "Merci de sélectionner une adresse proposée";
       }
     }
@@ -75,20 +77,24 @@ export const MoreInformationDisplay = ({
     // vérification des champs d'inscription de l'utilisateur
     // si tout est ok, on passe à l'étape de vérification
     e.preventDefault();
+    if (!user || !isLoaded) return;
 
-    if (!user) return;
     const errors = verifySignupErrors(user);
     if (Object.keys(errors).length) {
       setErrorMessages({ extra: errors });
       return;
     }
 
-    // await signUp?.prepareEmailAddressVerification({
-    //   strategy: "email_code",
-    // });
+    await signUp?.prepareEmailAddressVerification({
+      strategy: "email_code",
+    });
+    // const body = {
+    //   ...user,
+    //   extra: extra,
+    // };
     // const response = await fetch("/api/users/sign-up", {
     //   method: "POST",
-    //   body: JSON.stringify(user),
+    //   body: JSON.stringify(body),
     //   headers: {
     //     "Content-Type": "application/json",
     //   },

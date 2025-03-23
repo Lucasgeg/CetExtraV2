@@ -10,56 +10,41 @@ export enum Role {
   COMPANY = "company",
 }
 
-export interface Location {
+export interface UserLocation {
   id: string;
   lat: number;
   lon: number;
-  fullName?: string;
+  fullName: string;
 }
 
 export type User = {
-  id: string;
-  clerkId: string;
   role: Role;
   email: string;
-  created_at: Date;
-  updated_at: Date;
-  address: Location;
-  locationId: string;
-  active: boolean;
-  assignedMissions: UserMission[];
+  address: UserLocation;
   extra?: Extra;
   company?: Company;
 };
 
 export type Extra = {
-  id: string;
-  user: User;
-  userId: string;
   first_name: string;
   last_name: string;
-  birthdate: Date;
+  birthdate?: Date;
   phone?: string;
   missionJob: MissionJob;
   max_travel_distance: number;
 };
 
 export type Company = {
-  id: string;
-  user: User;
-  userId: string;
   company_name: string;
   registration_number: string;
   contact_person: string;
   company_phone: string;
-  createdMissions: Mission[];
 };
 
 export type Mission = {
-  id: string;
   name: string;
   description?: string;
-  location: Location;
+  location: UserLocation;
   locationId: string;
   mission_date: Date;
   creator: Company;

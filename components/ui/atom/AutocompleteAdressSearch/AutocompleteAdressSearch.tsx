@@ -7,7 +7,7 @@ import {
 import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useSignUpStore } from "@/store/store";
-import { Location } from "@prisma/client";
+import { UserLocation } from "@/store/types";
 
 export const AddressAutocomplete = ({
   errorMessage,
@@ -19,7 +19,7 @@ export const AddressAutocomplete = ({
   const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
     null
   );
-  const debouncedValue = useDebounce(query, 500);
+  const debouncedValue = useDebounce(query, 250);
   const { updateUserProperty } = useSignUpStore();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const AddressAutocomplete = ({
     setQuery(suggestion.display_name);
     setQuery("");
     setSuggestions([]);
-    const userAdress: Omit<Location, "id"> = {
+    const userAdress: Omit<UserLocation, "id"> = {
       fullName: suggestion.display_name,
       lat: Number(suggestion.lat),
       lon: Number(suggestion.lon),

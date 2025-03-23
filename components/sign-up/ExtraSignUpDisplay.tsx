@@ -15,7 +15,7 @@ export const ExtraSignUpDisplay = ({
 }: {
   errorMessages?: ExtraErrorMessages;
 }) => {
-  const { user, updateExtraProperty, setErrorMessages } = useSignUpStore();
+  const { extra, updateExtraProperty, setErrorMessages } = useSignUpStore();
 
   const [selectedMissionJob, setSelectedMissionJob] = useState<MissionJob>(
     MissionJob.WAITER
@@ -87,20 +87,20 @@ export const ExtraSignUpDisplay = ({
       <LabelledInput
         label="Ton nom"
         onChange={(e) => handleChange("last_name", e.target.value)}
-        value={user?.extra?.last_name || ""}
+        value={extra?.last_name || ""}
         errorMessage={errorMessages?.lastName}
       />
       <LabelledInput
         label="Ton prénom"
         onChange={(e) => handleChange("first_name", e.target.value)}
-        value={user?.extra?.first_name || ""}
+        value={extra?.first_name || ""}
         errorMessage={errorMessages?.firstName}
       />
       <AddressAutocomplete errorMessage={errorMessages?.location} />
       <DatePickerInput
         onSelectedDateAction={(e) => handleChange("birthdate", e)}
         label="Date de naissance"
-        value={user?.extra?.birthdate}
+        value={extra?.birthdate}
         errorMessage={errorMessages?.birthDate}
       />
       <LabelledSelect
@@ -112,7 +112,7 @@ export const ExtraSignUpDisplay = ({
       <LabelledInput
         label="Ton numéro de téléphone"
         onChange={(e) => handleChange("phone", e.target.value)}
-        value={user?.extra?.phone || ""}
+        value={extra?.phone || ""}
       />
     </>
   );

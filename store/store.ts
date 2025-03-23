@@ -1,10 +1,14 @@
 import { create } from "zustand";
 import { SignupErrorMessages, UserSignUpSchema } from "./types/signupType";
-import { Extra, MissionJob, Role } from "./types";
+import { Company, Extra, MissionJob, Role } from "./types";
 
 export type SignUpStore = {
   user: Partial<UserSignUpSchema> | null;
+  password: string;
+  confirmPassword: string;
   errorMessages: SignupErrorMessages;
+  extra?: Partial<Extra>;
+  company: Partial<Company>;
 };
 
 export type Actions = {
@@ -21,17 +25,34 @@ export type Actions = {
     key: K,
     value: UserSignUpSchema["company"][K]
   ) => void;
+
+  setPassword: (password: string) => void;
+  setConfirmPassword: (confirmPassword: string) => void;
   setErrorMessages: (errors: SignupErrorMessages) => void;
+};
+const initialState: UserSignUpSchema = {
+  email: "",
+  clerkId: "",
+  role: Role.EXTRA,
+  location: {
+    lat: 0,
+    lon: 0,
+    fullName: "",
+  },
+  password: "",
+  confirmPassword: "",
 };
 
 export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
-  user: {
-    role: Role.EXTRA,
-    extra: {
-      missionJob: MissionJob.WAITER,
-    },
-  },
+  user: initialState,
+  password: "",
+  confirmPassword: "",
   errorMessages: {},
+  extra: {
+    missionJob: MissionJob.WAITER,
+    max_travel_distance: 5,
+  },
+  company: {},
   setUser: (newUser: Partial<UserSignUpSchema>) =>
     set((state) => ({
       user: state.user ? { ...state.user, ...newUser } : newUser,
@@ -40,20 +61,19 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
     set((state) => ({
       user: state.user ? { ...state.user, [key]: value } : { [key]: value },
     })),
-  updateExtraProperty: (key, value) =>
+  updateExtraProperty(key, value) {
     set((state) => ({
-      user:
-        state.user && state.user.extra
-          ? { ...state.user, extra: { ...state.user.extra, [key]: value } }
-          : { ...state.user, extra: { [key]: value } },
-    })),
+      extra: state.extra ? { ...state.extra, [key]: value } : { [key]: value },
+    }));
+  },
   updateCompanyProperty: (key, value) =>
     set((state) => ({
-      user:
-        state.user && state.user.company
-          ? { ...state.user, company: { ...state.user.company, [key]: value } }
-          : { ...state.user, company: { [key]: value } },
+      company: state.company
+        ? { ...state.company, [key]: value }
+        : { [key]: value },
     })),
+  setPassword: (password: string) => set({ password }),
+  setConfirmPassword: (confirmPassword: string) => set({ confirmPassword }),
   setErrorMessages: (errors) =>
     set((prev) => ({ ...prev, errorMessages: errors })),
 }));

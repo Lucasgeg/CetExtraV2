@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
+    "studio": "prisma studio",
     "lint-staged": {
       "app/**/*.+(ts|tsx)": [
         "eslint --fix",

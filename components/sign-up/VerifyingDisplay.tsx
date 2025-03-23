@@ -1,17 +1,53 @@
 import React from "react";
 import { Input } from "../ui/input";
+import { useRouter } from "next/navigation";
+import { useSignUp } from "@clerk/nextjs";
+import { useSignUpStore } from "@/store/store";
 
-type VerifyingDisplayProps = {
-  handleVerify: (e: React.FormEvent) => void;
-  code: string;
-  setCode: (code: string) => void;
-};
+export const VerifyingDisplay = () => {
+  const [code, setCode] = React.useState("");
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const { user, extra } = useSignUpStore();
+  const router = useRouter();
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-export const VerifyingDisplay = ({
-  code,
-  handleVerify,
-  setCode,
-}: VerifyingDisplayProps) => {
+    if (!isLoaded) return;
+    try {
+      const signUpAttempt = await signUp.attemptEmailAddressVerification({
+        code,
+      });
+      if (signUpAttempt.status === "complete") {
+        if (signUpAttempt.createdUserId) {
+          const body = {
+            ...user,
+            clerkId: signUpAttempt.createdUserId,
+            extra: extra,
+          };
+
+          const response = await fetch("/api/users/sign-up", {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (response.ok) {
+            await setActive({ session: signUpAttempt.createdSessionId });
+            router.push("/");
+          }
+        }
+      } else {
+        console.error(JSON.stringify(signUpAttempt, null, 2));
+        alert(
+          "Une erreur est survenue, merci de bien vouloir recommencer " +
+            JSON.stringify(signUpAttempt, null, 2)
+        );
+      }
+    } catch (err) {
+      console.error("Error:", JSON.stringify(err, null, 2));
+    }
+  };
   return (
     <div>
       <h1 className="text-2xl font-bold text-center mb-6">
