@@ -3,16 +3,29 @@ import { useState } from "react";
 import { useSignUpStore } from "@/store/store";
 import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
-import { ExtraErrorMessages, Role, UserSignUpSchema } from "@/store/types";
+import {
+  CompanyErrorMessages,
+  ExtraErrorMessages,
+  Role,
+  SignupErrorMessages,
+  UserSignUpSchema,
+} from "@/store/types";
 import { useSignUp } from "@clerk/nextjs";
+import { CompanySignupDisplay } from "./CompanySignupDisplay";
 
 export const MoreInformationDisplay = ({
   actionSubmitAction,
 }: {
   actionSubmitAction: () => void;
 }) => {
-  const { updateUserProperty, user, extra, setErrorMessages, errorMessages } =
-    useSignUpStore();
+  const {
+    updateUserProperty,
+    user,
+    company,
+    extra,
+    setErrorMessages,
+    errorMessages,
+  } = useSignUpStore();
   const [selectedRole, setSelectedRole] = useState<Role>(Role.EXTRA);
   const { isLoaded, signUp } = useSignUp();
 
@@ -23,11 +36,12 @@ export const MoreInformationDisplay = ({
   };
 
   const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
-    const errors: ExtraErrorMessages = {};
+    const errors: SignupErrorMessages = {};
 
     if (user.role === Role.EXTRA) {
+      const extraErrors: ExtraErrorMessages = {};
       if (!extra?.birthdate) {
-        errors.birthDate = "Ce champ est obligatoire";
+        extraErrors.birthDate = "Ce champ est obligatoire";
       }
       if (extra?.birthdate) {
         const birthDate = new Date(extra.birthdate);
@@ -42,19 +56,34 @@ export const MoreInformationDisplay = ({
             monthDiff === 0 &&
             today.getDate() < birthDate.getDate())
         ) {
-          errors.birthDate =
+          extraErrors.birthDate =
             "Vous devez avoir au moins 16 ans pour vous inscrire.";
         }
       }
       if (!extra?.first_name) {
-        errors.firstName = "Ce champ est obligatoire";
+        extraErrors.firstName = "Ce champ est obligatoire";
       }
       if (!extra?.last_name) {
-        errors.lastName = "Ce champ est obligatoire";
+        extraErrors.lastName = "Ce champ est obligatoire";
       }
       if (!location) {
-        errors.location = "Merci de sélectionner une adresse proposée";
+        extraErrors.location = "Merci de sélectionner une adresse proposée";
       }
+      errorMessages.extra = extraErrors;
+    }
+
+    if (user.role === Role.COMPANY) {
+      const companyErrors: CompanyErrorMessages = {};
+      if (!company.company_name) {
+        companyErrors.companyName = "Ce champ est obligatoire";
+      }
+      if (!company.contactFirstName) {
+        companyErrors.contactFirstName = "Ce champ est obligatoire";
+      }
+      if (!company.contactLastName) {
+        companyErrors.contactLastName = "Ce champ est obligatoire";
+      }
+      errorMessages.company = companyErrors;
     }
 
     return errors;
@@ -80,25 +109,18 @@ export const MoreInformationDisplay = ({
     if (!user || !isLoaded) return;
 
     const errors = verifySignupErrors(user);
-    if (Object.keys(errors).length) {
-      setErrorMessages({ extra: errors });
+    if (errors.extra && user.role === Role.EXTRA) {
+      setErrorMessages({ extra: errors.extra });
+      return;
+    }
+    if (errors.company && user.role === Role.COMPANY) {
+      setErrorMessages({ company: errors.company });
       return;
     }
 
     await signUp?.prepareEmailAddressVerification({
       strategy: "email_code",
     });
-    // const body = {
-    //   ...user,
-    //   extra: extra,
-    // };
-    // const response = await fetch("/api/users/sign-up", {
-    //   method: "POST",
-    //   body: JSON.stringify(body),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // });
     actionSubmitAction();
   };
   return (
@@ -118,8 +140,10 @@ export const MoreInformationDisplay = ({
               onChange={handleRoleChange}
             />
           </div>
-          {selectedRole === Role.EXTRA && (
+          {selectedRole === Role.EXTRA ? (
             <ExtraSignUpDisplay errorMessages={errorMessages.extra} />
+          ) : (
+            <CompanySignupDisplay errorMessages={errorMessages.company} />
           )}
         </div>
         <button

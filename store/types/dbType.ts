@@ -36,9 +36,10 @@ export type Extra = {
 
 export type Company = {
   company_name: string;
-  registration_number: string;
-  contact_person: string;
-  company_phone: string;
+  contactFirstName: string;
+  contactLastName: string;
+  logoId?: string;
+  company_phone?: string;
 };
 
 export type Mission = {

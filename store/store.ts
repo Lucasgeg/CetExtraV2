@@ -21,9 +21,9 @@ export type Actions = {
     key: K,
     value: Partial<Omit<Extra, "id">>[K]
   ) => void;
-  updateCompanyProperty: <K extends keyof UserSignUpSchema["company"]>(
+  updateCompanyProperty: <K extends keyof Partial<Omit<Company, "id">>>(
     key: K,
-    value: UserSignUpSchema["company"][K]
+    value: Partial<Omit<Company, "id">>[K]
   ) => void;
 
   setPassword: (password: string) => void;

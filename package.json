@@ -16,7 +16,8 @@
         "eslint --max-warnings 0 ."
       ],
       "*.js": "eslint --cache --fix"
-    }
+    },
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@clerk/elements": "^0.22.19",

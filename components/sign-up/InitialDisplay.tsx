@@ -117,16 +117,6 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
         >
           S'inscrire
         </button>
-
-        {/* 
-                //TODO: Implement OAuth 
-                <div className="flex flex-col items-center gap-2">
-                  <span>Ou bien</span>
-                  <button onClick={() => signUpWith("oauth_google")}>
-                    <GoogleLogo />
-                  </button>
-                </div>
-                */}
       </div>
     </form>
   );

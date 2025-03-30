@@ -11,8 +11,10 @@ import { UserLocation } from "@/store/types";
 
 export const AddressAutocomplete = ({
   errorMessage,
+  isCompany,
 }: {
   errorMessage?: string;
+  isCompany?: boolean;
 }) => {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -49,7 +51,9 @@ export const AddressAutocomplete = ({
     <div>
       <Popover open={suggestions?.length > 0}>
         <div className="flex justify-between items-center flex-col lg:flex-row">
-          <span className="">Ton adresse:</span>
+          <span className="">
+            {isCompany ? "Adresse de votre entreprise" : "Ton adresse:"}
+          </span>
           <PopoverAnchor
             asChild
             className="w-auto p-2 border border-gray-300 rounded-md"

@@ -22,6 +22,13 @@ export type ExtraErrorMessages = {
   location?: string;
 };
 
+export type CompanyErrorMessages = {
+  companyName?: string;
+  contactFirstName?: string;
+  contactLastName?: string;
+  location?: string;
+};
+
 export type GlobalErrorMessages = {
   email?: string;
   password?: string;
@@ -30,5 +37,6 @@ export type GlobalErrorMessages = {
 
 export type SignupErrorMessages = {
   extra?: ExtraErrorMessages;
+  company?: CompanyErrorMessages;
   global?: GlobalErrorMessages;
 };

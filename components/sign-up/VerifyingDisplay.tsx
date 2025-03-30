@@ -7,11 +7,10 @@ import { useSignUpStore } from "@/store/store";
 export const VerifyingDisplay = () => {
   const [code, setCode] = React.useState("");
   const { isLoaded, signUp, setActive } = useSignUp();
-  const { user, extra } = useSignUpStore();
+  const { user, extra, company } = useSignUpStore();
   const router = useRouter();
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!isLoaded) return;
     try {
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
@@ -23,6 +22,7 @@ export const VerifyingDisplay = () => {
             ...user,
             clerkId: signUpAttempt.createdUserId,
             extra: extra,
+            company: company,
           };
 
           const response = await fetch("/api/users/sign-up", {

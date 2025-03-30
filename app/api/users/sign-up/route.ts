@@ -9,16 +9,19 @@ const clerkClient = createClerkClient({
 });
 
 export async function POST(req: Request) {
-  const data: UserSignUpSchema = await req.json();
-  if (data.role === Role.EXTRA) {
-    try {
-      await createExtra(data);
-    } catch (error) {
-      return NextResponse.json(
-        { message: "Error creating user: ", stackTrace: error },
-        { status: 500 }
-      );
+  try {
+    const data: UserSignUpSchema = await req.json();
+    if (data.role === Role.EXTRA) {
+      return await createExtra(data);
     }
+    if (data.role === Role.COMPANY) {
+      return await createCompany(data);
+    }
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Error creating user: ", stackTrace: error },
+      { status: 500 }
+    );
   }
 }
 
@@ -44,6 +47,45 @@ const createExtra = async (data: UserSignUpSchema) => {
             missionJob: data.extra.missionJob,
             max_travel_distance: data.extra.max_travel_distance,
             phone: data.extra.phone,
+          },
+        },
+        userLocation: {
+          create: {
+            fullName: data.location.fullName,
+            lat: data.location.lat,
+            lon: data.location.lon,
+          },
+        },
+      },
+    });
+    return NextResponse.json({ message: "User created" });
+  } catch (error) {
+    await clerkClient.users.deleteUser(data.clerkId);
+    console.error("Error deleting user:", error);
+    return NextResponse.json(
+      { message: "Error deleting user", stackTrace: error },
+      { status: 500 }
+    );
+  }
+};
+
+const createCompany = async (data: UserSignUpSchema) => {
+  if (!data.company) {
+    return;
+  }
+  console.warn("Creating Company", data);
+  try {
+    await prisma.user.create({
+      data: {
+        email: data.email,
+        role: data.role,
+        clerkId: data.clerkId,
+        company: {
+          create: {
+            company_name: data.company.company_name,
+            contactFirstName: data.company.contactFirstName,
+            contactLastName: data.company.contactLastName,
+            company_phone: data.company.company_phone,
           },
         },
         userLocation: {
