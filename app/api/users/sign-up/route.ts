@@ -58,6 +58,11 @@ const createExtra = async (data: UserSignUpSchema) => {
         },
       },
     });
+    await clerkClient.users.updateUserMetadata(data.clerkId, {
+      publicMetadata: {
+        role: data.role,
+      },
+    });
     return NextResponse.json({ message: "User created" });
   } catch (error) {
     await clerkClient.users.deleteUser(data.clerkId);
@@ -73,7 +78,6 @@ const createCompany = async (data: UserSignUpSchema) => {
   if (!data.company) {
     return;
   }
-  console.warn("Creating Company", data);
   try {
     await prisma.user.create({
       data: {
@@ -95,6 +99,11 @@ const createCompany = async (data: UserSignUpSchema) => {
             lon: data.location.lon,
           },
         },
+      },
+    });
+    await clerkClient.users.updateUserMetadata(data.clerkId, {
+      publicMetadata: {
+        role: data.role,
       },
     });
     return NextResponse.json({ message: "User created" });

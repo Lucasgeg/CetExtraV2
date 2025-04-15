@@ -79,7 +79,7 @@ model MissionLocation {
   lon       Float
   fullName  String?
   mission   Mission?
-  missionId String   @unique
+  missionId String?  @unique
 }
 
 model UserMission {
