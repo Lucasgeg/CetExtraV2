@@ -1,4 +1,4 @@
-import { ClerkProvider, SignedIn, UserButton } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,13 +27,8 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-yellow-primary`}
         >
-          <SignedIn>
-            <div className="absolute top-0 right-0 p-4">
-              <UserButton />
-            </div>
-          </SignedIn>
           {children}
         </body>
       </html>

@@ -1,9 +1,9 @@
-import { Company, Extra, UserLocation, Role } from "./dbType";
+import { Company, Extra, UserLocation, EnumRole } from "./dbType";
 
 export type UserSignUpSchema = {
   email: string;
   clerkId: string;
-  role: Role;
+  role: EnumRole;
   location: Omit<UserLocation, "id">;
   password: string;
   confirmPassword: string;

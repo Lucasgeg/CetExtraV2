@@ -6,7 +6,7 @@ import {
 } from "@/app/(public)/sign-up/[[...sign-up]]/actions";
 import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useSignUpStore } from "@/store/store";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { UserLocation } from "@/store/types";
 
 export const AddressAutocomplete = ({

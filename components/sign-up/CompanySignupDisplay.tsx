@@ -1,4 +1,4 @@
-import { useSignUpStore } from "@/store/store";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { LabelledInput } from "../ui/atom/LabelledInput";
 import { Company, CompanyErrorMessages } from "@/store/types";
 import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";

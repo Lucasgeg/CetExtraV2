@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "../ui/input";
 import { useRouter } from "next/navigation";
 import { useSignUp } from "@clerk/nextjs";
-import { useSignUpStore } from "@/store/store";
+import { useSignUpStore } from "@/store/useSignUpstore";
 
 export const VerifyingDisplay = () => {
   const [code, setCode] = React.useState("");

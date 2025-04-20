@@ -8,8 +8,11 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { getMainUserData } from "./actions";
+import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 
 export default function Page() {
+  const { setUser } = useCurrentUserStore();
   const { isLoaded, signIn, setActive } = useSignIn();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -32,6 +35,8 @@ export default function Page() {
       // and redirect the user
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
+        const data = await getMainUserData();
+        setUser(data);
         router.push("/");
       } else {
         // If the status is not complete, check why. User may need to

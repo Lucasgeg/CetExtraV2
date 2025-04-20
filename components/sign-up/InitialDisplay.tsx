@@ -1,6 +1,6 @@
 import { FormEvent } from "react";
 import { Input } from "../ui/input";
-import { useSignUpStore } from "@/store/store";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { GlobalErrorMessages, UserSignUpSchema } from "@/store/types";
 import { useSignUp } from "@clerk/nextjs";
 

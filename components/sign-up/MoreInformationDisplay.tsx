@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useSignUpStore } from "@/store/store";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
 import {
   CompanyErrorMessages,
   ExtraErrorMessages,
-  Role,
+  EnumRole,
   SignupErrorMessages,
   UserSignUpSchema,
 } from "@/store/types";
@@ -26,11 +26,11 @@ export const MoreInformationDisplay = ({
     setErrorMessages,
     errorMessages,
   } = useSignUpStore();
-  const [selectedRole, setSelectedRole] = useState<Role>(Role.EXTRA);
+  const [selectedRole, setSelectedRole] = useState<EnumRole>(EnumRole.EXTRA);
   const { isLoaded, signUp } = useSignUp();
 
   const handleRoleChange = (value: string) => {
-    const role = value as Role;
+    const role = value as EnumRole;
     setSelectedRole(role);
     updateUserProperty("role", role);
   };
@@ -38,7 +38,7 @@ export const MoreInformationDisplay = ({
   const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
     const errors: SignupErrorMessages = {};
 
-    if (user.role === Role.EXTRA) {
+    if (user.role === EnumRole.EXTRA) {
       const extraErrors: ExtraErrorMessages = {};
       if (!extra?.birthdate) {
         extraErrors.birthDate = "Ce champ est obligatoire";
@@ -72,7 +72,7 @@ export const MoreInformationDisplay = ({
       errorMessages.extra = extraErrors;
     }
 
-    if (user.role === Role.COMPANY) {
+    if (user.role === EnumRole.COMPANY) {
       const companyErrors: CompanyErrorMessages = {};
       if (!company.company_name) {
         companyErrors.companyName = "Ce champ est obligatoire";
@@ -91,12 +91,12 @@ export const MoreInformationDisplay = ({
 
   const roleOptions = [
     {
-      value: Role.EXTRA,
+      value: EnumRole.EXTRA,
       label: "Extra",
       description: "Une personne à la recherche de missions ponctuelles",
     },
     {
-      value: Role.COMPANY,
+      value: EnumRole.COMPANY,
       label: "Employeur",
       description: "Une entreprise à la recherche de candidats",
     },
@@ -109,11 +109,11 @@ export const MoreInformationDisplay = ({
     if (!user || !isLoaded) return;
 
     const errors = verifySignupErrors(user);
-    if (errors.extra && user.role === Role.EXTRA) {
+    if (errors.extra && user.role === EnumRole.EXTRA) {
       setErrorMessages({ extra: errors.extra });
       return;
     }
-    if (errors.company && user.role === Role.COMPANY) {
+    if (errors.company && user.role === EnumRole.COMPANY) {
       setErrorMessages({ company: errors.company });
       return;
     }
@@ -140,7 +140,7 @@ export const MoreInformationDisplay = ({
               onChange={handleRoleChange}
             />
           </div>
-          {selectedRole === Role.EXTRA ? (
+          {selectedRole === EnumRole.EXTRA ? (
             <ExtraSignUpDisplay errorMessages={errorMessages.extra} />
           ) : (
             <CompanySignupDisplay errorMessages={errorMessages.company} />

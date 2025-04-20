@@ -10,7 +10,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        "blue-primary": "hsl(var(--primary-blue))",
+        "blue-primary": "#32325d",
+        "yellow-primary": "#fbbd41",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -81,5 +82,6 @@ export default {
       },
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

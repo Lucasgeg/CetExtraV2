@@ -1,4 +1,4 @@
-import { useSignUpStore } from "@/store/store";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { useState } from "react";
 import { DatePickerInput } from "../ui/atom/DatePickerInput/DatePickerInput";
 import { LabelledInput } from "../ui/atom/LabelledInput";
@@ -8,7 +8,7 @@ import {
 } from "../ui/atom/LabelledSelect/LabelledSelect";
 import { RadioGroup } from "../ui/RadioGroup";
 import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
-import { Extra, ExtraErrorMessages, MissionJob } from "@/store/types";
+import { Extra, ExtraErrorMessages, EnumMissionJob } from "@/store/types";
 
 export const ExtraSignUpDisplay = ({
   errorMessages,
@@ -17,15 +17,15 @@ export const ExtraSignUpDisplay = ({
 }) => {
   const { extra, updateExtraProperty, setErrorMessages } = useSignUpStore();
 
-  const [selectedMissionJob, setSelectedMissionJob] = useState<MissionJob>(
-    MissionJob.WAITER
+  const [selectedMissionJob, setSelectedMissionJob] = useState<EnumMissionJob>(
+    EnumMissionJob.WAITER
   );
   const [selectedMaxTravelDistance, setSelectedMaxTravelDistance] = useState<
     number | undefined
   >(undefined);
 
   const handleMissionJobChange = (value: string) => {
-    const missionJob = value as MissionJob;
+    const missionJob = value as EnumMissionJob;
     setSelectedMissionJob(missionJob);
     updateExtraProperty("missionJob", missionJob);
   };
@@ -38,17 +38,17 @@ export const ExtraSignUpDisplay = ({
 
   const missionJobOptions = [
     {
-      value: MissionJob.WAITER,
+      value: EnumMissionJob.WAITER,
       label: "Serveur",
       description: "Travail en salle",
     },
     {
-      value: MissionJob.COOK,
+      value: EnumMissionJob.COOK,
       label: "Cuisinier",
       description: "Travail en cuisine",
     },
     {
-      value: MissionJob.BOTH,
+      value: EnumMissionJob.BOTH,
       label: "Les deux",
       description: "Travail en cuisine et en salle",
     },

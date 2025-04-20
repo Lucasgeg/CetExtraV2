@@ -7,8 +7,8 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  const { sessionClaims } = await auth();
-  console.log(sessionClaims);
+  // const { sessionClaims } = await auth(); //todo: to use fort company route or extra route
+  // console.log(sessionClaims);
 
   if (!isPublicRoute(request)) {
     await auth.protect();

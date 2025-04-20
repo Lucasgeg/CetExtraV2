@@ -1,9 +1,9 @@
-import { Role } from "@/store/types";
+import { EnumRole } from "@/store/types";
 
 declare global {
   interface CustomJwtSessionClaims {
-    metadata: {
-      role?: Role;
+    publicMetadata: {
+      role?: EnumRole;
     };
   }
 }

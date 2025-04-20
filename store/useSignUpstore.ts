@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { SignupErrorMessages, UserSignUpSchema } from "./types/signupType";
-import { Company, Extra, MissionJob, Role } from "./types";
+import { Company, Extra, EnumMissionJob, EnumRole } from "./types";
 
 export type SignUpStore = {
   user: Partial<UserSignUpSchema> | null;
@@ -33,7 +33,7 @@ export type Actions = {
 const initialState: UserSignUpSchema = {
   email: "",
   clerkId: "",
-  role: Role.EXTRA,
+  role: EnumRole.EXTRA,
   location: {
     lat: 0,
     lon: 0,
@@ -49,7 +49,7 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
   confirmPassword: "",
   errorMessages: {},
   extra: {
-    missionJob: MissionJob.WAITER,
+    missionJob: EnumMissionJob.WAITER,
     max_travel_distance: 5,
   },
   company: {},

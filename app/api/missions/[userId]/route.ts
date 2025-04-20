@@ -2,7 +2,7 @@ import prisma from "@/app/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-enum EnumMissionSelector {
+export enum EnumMissionSelector {
   ALL = "all",
   INCOMING = "incoming",
   PAST = "past",
@@ -17,15 +17,13 @@ export async function GET(
   const params = await props.params;
   const { userId } = params;
 
-  if (!clerkId || clerkId !== userId) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   const searchParams = req.nextUrl.searchParams;
   const missionSelector: EnumMissionSelector =
     (searchParams.get("missionSelector") as EnumMissionSelector) ||
     EnumMissionSelector.ALL;
   const take = searchParams.get("take");
+  const isCompany: boolean = searchParams.get("isCompany") === "true" || false;
+
   const startDateCondition = () => {
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -44,13 +42,18 @@ export async function GET(
     }
   };
 
-  const getMissions = async () => {
+  const getUserMissions = async () => {
+    if (!clerkId || clerkId !== userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     try {
       const missions = await prisma.userMission.findMany({
         where: {
           user: {
             clerkId: userId,
           },
+
           start_date: startDateCondition(),
         },
         select: {
@@ -92,5 +95,72 @@ export async function GET(
     }
   };
 
-  return await getMissions();
+  const getCompanyMissions = async () => {
+    if (!clerkId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          clerkId,
+        },
+        select: {
+          company: true,
+        },
+      });
+      if (user?.company?.id !== userId) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+
+      if (!user.company) {
+        return NextResponse.json(
+          { message: "Company not found" },
+          { status: 404 }
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      return NextResponse.json(
+        { message: "Error fetching company" },
+        { status: 500 }
+      );
+    }
+
+    try {
+      const missions = await prisma.mission.findMany({
+        where: {
+          creatorId: userId,
+          mission_date: startDateCondition(),
+        },
+        select: {
+          name: true,
+          id: true,
+          mission_date: true,
+          missionLocation: {
+            select: {
+              fullName: true,
+            },
+          },
+        },
+        take: take ? parseInt(take) : undefined,
+        orderBy: {
+          mission_date: "asc",
+        },
+      });
+      return NextResponse.json({ missions });
+    } catch (error) {
+      console.error(error);
+      return NextResponse.json(
+        { message: "Error fetching missions" },
+        { status: 500 }
+      );
+    }
+  };
+  if (isCompany) {
+    return await getCompanyMissions();
+  }
+  if (!isCompany) {
+    return await getUserMissions();
+  }
 }

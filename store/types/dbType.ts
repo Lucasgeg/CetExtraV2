@@ -1,11 +1,11 @@
 // Enums
-export enum MissionJob {
+export enum EnumMissionJob {
   WAITER = "waiter",
   COOK = "cook",
   BOTH = "both",
 }
 
-export enum Role {
+export enum EnumRole {
   EXTRA = "extra",
   COMPANY = "company",
 }
@@ -18,7 +18,7 @@ export interface UserLocation {
 }
 
 export type User = {
-  role: Role;
+  role: EnumRole;
   email: string;
   address: UserLocation;
   extra?: Extra;
@@ -30,7 +30,7 @@ export type Extra = {
   last_name: string;
   birthdate?: Date;
   phone?: string;
-  missionJob: MissionJob;
+  missionJob: EnumMissionJob;
   max_travel_distance: number;
 };
 
@@ -60,7 +60,7 @@ export type UserMission = {
   mission: Mission;
   missionId: string;
   start_date: Date;
-  missionJob: MissionJob;
+  missionJob: EnumMissionJob;
   duration: number;
   hourly_rate: number;
 };

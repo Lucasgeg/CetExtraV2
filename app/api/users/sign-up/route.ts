@@ -1,6 +1,6 @@
 "use server";
 import prisma from "@/app/lib/prisma";
-import { Role, UserSignUpSchema } from "@/store/types";
+import { EnumRole, UserSignUpSchema } from "@/store/types";
 import { createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -11,10 +11,10 @@ const clerkClient = createClerkClient({
 export async function POST(req: Request) {
   try {
     const data: UserSignUpSchema = await req.json();
-    if (data.role === Role.EXTRA) {
+    if (data.role === EnumRole.EXTRA) {
       return await createExtra(data);
     }
-    if (data.role === Role.COMPANY) {
+    if (data.role === EnumRole.COMPANY) {
       return await createCompany(data);
     }
   } catch (error) {
