@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 type CurrentuserStore = {
   userId: string;
@@ -17,10 +18,17 @@ const initialState: CurrentuserStore = {
   companyId: null,
 };
 
-export const useCurrentUserStore = create<CurrentuserStore & Action>((set) => ({
-  userId: initialState.userId,
-  extraId: initialState.extraId,
-  companyId: initialState.companyId,
-  setUser: (user: CurrentuserStore) => set(() => ({ ...user })),
-  reset: () => set(() => ({ ...initialState })),
-}));
+export const useCurrentUserStore = create<CurrentuserStore & Action>()(
+  persist(
+    (set) => ({
+      userId: initialState.userId,
+      extraId: initialState.extraId,
+      companyId: initialState.companyId,
+      setUser: (user: CurrentuserStore) => set(() => ({ ...user })),
+      reset: () => set(() => ({ ...initialState })),
+    }),
+    {
+      name: "currentUserStore",
+    }
+  )
+);

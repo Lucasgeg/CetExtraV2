@@ -1,0 +1,31 @@
+.loader {
+  animation: spinningColor 1.5s ease-in-out infinite;
+  margin: 50% auto;
+  border: 5px double #f0eff5;
+  border-radius: 50%;
+  aspect-ratio: 1/1;
+}
+
+@keyframes spinningColor {
+  0% {
+    transform: rotate(360deg);
+    border-top: 5px dashed #32325d;
+    border-bottom: 5px dashed #fbbd41;
+  }
+  25% {
+    border-top: 5px dashed #fbbd41;
+    border-bottom: 5px dashed #32325d;
+  }
+  50% {
+    border-top: 5px dashed #32325d;
+    border-bottom: 5px dashed #fbbd41;
+  }
+  75% {
+    border-top: 5px dashed #fbbd41;
+    border-bottom: 5px dashed #32325d;
+  }
+  100% {
+    border-top: 5px dashed #32325d;
+    border-bottom: 5px dashed #fbbd41;
+  }
+}

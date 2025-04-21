@@ -5,6 +5,6 @@ type Location = {
 export type GetCompanyMission = {
   id: string;
   name: string;
-  date: Date;
-  location: Location;
+  mission_date: Date;
+  missionLocation: Location;
 };

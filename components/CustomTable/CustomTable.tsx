@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import classNames from "classnames";
 
 export type GenericRow<T> = {
   [P in keyof T]: T[P];
@@ -16,12 +16,14 @@ interface CustomTableProps<T> {
   rows: GenericRow<T>[];
   columns: GenericColumn<T>[];
   className?: string;
+  title?: string;
 }
 
 export default function CustomTable<T>({
   rows,
   columns,
   className,
+  title,
 }: CustomTableProps<T>) {
   const table = useReactTable({
     defaultColumn: {
@@ -34,20 +36,33 @@ export default function CustomTable<T>({
   });
 
   return (
-    <div className="static">
-      <table
-        className={cn(
-          "w-full overflow-x-auto divide-y-2 divide-black bg-gray-200 border-2 border-black rounded-lg text-sm",
-          className
-        )}
-      >
-        <thead className="ltr:text-left rtl:text-right">
-          {table.getHeaderGroups().map((header) => (
-            <tr key={header.id} style={{ width: table.getCenterTotalSize() }}>
-              {header.headers.map((header) => (
+    <div
+      className={classNames(
+        "relative overflow-x-auto rounded-xl shadow-lg bg-white p-2 sm:p-4 h-full",
+        className
+      )}
+    >
+      {title && (
+        <div className="mb-1 ">
+          <h2 className="text-xs sm:text-lg font-bold text-gray-800">
+            {title}
+          </h2>
+        </div>
+      )}
+
+      <table className="min-w-full text-xs sm:text-sm text-gray-800">
+        <thead className="sticky top-0 z-10 bg-gradient-to-r from-blue-100 to-purple-100">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header, idx) => (
                 <th
                   key={header.id}
-                  className={`whitespace-nowrap px-4 py-2 font-medium text-gray-900`}
+                  className={classNames(
+                    "px-2 sm:px-6 sm:py-3 font-semibold tracking-wide uppercase border-b border-gray-200",
+                    "text-xs sm:text-xs",
+                    idx === 0 ? "text-left" : "text-right",
+                    "text-gray-700"
+                  )}
                   style={{ width: header.getSize() }}
                 >
                   {header.isPlaceholder
@@ -61,22 +76,33 @@ export default function CustomTable<T>({
             </tr>
           ))}
         </thead>
-        <tbody className="divide-y divide-gray-200">
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-slate-100">
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className={`whitespace-nowrap px-4 py-2 font-medium text-gray-900 text-center`}
-                  style={{ width: cell.column.getSize() }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
       </table>
+      <div className="max-h-[10vh] overflow-y-auto sm:max-h-none sm:overflow-visible">
+        <table className="min-w-full text-xs sm:text-sm text-gray-800">
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="transition-colors duration-150 hover:bg-blue-50 even:bg-gray-50"
+              >
+                {row.getVisibleCells().map((cell, idx) => (
+                  <td
+                    key={cell.id}
+                    className={classNames(
+                      "px-2 py-1 sm:px-6 sm:py-3 border-b border-gray-100",
+                      "text-xs sm:text-sm",
+                      idx === 0 ? "text-left" : "text-right"
+                    )}
+                    style={{ width: cell.column.getSize() }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

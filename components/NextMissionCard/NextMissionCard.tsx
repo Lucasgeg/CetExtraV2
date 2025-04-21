@@ -1,18 +1,25 @@
 "use client";
 import useFetch from "@/hooks/useFetch";
-import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import { GetCompanyMission } from "@/types/api";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import { Loader } from "../ui/Loader/Loader";
+import CustomTable from "../CustomTable/CustomTable";
+import { useEffect, useState } from "react";
 
-export const NextMissionCard = () => {
-  const { companyId } = useCurrentUserStore();
+export const NextMissionCard = ({ id }: { id: string }) => {
+  const [companyData, setCompanyData] = useState<GetCompanyMission[]>([]);
 
   const { data, error, loading } = useFetch<GetCompanyMission[]>(
-    `/api/missions/${companyId}?missionSelector=incoming&isCompany=true`
+    `/api/missions/${id}?missionSelector=incoming&isCompany=true`
   );
-  console.log(data, error, loading);
-  if (loading) return <div>Loading...</div>;
+  useEffect(() => {
+    if (data) {
+      setCompanyData(data);
+    }
+  }, [data]);
+
+  if (loading) return <Loader size={20} />;
 
   const columns: ColumnDef<GetCompanyMission>[] = [
     {
@@ -22,14 +29,20 @@ export const NextMissionCard = () => {
     },
     {
       id: "date",
-      accessorFn: (row) => row.date,
+      accessorFn: (row) => new Date(row.mission_date).toLocaleDateString(),
       header: "Date",
     },
     {
-      id: "location",
-      accessorFn: (row) => row.location.fullName,
-      header: "Location",
+      id: "fullName",
+      accessorFn: (row) => row.missionLocation.fullName,
+      header: "Lieu de mission",
     },
   ];
-  return <div>Company NextMission Table</div>;
+  return (
+    <CustomTable<GetCompanyMission>
+      columns={columns}
+      rows={companyData}
+      title="Prochaines Missions"
+    />
+  );
 };

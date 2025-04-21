@@ -148,7 +148,8 @@ export async function GET(
           mission_date: "asc",
         },
       });
-      return NextResponse.json({ missions });
+
+      return NextResponse.json(missions);
     } catch (error) {
       console.error(error);
       return NextResponse.json(

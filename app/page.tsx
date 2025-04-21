@@ -25,11 +25,11 @@ export default async function Home() {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-6 w-full">
+    <div className="grid grid-rows-[0.25fr_1fr] gap-4 p-4 w-full h-screen">
       {/* Header */}
-      <div className="flex items-center relative col-span-6">
-        <CetExtraLogo className="w-16 h-16" />
-        <span className="absolute left-1/2 transform -translate-x-1/2">
+      <div className="flex items-center relative">
+        <CetExtraLogo className="w-16 h-16 lg:invisible" />
+        <span className="absolute left-1/2 transform -translate-x-1/2 lg:text-6xl">
           Bienvenue John Doe
         </span>
         <div className="flex ml-auto gap-1">
@@ -41,7 +41,9 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      <HomeComponent />
+      <div className="grid grid-cols-6 gap-4 grid-rows-2">
+        <HomeComponent />
+      </div>
     </div>
   );
 }
