@@ -1,2 +1,1 @@
-echo "Vérification du linting"
-bun next lint
+bun test
