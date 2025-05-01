@@ -10,21 +10,21 @@ export const getMainUserData = async () => {
 
   const data = await prisma.user.findUnique({
     where: {
-      clerkId: userId,
+      clerkId: userId
     },
     select: {
       id: true,
       extra: {
         select: {
-          id: true,
-        },
+          id: true
+        }
       },
       company: {
         select: {
-          id: true,
-        },
-      },
-    },
+          id: true
+        }
+      }
+    }
   });
   if (!data?.id) {
     throw new Error("User not found");
@@ -33,6 +33,6 @@ export const getMainUserData = async () => {
   return {
     userId: data.id,
     extraId: data.extra?.id || null,
-    companyId: data.company?.id || null,
+    companyId: data.company?.id || null
   };
 };

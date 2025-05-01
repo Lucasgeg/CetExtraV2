@@ -4,7 +4,7 @@ import { Company, CompanyErrorMessages } from "@/store/types";
 import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
 
 export const CompanySignupDisplay = ({
-  errorMessages,
+  errorMessages
 }: {
   errorMessages?: CompanyErrorMessages;
 }) => {

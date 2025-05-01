@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Popover, PopoverAnchor, PopoverContent } from "../../popover";
 import {
   getSuggestions,
-  Suggestion,
+  Suggestion
 } from "@/app/(public)/sign-up/[[...sign-up]]/actions";
 import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -11,7 +11,7 @@ import { UserLocation } from "@/store/types";
 
 export const AddressAutocomplete = ({
   errorMessage,
-  isCompany,
+  isCompany
 }: {
   errorMessage?: string;
   isCompany?: boolean;
@@ -42,7 +42,7 @@ export const AddressAutocomplete = ({
     const userAdress: Omit<UserLocation, "id"> = {
       fullName: suggestion.display_name,
       lat: Number(suggestion.lat),
-      lon: Number(suggestion.lon),
+      lon: Number(suggestion.lon)
     };
     updateUserProperty("location", userAdress);
   };
@@ -50,13 +50,13 @@ export const AddressAutocomplete = ({
   return (
     <div>
       <Popover open={suggestions?.length > 0}>
-        <div className="flex justify-between items-center flex-col lg:flex-row">
+        <div className="flex flex-col items-center justify-between lg:flex-row">
           <span className="">
             {isCompany ? "Adresse de votre entreprise" : "Ton adresse:"}
           </span>
           <PopoverAnchor
             asChild
-            className="w-auto p-2 border border-gray-300 rounded-md"
+            className="w-auto rounded-md border border-gray-300 p-2"
           >
             <Input
               type="text"
@@ -68,12 +68,12 @@ export const AddressAutocomplete = ({
           </PopoverAnchor>
         </div>
         <PopoverContent>
-          <ul className="w-full mt-1 bg-white border border-gray-300 rounded-md max-h-60 overflow-y-auto">
+          <ul className="mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
             {suggestions.map((suggestion) => (
               <li
                 key={suggestion.place_id}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="p-2 cursor-pointer hover:bg-gray-100"
+                className="cursor-pointer p-2 hover:bg-gray-100"
               >
                 {suggestion.display_name}
               </li>

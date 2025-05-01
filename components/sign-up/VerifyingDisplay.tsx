@@ -14,7 +14,7 @@ export const VerifyingDisplay = () => {
     if (!isLoaded) return;
     try {
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
-        code,
+        code
       });
       if (signUpAttempt.status === "complete") {
         if (signUpAttempt.createdUserId) {
@@ -22,15 +22,15 @@ export const VerifyingDisplay = () => {
             ...user,
             clerkId: signUpAttempt.createdUserId,
             extra: extra,
-            company: company,
+            company: company
           };
 
           const response = await fetch("/api/users/sign-up", {
             method: "POST",
             body: JSON.stringify(body),
             headers: {
-              "Content-Type": "application/json",
-            },
+              "Content-Type": "application/json"
+            }
           });
           if (response.ok) {
             await setActive({ session: signUpAttempt.createdSessionId });
@@ -50,7 +50,7 @@ export const VerifyingDisplay = () => {
   };
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center mb-6">
+      <h1 className="mb-6 text-center text-2xl font-bold">
         Vérifier vos emails
       </h1>
       <form onSubmit={handleVerify} className="space-y-6">
@@ -66,13 +66,13 @@ export const VerifyingDisplay = () => {
             id="code"
             name="code"
             onChange={(e) => setCode(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           />
         </div>
         <div className="flex justify-center">
           <button
             type="submit"
-            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Vérifier
           </button>

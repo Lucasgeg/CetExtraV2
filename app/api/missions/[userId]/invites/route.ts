@@ -21,9 +21,9 @@ export async function GET(
     const invites = await prisma.userMission.findMany({
       where: {
         user: {
-          clerkId,
+          clerkId
         },
-        status: UserMissionStatus.pending,
+        status: UserMissionStatus.pending
       },
       select: {
         id: true,
@@ -33,30 +33,30 @@ export async function GET(
           select: {
             creator: {
               select: {
-                company_name: true,
-              },
+                company_name: true
+              }
             },
             name: true,
             id: true,
             mission_date: true,
             missionLocation: {
               select: {
-                fullName: true,
-              },
-            },
-          },
+                fullName: true
+              }
+            }
+          }
         },
         missionJob: true,
-        hourly_rate: true,
+        hourly_rate: true
       },
       take: take ? parseInt(take) : undefined,
       orderBy: {
-        start_date: "asc",
-      },
+        start_date: "asc"
+      }
     });
 
     return NextResponse.json(invites, {
-      status: 200,
+      status: 200
     });
   } catch (error) {
     console.error("Error fetching user missions:", error);

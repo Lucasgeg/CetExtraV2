@@ -2,12 +2,12 @@
 export enum EnumMissionJob {
   WAITER = "waiter",
   COOK = "cook",
-  BOTH = "both",
+  BOTH = "both"
 }
 
 export enum EnumRole {
   EXTRA = "extra",
-  COMPANY = "company",
+  COMPANY = "company"
 }
 
 export interface UserLocation {

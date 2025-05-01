@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export enum EnumMissionSelector {
   ALL = "all",
   INCOMING = "incoming",
-  PAST = "past",
+  PAST = "past"
 }
 
 export async function GET(
@@ -30,12 +30,12 @@ export async function GET(
     switch (missionSelector) {
       case EnumMissionSelector.INCOMING:
         return {
-          gte: today,
+          gte: today
         };
       case EnumMissionSelector.PAST:
         return {
           lt: today,
-          gte: firstDayOfMonth,
+          gte: firstDayOfMonth
         };
       default:
         return {};
@@ -51,10 +51,10 @@ export async function GET(
       const missions = await prisma.userMission.findMany({
         where: {
           user: {
-            clerkId: userId,
+            clerkId: userId
           },
 
-          start_date: startDateCondition(),
+          start_date: startDateCondition()
         },
         select: {
           id: true,
@@ -66,21 +66,21 @@ export async function GET(
               name: true,
               missionLocation: {
                 select: {
-                  fullName: true,
-                },
+                  fullName: true
+                }
               },
               creator: {
                 select: {
-                  company_name: true,
-                },
-              },
-            },
-          },
+                  company_name: true
+                }
+              }
+            }
+          }
         },
         take: take ? parseInt(take) : undefined,
         orderBy: {
-          start_date: "asc",
-        },
+          start_date: "asc"
+        }
       });
       const totalDuration = missions.reduce((acc, mission) => {
         return acc + mission.duration;
@@ -103,11 +103,11 @@ export async function GET(
     try {
       const user = await prisma.user.findUnique({
         where: {
-          clerkId,
+          clerkId
         },
         select: {
-          company: true,
-        },
+          company: true
+        }
       });
       if (user?.company?.id !== userId) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -131,7 +131,7 @@ export async function GET(
       const missions = await prisma.mission.findMany({
         where: {
           creatorId: userId,
-          mission_date: startDateCondition(),
+          mission_date: startDateCondition()
         },
         select: {
           name: true,
@@ -139,14 +139,14 @@ export async function GET(
           mission_date: true,
           missionLocation: {
             select: {
-              fullName: true,
-            },
-          },
+              fullName: true
+            }
+          }
         },
         take: take ? parseInt(take) : undefined,
         orderBy: {
-          mission_date: "asc",
-        },
+          mission_date: "asc"
+        }
       });
 
       return NextResponse.json(missions);

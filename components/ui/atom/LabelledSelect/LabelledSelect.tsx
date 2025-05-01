@@ -3,7 +3,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "../../select";
 
 export type Items = {
@@ -25,13 +25,13 @@ export const LabelledSelect = ({
   onValueChange,
   items,
   placeholder,
-  defaultValue,
+  defaultValue
 }: LabelledSelectProps) => {
   return (
-    <div className="flex justify-between items-center flex-col lg:flex-row">
+    <div className="flex flex-col items-center justify-between lg:flex-row">
       <Select onValueChange={onValueChange} defaultValue={defaultValue}>
         <span>{label}</span>
-        <SelectTrigger className="max-w-40 w-auto">
+        <SelectTrigger className="w-auto max-w-40">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

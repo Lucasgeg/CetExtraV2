@@ -4,14 +4,14 @@ import { DatePickerInput } from "../ui/atom/DatePickerInput/DatePickerInput";
 import { LabelledInput } from "../ui/atom/LabelledInput";
 import {
   Items,
-  LabelledSelect,
+  LabelledSelect
 } from "../ui/atom/LabelledSelect/LabelledSelect";
 import { RadioGroup } from "../ui/RadioGroup";
 import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
 import { Extra, ExtraErrorMessages, EnumMissionJob } from "@/store/types";
 
 export const ExtraSignUpDisplay = ({
-  errorMessages,
+  errorMessages
 }: {
   errorMessages?: ExtraErrorMessages;
 }) => {
@@ -40,18 +40,18 @@ export const ExtraSignUpDisplay = ({
     {
       value: EnumMissionJob.WAITER,
       label: "Serveur",
-      description: "Travail en salle",
+      description: "Travail en salle"
     },
     {
       value: EnumMissionJob.COOK,
       label: "Cuisinier",
-      description: "Travail en cuisine",
+      description: "Travail en cuisine"
     },
     {
       value: EnumMissionJob.BOTH,
       label: "Les deux",
-      description: "Travail en cuisine et en salle",
-    },
+      description: "Travail en cuisine et en salle"
+    }
   ];
 
   const handleChange = (
@@ -70,11 +70,11 @@ export const ExtraSignUpDisplay = ({
     { value: "15", label: "15 km" },
     { value: "20", label: "20 km" },
     { value: "25", label: "25 km" },
-    { value: "30", label: "30 km" },
+    { value: "30", label: "30 km" }
   ];
   return (
     <>
-      <div className="flex flex-col lg:flex-row items-center">
+      <div className="flex flex-col items-center lg:flex-row">
         <span className="lg:w-1/3">Tu recherche un poste de:</span>
         <RadioGroup
           name="missionJob"

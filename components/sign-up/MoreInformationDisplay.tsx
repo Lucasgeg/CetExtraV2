@@ -8,13 +8,13 @@ import {
   ExtraErrorMessages,
   EnumRole,
   SignupErrorMessages,
-  UserSignUpSchema,
+  UserSignUpSchema
 } from "@/store/types";
 import { useSignUp } from "@clerk/nextjs";
 import { CompanySignupDisplay } from "./CompanySignupDisplay";
 
 export const MoreInformationDisplay = ({
-  actionSubmitAction,
+  actionSubmitAction
 }: {
   actionSubmitAction: () => void;
 }) => {
@@ -24,7 +24,7 @@ export const MoreInformationDisplay = ({
     company,
     extra,
     setErrorMessages,
-    errorMessages,
+    errorMessages
   } = useSignUpStore();
   const [selectedRole, setSelectedRole] = useState<EnumRole>(EnumRole.EXTRA);
   const { isLoaded, signUp } = useSignUp();
@@ -93,13 +93,13 @@ export const MoreInformationDisplay = ({
     {
       value: EnumRole.EXTRA,
       label: "Extra",
-      description: "Une personne à la recherche de missions ponctuelles",
+      description: "Une personne à la recherche de missions ponctuelles"
     },
     {
       value: EnumRole.COMPANY,
       label: "Employeur",
-      description: "Une entreprise à la recherche de candidats",
-    },
+      description: "Une entreprise à la recherche de candidats"
+    }
   ];
 
   const handleSubmitAction = async (e: React.FormEvent) => {
@@ -119,7 +119,7 @@ export const MoreInformationDisplay = ({
     }
 
     await signUp?.prepareEmailAddressVerification({
-      strategy: "email_code",
+      strategy: "email_code"
     });
     actionSubmitAction();
   };
@@ -130,8 +130,8 @@ export const MoreInformationDisplay = ({
         ton compte:
       </h2>
       <form onSubmit={handleSubmitAction} className="w-full">
-        <div className="md:grid md:grid-cols-2 flex flex-col gap-3">
-          <div className="flex flex-col lg:flex-row items-center ">
+        <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
+          <div className="flex flex-col items-center lg:flex-row">
             <span>Tu es un:</span>
             <RadioGroup
               name="role"
@@ -148,7 +148,7 @@ export const MoreInformationDisplay = ({
         </div>
         <button
           type="submit"
-          className="border rounded-lg bg-blue-500 text-white py-2 px-4 my-4 hover:bg-blue-600"
+          className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
           Valider
         </button>

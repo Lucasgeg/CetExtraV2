@@ -28,7 +28,7 @@ export default function Page() {
     try {
       const signInAttempt = await signIn.create({
         identifier: email,
-        password,
+        password
       });
 
       // If sign-in process is complete, set the created session as active
@@ -52,25 +52,25 @@ export default function Page() {
   return (
     <>
       <AnimatedBG />
-      <div className="flex justify-center items-center h-screen">
-        <div className="rounded-lg shadow-lg  relative flex flex-col md:grid md:grid-cols-2 w-4/5 md:w-1/2">
-          <div className="flex justify-center items-center bg-[#30325F] w-full">
+      <div className="flex h-screen items-center justify-center">
+        <div className="relative flex w-4/5 flex-col rounded-lg shadow-lg md:grid md:w-1/2 md:grid-cols-2">
+          <div className="flex w-full items-center justify-center bg-[#30325F]">
             <Image
               src={logo}
               alt="logo cet-extra"
               className="w-1/2 md:w-full"
             />
           </div>
-          <div className=" flex flex-col items-center justify-center border bg-white align-middle px-6  py-3">
+          <div className="flex flex-col items-center justify-center border bg-white px-6 py-3 align-middle">
             <h1 className="flex flex-col items-center justify-center pb-8">
-              <span className="text-5xl text-center">Cet Extra!</span>
-              <span className=" text-2xl">Connexion</span>
+              <span className="text-center text-5xl">Cet Extra!</span>
+              <span className="text-2xl">Connexion</span>
             </h1>
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col gap-4 xs:pl-5 w-3/4 items-center"
+              className="xs:pl-5 flex w-3/4 flex-col items-center gap-4"
             >
-              <div className="flex flex-col item gap-1 w-full">
+              <div className="item flex w-full flex-col gap-1">
                 <label htmlFor="email">Entrez votre adresse email:</label>
                 <Input
                   id="email"
@@ -81,7 +81,7 @@ export default function Page() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div className="flex flex-col gap-1 w-full">
+              <div className="flex w-full flex-col gap-1">
                 <label htmlFor="password">Entrez votre mot de passe:</label>
                 <Input
                   id="password"
@@ -94,10 +94,10 @@ export default function Page() {
               </div>
               {/* CAPTCHA Widget */}
               <div id="clerk-captcha" />
-              <div className="flex flex-col xs:flex-row w-full items-center">
+              <div className="xs:flex-row flex w-full flex-col items-center">
                 <button
                   type="submit"
-                  className="border rounded-lg bg-blue-500 text-white py-2 px-4 my-4 hover:bg-blue-600"
+                  className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
                 >
                   Connexion
                 </button>

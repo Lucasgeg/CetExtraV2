@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 export const NextMissionCard = ({ id }: { id: string }) => {
   const [companyData, setCompanyData] = useState<GetCompanyMission[]>([]);
 
-  const { data, error, loading } = useFetch<GetCompanyMission[]>(
+  const { data, loading } = useFetch<GetCompanyMission[]>(
     `/api/missions/${id}?missionSelector=incoming&isCompany=true`
   );
   useEffect(() => {
@@ -25,18 +25,18 @@ export const NextMissionCard = ({ id }: { id: string }) => {
     {
       id: "name",
       cell: ({ cell }) => <Link href="#">{cell.row.original.name}</Link>,
-      header: "Nom",
+      header: "Nom"
     },
     {
       id: "date",
       accessorFn: (row) => new Date(row.mission_date).toLocaleDateString(),
-      header: "Date",
+      header: "Date"
     },
     {
       id: "fullName",
       accessorFn: (row) => row.missionLocation.fullName,
-      header: "Lieu de mission",
-    },
+      header: "Lieu de mission"
+    }
   ];
   return (
     <CustomTable<GetCompanyMission>

@@ -56,7 +56,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
     try {
       await signUp.create({
         emailAddress: user?.email,
-        password: user?.password,
+        password: user?.password
       });
     } catch (error: unknown) {
       console.error("Error:", JSON.stringify(error, null, 2));
@@ -70,9 +70,9 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   return (
     <form
       onSubmit={handleSubmitInitialStep}
-      className="flex flex-col gap-4 xs:pl-5 w-3/4 items-center"
+      className="xs:pl-5 flex w-3/4 flex-col items-center gap-4"
     >
-      <div className="flex flex-col item gap-1 w-full">
+      <div className="item flex w-full flex-col gap-1">
         <label htmlFor="email">Entrez votre adresse email:</label>
         <Input
           id="email"
@@ -84,7 +84,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           errorMessage={errorMessages?.global?.email}
         />
       </div>
-      <div className="flex flex-col gap-1 w-full">
+      <div className="flex w-full flex-col gap-1">
         <label htmlFor="password">Entrez votre mot de passe:</label>
         <Input
           id="password"
@@ -96,7 +96,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           errorMessage={errorMessages?.global?.password}
         />
       </div>
-      <div className="flex flex-col gap-1 w-full">
+      <div className="flex w-full flex-col gap-1">
         <label htmlFor="confirmPassword">Confirmez votre mot de passe:</label>
         <Input
           id="confirmPassword"
@@ -110,10 +110,10 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
       </div>
       {/* CAPTCHA Widget */}
       <div id="clerk-captcha" />
-      <div className="flex flex-col xs:flex-row w-full items-center">
+      <div className="xs:flex-row flex w-full flex-col items-center">
         <button
           type="submit"
-          className="border rounded-lg bg-blue-500 text-white py-2 px-4 my-4 hover:bg-blue-600"
+          className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
           S'inscrire
         </button>

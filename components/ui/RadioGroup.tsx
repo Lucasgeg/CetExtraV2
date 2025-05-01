@@ -2,7 +2,7 @@ import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
-  TooltipContent,
+  TooltipContent
 } from "./tooltip";
 
 type RadioOption = {
@@ -22,7 +22,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   name,
   options,
   selectedValue,
-  onChange,
+  onChange
 }) => {
   const handleOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -32,7 +32,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
     <TooltipProvider>
       <div className="flex items-center">
         {options.map((option) => (
-          <label key={option.value} className="flex text-center space-x-2">
+          <label key={option.value} className="flex space-x-2 text-center">
             <input
               type="radio"
               name={name}
@@ -44,7 +44,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
             <Tooltip>
               <TooltipTrigger
                 asChild
-                className={`cursor-pointer p-1 rounded ${
+                className={`cursor-pointer rounded p-1 ${
                   selectedValue === option.value
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200"

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export const CetExtraLogo = ({ className }: { className?: string }) => {
   return (
     <div className={cn("flex items-center justify-center", className)}>
-      <Image alt="logo Cet Extra" src={logo} className={`w-full h-full`} />
+      <Image alt="logo Cet Extra" src={logo} className={`h-full w-full`} />
     </div>
   );
 };

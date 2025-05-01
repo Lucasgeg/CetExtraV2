@@ -25,23 +25,23 @@ export default async function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[0.25fr_1fr] gap-4 p-4 w-full h-screen">
+    <div className="grid h-screen w-full grid-rows-[0.25fr_1fr] gap-4 p-4">
       {/* Header */}
-      <div className="flex items-center relative">
-        <CetExtraLogo className="w-16 h-16 lg:invisible" />
-        <span className="absolute left-1/2 transform -translate-x-1/2 lg:text-6xl">
+      <div className="relative flex items-center">
+        <CetExtraLogo className="h-16 w-16 lg:invisible" />
+        <span className="absolute left-1/2 -translate-x-1/2 transform lg:text-6xl">
           Bienvenue John Doe
         </span>
-        <div className="flex ml-auto gap-1">
-          <div className="rounded-full w-7 h-7">
-            <Cog6ToothIcon className="w-full h-full" />
+        <div className="ml-auto flex gap-1">
+          <div className="h-7 w-7 rounded-full">
+            <Cog6ToothIcon className="h-full w-full" />
           </div>
-          <div className="w-7 h-7">
+          <div className="h-7 w-7">
             <UserButton />
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-6 gap-4 grid-rows-2">
+      <div className="grid grid-cols-6 grid-rows-2 gap-4">
         <HomeComponent />
       </div>
     </div>

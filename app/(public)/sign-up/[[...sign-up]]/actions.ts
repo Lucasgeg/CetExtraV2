@@ -36,8 +36,8 @@ export const getSuggestions = async (query: string): Promise<Suggestion[]> => {
             format: "jsonv2",
             addressdetails: 1,
             limit: 5,
-            countrycodes: "fr",
-          },
+            countrycodes: "fr"
+          }
         }
       );
 
@@ -59,7 +59,7 @@ export const getSuggestions = async (query: string): Promise<Suggestion[]> => {
               .trim(), // Supprime les doubles espaces
           lat: suggestion.lat,
           lon: suggestion.lon,
-          place_id: suggestion.place_id,
+          place_id: suggestion.place_id
         };
       });
 

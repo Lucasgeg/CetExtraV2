@@ -5,7 +5,7 @@ import { createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
+  secretKey: process.env.CLERK_SECRET_KEY
 });
 
 export async function POST(req: Request) {
@@ -46,22 +46,22 @@ const createExtra = async (data: UserSignUpSchema) => {
             birthdate: data.extra.birthdate,
             missionJob: data.extra.missionJob,
             max_travel_distance: data.extra.max_travel_distance,
-            phone: data.extra.phone,
-          },
+            phone: data.extra.phone
+          }
         },
         userLocation: {
           create: {
             fullName: data.location.fullName,
             lat: data.location.lat,
-            lon: data.location.lon,
-          },
-        },
-      },
+            lon: data.location.lon
+          }
+        }
+      }
     });
     await clerkClient.users.updateUserMetadata(data.clerkId, {
       publicMetadata: {
-        role: data.role,
-      },
+        role: data.role
+      }
     });
     return NextResponse.json({ message: "User created" });
   } catch (error) {
@@ -89,22 +89,22 @@ const createCompany = async (data: UserSignUpSchema) => {
             company_name: data.company.company_name,
             contactFirstName: data.company.contactFirstName,
             contactLastName: data.company.contactLastName,
-            company_phone: data.company.company_phone,
-          },
+            company_phone: data.company.company_phone
+          }
         },
         userLocation: {
           create: {
             fullName: data.location.fullName,
             lat: data.location.lat,
-            lon: data.location.lon,
-          },
-        },
-      },
+            lon: data.location.lon
+          }
+        }
+      }
     });
     await clerkClient.users.updateUserMetadata(data.clerkId, {
       publicMetadata: {
-        role: data.role,
-      },
+        role: data.role
+      }
     });
     return NextResponse.json({ message: "User created" });
   } catch (error) {

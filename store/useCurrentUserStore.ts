@@ -15,7 +15,7 @@ type Action = {
 const initialState: CurrentuserStore = {
   userId: "",
   extraId: null,
-  companyId: null,
+  companyId: null
 };
 
 export const useCurrentUserStore = create<CurrentuserStore & Action>()(
@@ -25,10 +25,10 @@ export const useCurrentUserStore = create<CurrentuserStore & Action>()(
       extraId: initialState.extraId,
       companyId: initialState.companyId,
       setUser: (user: CurrentuserStore) => set(() => ({ ...user })),
-      reset: () => set(() => ({ ...initialState })),
+      reset: () => set(() => ({ ...initialState }))
     }),
     {
-      name: "currentUserStore",
+      name: "currentUserStore"
     }
   )
 );

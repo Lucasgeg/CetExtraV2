@@ -11,7 +11,7 @@ import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
 enum SignUpStep {
   Initial,
   MoreInformation,
-  Verifying,
+  Verifying
 }
 
 export default function SignUpPage() {
@@ -43,19 +43,19 @@ export default function SignUpPage() {
   return (
     <>
       <AnimatedBG />
-      <div className="flex justify-center md:items-center h-screen overflow-y-auto">
-        <div className="rounded-lg md:shadow-lg flex flex-col md:grid md:grid-cols-[0.5fr_1fr] w-4/5 md:w-8/12">
-          <div className="flex justify-center items-center md:bg-[#30325F] w-full">
+      <div className="flex h-screen justify-center overflow-y-auto md:items-center">
+        <div className="flex w-4/5 flex-col rounded-lg md:grid md:w-8/12 md:grid-cols-[0.5fr_1fr] md:shadow-lg">
+          <div className="flex w-full items-center justify-center md:bg-[#30325F]">
             <Image
               src={logo}
               alt="logo cet-extra"
               className="h-40 w-auto md:h-auto"
             />
           </div>
-          <div className=" flex flex-col items-center justify-center border bg-white align-middle px-6  py-3">
+          <div className="flex flex-col items-center justify-center border bg-white px-6 py-3 align-middle">
             <h1 className="flex flex-col pb-8 text-center">
               <span className="text-5xl">Cet Extra!</span>
-              <span className=" text-2xl">Inscription</span>
+              <span className="text-2xl">Inscription</span>
             </h1>
             {renderDisplay()}
             <Link className="text-xs hover:underline" href="/sign-in">

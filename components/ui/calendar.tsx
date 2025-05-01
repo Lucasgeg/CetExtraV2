@@ -12,7 +12,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
 import { fr } from "date-fns/locale";
 
@@ -72,10 +72,10 @@ function Calendar({
         range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         hidden: "invisible",
-        ...classNames,
+        ...classNames
       }}
       components={{
-        Dropdown: CustomSelectDropdown,
+        Dropdown: CustomSelectDropdown
       }}
       {...props}
     />
@@ -92,8 +92,8 @@ function CustomSelectDropdown(props: DropdownProps) {
     if (onChange) {
       const syntheticEvent = {
         target: {
-          value: newValue,
-        },
+          value: newValue
+        }
       } as React.ChangeEvent<HTMLSelectElement>;
 
       onChange(syntheticEvent);

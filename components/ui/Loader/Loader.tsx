@@ -7,7 +7,7 @@ export type LoaderProps = {
 
 export const Loader = ({ size }: LoaderProps) => {
   return (
-    <div className={cn("min-h-10 min-w-10 flex justify-center items-center")}>
+    <div className={cn("flex min-h-10 min-w-10 items-center justify-center")}>
       <div
         className={cn(styles.loader, size && `h-${size || 20} w-${size || 20}`)}
       />
