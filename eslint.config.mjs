@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
+  baseDirectory: __dirname
 });
 
 const eslintConfig = [
@@ -15,9 +15,9 @@ const eslintConfig = [
     rules: {
       "react/no-unescaped-entities": "off",
       "no-console": ["warn", { allow: ["warn", "error"] }],
-      "@typescript-eslint/no-unused-vars": "warn",
-    },
-  },
+      "@typescript-eslint/no-unused-vars": "warn"
+    }
+  }
 ];
 
 export default eslintConfig;
