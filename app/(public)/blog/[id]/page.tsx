@@ -1,6 +1,7 @@
 import prisma from "@/app/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 
 // Typage pour les params de route dynamique
@@ -20,43 +21,43 @@ export async function generateStaticParams() {
   }));
 }
 
-// export async function generateMetadata({
-//   params
-// }: {
-//   params: BlogPostPageParams;
-// }): Promise<Metadata> {
-//   const { id } = params;
+export async function generateMetadata({
+  params
+}: {
+  params: BlogPostPageParams;
+}): Promise<Metadata> {
+  const { id } = params;
 
-//   const post = await prisma.blogPost.findUnique({
-//     where: { id, published: true },
-//     select: { title: true, shortDesc: true, keywords: true }
-//   });
-//   if (!post) return {};
+  const post = await prisma.blogPost.findUnique({
+    where: { id, published: true },
+    select: { title: true, shortDesc: true, keywords: true }
+  });
+  if (!post) return {};
 
-//   return {
-//     title: post.title + " | Cet Extra",
-//     description: post.shortDesc,
-//     keywords: Array.isArray(post.keywords)
-//       ? post.keywords.join(", ")
-//       : post.keywords,
-//     openGraph: {
-//       title: post.title + " | Cet Extra",
-//       description: post.shortDesc,
-//       url: `https://cetextra.fr/blog/${id}`,
-//       siteName: "Cet Extra",
-//       images: [
-//         {
-//           url: "/images/og-image.jpg",
-//           width: 1200,
-//           height: 630,
-//           alt: "Cet Extra Blog"
-//         }
-//       ],
-//       locale: "fr_FR",
-//       type: "article"
-//     }
-//   };
-// }
+  return {
+    title: post.title + " | Cet Extra",
+    description: post.shortDesc,
+    keywords: Array.isArray(post.keywords)
+      ? post.keywords.join(", ")
+      : post.keywords,
+    openGraph: {
+      title: post.title + " | Cet Extra",
+      description: post.shortDesc,
+      url: `https://cetextra.fr/blog/${id}`,
+      siteName: "Cet Extra",
+      images: [
+        {
+          url: "/images/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Cet Extra Blog"
+        }
+      ],
+      locale: "fr_FR",
+      type: "article"
+    }
+  };
+}
 
 export default async function BlogPostPage({
   params

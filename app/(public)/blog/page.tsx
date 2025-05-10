@@ -1,44 +1,28 @@
 import prisma from "@/app/lib/prisma";
 import Link from "next/link";
 
-export const revalidate = 60;
-
-export const dynamicParams = true;
-
-// export async function generateStaticParams() {
-//   const posts = await prisma.blogPost.findMany({
-//     where: { published: true },
-//     select: { id: true },
-//     take: 10
-//   });
-
-//   return posts.map((post) => ({
-//     id: post.id
-//   }));
-// }
-
-// export const metadata = {
-//   title: "Blog | Cet Extra",
-//   description:
-//     "Suivez l'évolution du projet, nos annonces et nos nouveautés sur le blog de Cet Extra.",
-//   openGraph: {
-//     title: "Blog | Cet Extra",
-//     description:
-//       "Suivez l'évolution du projet, nos annonces et nos nouveautés sur le blog de Cet Extra.",
-//     url: "https://cetextra.fr/blog",
-//     siteName: "Cet Extra",
-//     images: [
-//       {
-//         url: "/images/og-image.jpg",
-//         width: 1200,
-//         height: 630,
-//         alt: "Cet Extra Blog"
-//       }
-//     ],
-//     locale: "fr_FR",
-//     type: "website"
-//   }
-// };
+export const metadata = {
+  title: "Blog | Cet Extra",
+  description:
+    "Suivez l'évolution du projet, nos annonces et nos nouveautés sur le blog de Cet Extra.",
+  openGraph: {
+    title: "Blog | Cet Extra",
+    description:
+      "Suivez l'évolution du projet, nos annonces et nos nouveautés sur le blog de Cet Extra.",
+    url: "https://cetextra.fr/blog",
+    siteName: "Cet Extra",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Cet Extra Blog"
+      }
+    ],
+    locale: "fr_FR",
+    type: "website"
+  }
+};
 
 export default async function BlogListPage() {
   const posts = await prisma.blogPost.findMany({
