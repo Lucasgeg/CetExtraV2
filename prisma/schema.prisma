@@ -98,6 +98,28 @@ model UserMission {
   @@unique([userId, missionId])
 }
 
+model BlogPost {
+  id         String        @id @default(uuid())
+  title      String
+  content    String
+  published  Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  authorName String        @default("Cet Extra")
+  keywords   String[]
+  shortDesc  String        @default("")
+  comments   BlogComment[]
+}
+
+model BlogComment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  post      BlogPost @relation(fields: [postId], references: [id])
+  postId    String
+  author    String
+}
+
 enum MissionJob {
   waiter
   cook

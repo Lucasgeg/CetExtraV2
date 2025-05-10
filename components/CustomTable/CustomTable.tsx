@@ -5,6 +5,7 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 import classNames from "classnames";
+import { Loader } from "lucide-react";
 
 export type GenericRow<T> = {
   [P in keyof T]: T[P];
@@ -15,15 +16,17 @@ type GenericColumn<T> = ColumnDef<GenericRow<T>>;
 interface CustomTableProps<T> {
   rows: GenericRow<T>[];
   columns: GenericColumn<T>[];
-  className?: string;
+  containerClassName?: string;
   title?: string;
+  loading?: boolean;
 }
 
 export default function CustomTable<T>({
   rows,
   columns,
-  className,
-  title
+  containerClassName,
+  title,
+  loading
 }: CustomTableProps<T>) {
   const table = useReactTable({
     defaultColumn: {
@@ -35,11 +38,18 @@ export default function CustomTable<T>({
     getCoreRowModel: getCoreRowModel()
   });
 
+  if (loading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader size={20} />
+      </div>
+    );
+  }
   return (
     <div
       className={classNames(
         "relative h-full overflow-x-auto rounded-xl bg-white p-2 shadow-lg sm:p-4",
-        className
+        containerClassName
       )}
     >
       {title && (

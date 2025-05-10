@@ -1,7 +1,8 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,14 +25,43 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} bg-yellow-primary antialiased`}
-        >
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} mx-auto max-w-screen-xl`}
+      >
+        <AnimatedBG />
+        <main className="flex min-h-screen flex-col items-center bg-gradient-to-br from-indigo-50 via-white to-blue-100">
+          <nav className="flex w-full justify-center border-b-4 border-[#FDBA3B] bg-white/90 py-3 shadow-md">
+            <ul className="flex gap-6">
+              <li>
+                <Link
+                  href="/"
+                  className="rounded-lg bg-transparent px-4 py-2 font-semibold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
+                >
+                  Accueil
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="rounded-lg bg-transparent px-4 py-2 font-semibold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
+                >
+                  A propos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/blog"
+                  className="rounded-lg bg-transparent px-4 py-2 font-semibold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
+                >
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </nav>
           {children}
-        </body>
-      </html>
-    </ClerkProvider>
+        </main>
+      </body>
+    </html>
   );
 }
