@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: "/cetextralogo.jpeg",
         width: 1200,
         height: 630,
         alt: "Cet Extra - Plateforme d’extras pour l’évènementiel"
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     title: "Cet Extra | Plateforme d’extras pour l’évènementiel",
     description:
       "Trouvez rapidement des extras pour vos évènements grâce à Cet Extra. Plateforme dédiée aux professionnels de l’évènementiel.",
-    images: ["/images/og-image.jpg"]
+    images: ["/cetextralogo.jpeg"]
   },
   alternates: {
     canonical: "/"
