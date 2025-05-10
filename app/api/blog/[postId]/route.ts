@@ -1,5 +1,6 @@
 "use server";
 import prisma from "@/app/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
@@ -7,6 +8,11 @@ export async function PUT(
   req: Request,
   props: { params: Promise<{ postId: string }> }
 ) {
+  const { userId } = await auth();
+  if (userId !== process.env.ADMIN_USER_ID) {
+    return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
+  }
+
   try {
     const params = await props.params;
     const { postId } = params;
@@ -33,6 +39,10 @@ export async function DELETE(
   req: Request,
   props: { params: Promise<{ postId: string }> }
 ) {
+  const { userId } = await auth();
+  if (userId !== process.env.ADMIN_USER_ID) {
+    return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
+  }
   try {
     const params = await props.params;
     const { postId } = params;

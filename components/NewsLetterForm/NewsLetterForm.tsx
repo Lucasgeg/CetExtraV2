@@ -26,7 +26,7 @@ export default function NewsletterForm() {
       const res = await fetch("/api/blog/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, subscribe: true }) // Correction de la faute de frappe
+        body: JSON.stringify({ email, subscribe: true })
       });
 
       const data = await res.json();
@@ -59,48 +59,51 @@ export default function NewsletterForm() {
   if (hideContainer) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-3xl rounded-lg bg-gray-100 px-8 py-4 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md rounded-lg bg-gray-100 px-4 py-3 shadow-lg sm:max-w-lg">
       <div
         className="absolute right-2 top-2 cursor-pointer"
         onClick={handleClose}
       >
-        <XMarkIcon className="h-6 w-6 text-gray-500" />
+        <XMarkIcon className="h-5 w-5 text-gray-500" />
       </div>
 
-      <p className="mb-4 text-center text-lg font-semibold text-gray-800">
-        Vous souhaitez être informé des dernières nouvelles ? Inscrivez-vous à
-        notre newsletter !
+      <p className="mb-3 text-center text-base font-semibold text-gray-800 sm:text-lg">
+        Restez informé des dernières nouvelles !
       </p>
 
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Votre email"
-          required
-          className="flex-1 rounded border px-4 py-2"
-          disabled={status === "loading"}
-        />
-
-        <label className="flex items-center text-xs text-gray-600">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        <div className="space-y-2">
           <input
-            type="checkbox"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Votre email"
             required
-            className="mr-2"
-            checked={acceptTerms}
-            onChange={(e) => setAcceptTerms(e.target.checked)}
+            className="w-full rounded border px-3 py-2 text-sm"
             disabled={status === "loading"}
           />
-          J'accepte de recevoir des emails de votre part.
-        </label>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              required
+              className="h-4 w-4"
+              checked={acceptTerms}
+              onChange={(e) => setAcceptTerms(e.target.checked)}
+              disabled={status === "loading"}
+            />
+            <label className="text-xs text-gray-600">
+              J'accepte de recevoir des emails
+            </label>
+          </div>
+        </div>
 
         <Button
           type="submit"
           disabled={status === "loading" || !acceptTerms}
-          className="rounded bg-blue-600 px-6 py-2 text-white transition-colors hover:bg-blue-700"
+          className="w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:text-base"
         >
-          {status === "loading" ? "Envoi..." : "S'inscrire"}
+          {status === "loading" ? "Envoi..." : "M'inscrire"}
         </Button>
       </form>
 
