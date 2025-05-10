@@ -5,7 +5,7 @@
   "scripts": {
     "cdev": "next dev",
     "dev": "next dev --turbopack",
-    "build": "prettier --check . && prisma generate && next build",
+    "build": "prettier --check . && next build",
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
