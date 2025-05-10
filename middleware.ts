@@ -7,7 +7,8 @@ import { NextResponse } from "next/server";
 const basePublicRoutes = [
   "/", // Accueil
   "/blog(.*)", // Blog et sous-routes
-  "/about(.*)" // À propos et sous-routes
+  "/about(.*)", // À propos et sous-routes
+  "/sign-in(.*)" // Connexion et sous-routes
 ];
 
 // Les routes publiques additionnelles pour dev/rec

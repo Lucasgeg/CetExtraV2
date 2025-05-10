@@ -21,11 +21,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: BlogPostPageParams;
+export async function generateMetadata(props: {
+  params: Promise<BlogPostPageParams>;
 }): Promise<Metadata> {
+  const params = await props.params;
   const { id } = params;
 
   const post = await prisma.blogPost.findUnique({
@@ -59,11 +58,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogPostPage({
-  params
-}: {
-  params: BlogPostPageParams;
+export default async function BlogPostPage(props: {
+  params: Promise<BlogPostPageParams>;
 }) {
+  const params = await props.params;
   const { id } = params;
   const post = await prisma.blogPost.findUnique({
     where: { id, published: true }

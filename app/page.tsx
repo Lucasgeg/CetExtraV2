@@ -1,29 +1,9 @@
 import { CetExtraLogo } from "@/components/icons/CetExtraLogo";
-import Head from "next/head";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-      <Head>
-        <title>Cet Extra | Plateforme d’extras pour l’évènementiel</title>
-        <meta
-          name="description"
-          content="Cet Extra facilite la recherche d’extras pour les employeurs de l’évènementiel. Suivez l’évolution du projet sur notre blog !"
-        />
-        <link rel="canonical" href="https://cetextra.fr/" />
-        <meta
-          property="og:title"
-          content="Cet Extra | Plateforme d’extras pour l’évènementiel"
-        />
-        <meta
-          property="og:description"
-          content="Trouvez facilement des extras pour vos évènements. Plateforme dédiée aux employeurs de l’évènementiel."
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://cetextra.fr/" />
-        <meta property="og:image" content="/images/og-image.jpg" />
-      </Head>
       <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29]">
         <header>
           <div className="mb-8 flex items-center justify-center">
