@@ -100,16 +100,17 @@ model UserMission {
 }
 
 model BlogPost {
-  id         String        @id @default(uuid())
-  title      String
-  content    String
-  published  Boolean       @default(false)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  authorName String        @default("Cet Extra")
-  keywords   String[]
-  shortDesc  String        @default("")
-  comments   BlogComment[]
+  id           String        @id @default(uuid())
+  title        String
+  content      String
+  published    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  authorName   String        @default("Cet Extra")
+  keywords     String[]
+  shortDesc    String        @default("")
+  emailSubject String        @default("Cet Extra") @map("email_subject")
+  comments     BlogComment[]
 }
 
 model BlogComment {
@@ -119,6 +120,16 @@ model BlogComment {
   post      BlogPost @relation(fields: [postId], references: [id])
   postId    String
   author    String
+}
+
+model BlogSubscriber {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  subscribed Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([email])
 }
 
 enum MissionJob {

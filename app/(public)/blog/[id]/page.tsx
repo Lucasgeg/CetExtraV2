@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
+import AddCommentForm from "@/components/ui/AddCommentForm/AddCommentForm";
+import CommentsList from "@/components/ui/CommentList/CommentList";
 
-// Typage pour les params de route dynamique
 type BlogPostPageParams = {
   id: string;
 };
@@ -21,11 +22,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params
-}: {
-  params: BlogPostPageParams;
+export async function generateMetadata(props: {
+  params: Promise<BlogPostPageParams>;
 }): Promise<Metadata> {
+  const params = await props.params;
   const { id } = params;
 
   const post = await prisma.blogPost.findUnique({
@@ -59,16 +59,20 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogPostPage({
-  params
-}: {
-  params: BlogPostPageParams;
+export default async function BlogPostPage(props: {
+  params: Promise<BlogPostPageParams>;
 }) {
+  const params = await props.params;
   const { id } = params;
   const post = await prisma.blogPost.findUnique({
     where: { id, published: true }
   });
   if (!post) return notFound();
+
+  const comments = await prisma.blogComment.findMany({
+    where: { postId: id },
+    orderBy: { createdAt: "desc" }
+  });
 
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-12">
@@ -97,6 +101,15 @@ export default async function BlogPostPage({
           </Link>
         </div>
       </article>
+      <section className="mt-8 w-full max-w-4xl rounded-2xl border-2 border-[#22345E] bg-white/90 p-6 shadow-lg">
+        <h2 className="mb-4 text-2xl font-bold text-[#22345E]">Commentaires</h2>
+        {comments.length === 0 ? (
+          <p className="text-gray-500">Aucun commentaire pour le moment.</p>
+        ) : (
+          <CommentsList postId={id} />
+        )}
+        <AddCommentForm postId={id} />
+      </section>
     </div>
   );
 }

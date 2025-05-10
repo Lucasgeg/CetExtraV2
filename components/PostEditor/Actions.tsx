@@ -26,13 +26,34 @@ export function DeleteButton({ postId }: { postId: string }) {
 }
 
 export function PublishToggle({ post }: { post: BlogPost }) {
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function togglePublish() {
-    await fetch(`/api/blog/${post.id}`, {
-      method: "PUT",
-      body: JSON.stringify({ published: !post.published })
-    });
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/blog/${post.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ published: !post.published })
+      });
+      const data: BlogPost = await response.json();
+
+      if (data.published) {
+        await fetch("/api/blog/send-mails", {
+          method: "POST",
+          body: JSON.stringify({
+            postId: data.id,
+            shortDesc: data.shortDesc,
+            title: data.title,
+            emailSubject: data.emailSubject
+          })
+        }).then((res) => res.json());
+      }
+    } catch (error) {
+      console.error("Error sending emails:", error);
+    } finally {
+      setLoading(false);
+    }
 
     router.refresh();
   }
@@ -40,6 +61,7 @@ export function PublishToggle({ post }: { post: BlogPost }) {
   return (
     <Button
       onClick={togglePublish}
+      disabled={loading}
       className={`rounded-md px-3 py-1 ${
         post.published
           ? "bg-green-100 text-green-700 hover:bg-green-200"
@@ -54,11 +76,13 @@ export function PublishToggle({ post }: { post: BlogPost }) {
 export function GenerateButton({
   content,
   setDescription,
-  setKeywords
+  setKeywords,
+  setEmailSubject
 }: {
   content: string;
   setDescription: (desc: string) => void;
   setKeywords: (keywords: string[]) => void;
+  setEmailSubject: (title: string) => void;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -71,13 +95,14 @@ export function GenerateButton({
 
       const messageContent = response.choices[0].message.content;
 
-      // On parse la chaîne JSON pour obtenir l'objet
       const parsedContent = JSON.parse(messageContent);
-      // On extrait les deux propriétés demandées
+
       const preview: string = parsedContent.preview;
       const seo: string[] = parsedContent.seo;
+      const emailSubject: string = parsedContent.emailSubject || "";
       setDescription(preview);
       setKeywords(seo);
+      setEmailSubject(emailSubject);
     } catch (error) {
       console.error("Erreur lors de la génération :", error);
       // Gérer l'erreur ici, par exemple en affichant un message à l'utilisateur

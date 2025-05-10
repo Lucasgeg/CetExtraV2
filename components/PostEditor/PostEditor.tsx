@@ -15,11 +15,13 @@ type PostEditorProps = {
     content: string;
     keywords: string[];
     shortDesc: string;
+    emailSubject: string;
   }) => void;
   initialTitle?: string;
   initialContent?: string;
   initialKeywords?: string[];
   initialShortDesc?: string;
+  initialEmailSubject?: string;
 };
 
 const converter = new Showdown.Converter();
@@ -29,27 +31,46 @@ export default function PostEditor({
   initialTitle = "",
   initialContent = "",
   initialKeywords = [],
-  initialShortDesc = ""
+  initialShortDesc = "",
+  initialEmailSubject = ""
 }: PostEditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [description, setDescription] = useState(initialShortDesc);
   const [keywords, setKeywords] = useState<string[]>(initialKeywords);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+  const [emailSubject, setEmailSubject] = useState<string>(initialEmailSubject);
 
   useEffect(() => {
     setTitle(initialTitle);
     setContent(initialContent);
     setDescription(initialShortDesc);
     setKeywords(initialKeywords);
-  }, [initialTitle, initialContent, initialShortDesc, initialKeywords]);
+    setEmailSubject(initialEmailSubject);
+  }, [
+    initialTitle,
+    initialContent,
+    initialShortDesc,
+    initialKeywords,
+    initialEmailSubject
+  ]);
+
+  const handleEmailSubjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailSubject(e.target.value || ""); // Garantir une chaîne vide si undefined
+  };
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
 
-        onSubmit({ title, content, keywords, shortDesc: description });
+        onSubmit({
+          title,
+          content,
+          keywords,
+          shortDesc: description,
+          emailSubject
+        });
       }}
       className="mx-auto w-full max-w-2xl space-y-4"
     >
@@ -69,7 +90,13 @@ export default function PostEditor({
         rows={3}
       />
       <KeywordInput keywords={keywords} setKeywords={setKeywords} />
-
+      <Input
+        type="text"
+        placeholder="Titre pour l'email (optionnel)"
+        value={emailSubject || ""} // Garantir une valeur de chaîne
+        onChange={handleEmailSubjectChange}
+        className="mt-4 w-full rounded border px-3 py-2"
+      />
       <ReactMde
         value={content}
         onChange={setContent}
@@ -92,6 +119,7 @@ export default function PostEditor({
           content={content}
           setDescription={setDescription}
           setKeywords={setKeywords}
+          setEmailSubject={setEmailSubject}
         />
         <Button
           type="submit"
