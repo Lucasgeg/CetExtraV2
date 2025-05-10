@@ -8,7 +8,8 @@ const basePublicRoutes = [
   "/", // Accueil
   "/blog(.*)", // Blog et sous-routes
   "/about(.*)", // À propos et sous-routes
-  "/sign-in(.*)" // Connexion et sous-routes
+  "/sign-in(.*)", // Connexion et sous-routes
+  "/api/blog(.*)" // API du blog et sous-routes
 ];
 
 // Les routes publiques additionnelles pour dev/rec
@@ -22,7 +23,7 @@ const isPublicRoute = createRouteMatcher(
   isProd ? basePublicRoutes : [...basePublicRoutes, ...devPublicRoutes]
 );
 
-const isAdminRoute = createRouteMatcher(["/blog/admin(.*)", "/api/blog(.*)"]);
+const isAdminRoute = createRouteMatcher(["/blog/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId, sessionClaims } = await auth();
