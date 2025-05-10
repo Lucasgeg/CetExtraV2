@@ -47,3 +47,11 @@ export type GetPostByIdType = {
   updatedAt: Date;
   published: boolean;
 };
+
+export type GetCommentByPostIdType = {
+  postId: string;
+  id: string;
+  author: string;
+  createdAt: Date;
+  content: string;
+};

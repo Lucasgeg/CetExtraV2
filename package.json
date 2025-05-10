@@ -6,7 +6,7 @@
     "cdev": "next dev",
     "dev": "next dev --turbopack",
     "build": "prettier --check . && next build",
-    "start": "next start --env production",
+    "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
     "studio": "prisma studio",
