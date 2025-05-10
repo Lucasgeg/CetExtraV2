@@ -9,10 +9,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export default function CommentsList({ postId }: { postId: string }) {
   const { data: comments, isValidating } = useSWR<GetCommentByPostIdType[]>(
     `/api/blog/${postId}/comments`,
-    fetcher,
-    {
-      refreshInterval: 30000
-    }
+    fetcher
   );
 
   return (
