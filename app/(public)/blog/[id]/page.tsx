@@ -44,17 +44,21 @@ export async function generateMetadata(props: {
       title: post.title + " | Cet Extra",
       description: post.shortDesc,
       url: `https://cetextra.fr/blog/${id}`,
-      siteName: "Cet Extra",
+      type: "article",
       images: [
         {
-          url: "/images/og-image.jpg",
+          url: "/cetextralogo.jpeg",
           width: 1200,
           height: 630,
-          alt: "Cet Extra Blog"
+          alt: "Cet Extra - Plateforme d’extras pour l’évènementiel"
         }
-      ],
-      locale: "fr_FR",
-      type: "article"
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title + " | Cet Extra",
+      description: post.shortDesc,
+      images: ["/cetextralogo.jpeg"]
     }
   };
 }

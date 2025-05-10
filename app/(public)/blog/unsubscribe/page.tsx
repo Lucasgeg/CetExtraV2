@@ -8,15 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Se désinscrire – Cet Extra",
     description: "Se désabonner des notifications du blog Cet Extra.",
-    robots: "noindex, follow",
-    openGraph: {
-      title: "Se désinscrire – Cet Extra",
-      description: "Gérez votre abonnement au blog Cet Extra.",
-      url: "https://cetextra.fr/unsubscribe",
-      siteName: "Cet Extra",
-      locale: "fr_FR",
-      type: "website"
-    }
+    robots: "noindex, follow"
   };
 }
 
