@@ -20,13 +20,13 @@ export const metadata: Metadata = {
     template: "%s | Cet Extra"
   },
   description:
-    "Plateforme dédiée au recrutement d’extras pour l’évènementiel et la restauration. Employeurs : trouvez serveurs, cuisiniers et extras disponibles près de chez vous en quelques clics. Solution simple, rapide et fiable.",
+    "Simplifiez la recherche d’extras pour vos évènements. Plateforme innovante pour les employeurs de l’évènementiel.",
   metadataBase: new URL("https://cetextra.fr"),
   openGraph: {
     title: "Cet Extra | Plateforme d’extras pour l’évènementiel",
     description:
       "Simplifiez la recherche d’extras pour vos évènements. Plateforme innovante pour les employeurs de l’évènementiel.",
-    url: "https://cetextra.fr/",
+    url: "https://www.cetextra.fr",
     type: "website",
     images: [
       {
@@ -41,11 +41,11 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Cet Extra | Plateforme d’extras pour l’évènementiel",
     description:
-      "Trouvez rapidement des extras pour vos évènements grâce à Cet Extra. Plateforme dédiée aux professionnels de l’évènementiel.",
+      "Simplifiez la recherche d’extras pour vos évènements. Plateforme innovante pour les employeurs de l’évènementiel.",
     images: ["/cetextralogo.jpeg"]
   },
   alternates: {
-    canonical: "/"
+    canonical: "https://www.cetextra.fr/"
   },
   icons: {
     icon: "/favicon.png"

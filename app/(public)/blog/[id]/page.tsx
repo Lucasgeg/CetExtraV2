@@ -39,23 +39,7 @@ export async function generateMetadata(props: {
     description: post.shortDesc,
     keywords: Array.isArray(post.keywords)
       ? post.keywords.join(", ")
-      : post.keywords,
-    openGraph: {
-      title: post.title + " | Cet Extra",
-      description: post.shortDesc,
-      url: `https://cetextra.fr/blog/${id}`,
-      siteName: "Cet Extra",
-      images: [
-        {
-          url: "/images/og-image.jpg",
-          width: 1200,
-          height: 630,
-          alt: "Cet Extra Blog"
-        }
-      ],
-      locale: "fr_FR",
-      type: "article"
-    }
+      : post.keywords
   };
 }
 
