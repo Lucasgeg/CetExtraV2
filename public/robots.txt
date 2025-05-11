@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /api/
+Disallow: /private/
+
+# Host
+Host: https://cetextra.fr
+
+# Sitemaps
+Sitemap: https://cetextra.fr/sitemap.xml
