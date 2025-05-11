@@ -9,7 +9,10 @@ const basePublicRoutes = [
   "/blog(.*)", // Blog et sous-routes
   "/about(.*)", // À propos et sous-routes
   "/sign-in(.*)", // Connexion et sous-routes
-  "/api/blog(.*)" // API du blog et sous-routes
+  "/api/blog(.*)", // API du blog et sous-routes
+  "/public(.*)", // Ressources publiques
+  "/sitemap(.*)", // Sitemap
+  "/robots.txt"
 ];
 
 // Les routes publiques additionnelles pour dev/rec
