@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import ReactMde from "react-mde";
+import { useState, useEffect, useRef } from "react";
+import ReactMde, { SaveImageHandler, TextApi } from "react-mde";
 import Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { Input } from "@/components/ui/input";
 import { KeywordInput } from "./KeywordInput";
 import { Button } from "@/components/ui/button";
 import { GenerateButton } from "./Actions";
+import { CldUploadWidget } from "next-cloudinary";
 
 type PostEditorProps = {
   onSubmit: (data: {
@@ -40,6 +41,34 @@ export default function PostEditor({
   const [keywords, setKeywords] = useState<string[]>(initialKeywords);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
   const [emailSubject, setEmailSubject] = useState<string>(initialEmailSubject);
+  const uploadWidgetRef = useRef<{ open: () => void } | null>(null);
+  const textApiRef = useRef<TextApi | null>(null);
+
+  const imageUpload: SaveImageHandler = async function* (
+    data: ArrayBuffer,
+    file: Blob
+  ) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "image_blog");
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formData }
+    );
+
+    const result = await res.json();
+    yield result.secure_url;
+    return true;
+  };
+
+  const imageCommand = {
+    icon: () => <span>🖼️</span>,
+    execute: ({ textApi }: { textApi: TextApi }) => {
+      textApiRef.current = textApi;
+      uploadWidgetRef.current?.open();
+    }
+  };
 
   useEffect(() => {
     setTitle(initialTitle);
@@ -97,6 +126,26 @@ export default function PostEditor({
         onChange={handleEmailSubjectChange}
         className="mt-4 w-full rounded border px-3 py-2"
       />
+      <CldUploadWidget
+        uploadPreset="image_blog"
+        options={{ sources: ["local", "url"], multiple: false }}
+        onSuccess={(result) => {
+          if (result.event === "success") {
+            const url = (result.info as { secure_url: string }).secure_url;
+            if (textApiRef.current) {
+              textApiRef.current.replaceSelection(`![](${url})`);
+            } else {
+              setContent((prev) => prev + `\n![](${url})`);
+            }
+          }
+        }}
+      >
+        {({ open }) => {
+          uploadWidgetRef.current = { open };
+          return null;
+        }}
+      </CldUploadWidget>
+
       <ReactMde
         value={content}
         onChange={setContent}
@@ -105,13 +154,11 @@ export default function PostEditor({
         generateMarkdownPreview={(markdown) =>
           Promise.resolve(converter.makeHtml(markdown))
         }
-        childProps={{
-          writeButton: {
-            tabIndex: -1
-          }
-        }}
+        childProps={{ writeButton: { tabIndex: -1 } }}
+        paste={{ saveImage: imageUpload }}
         minEditorHeight={200}
         heightUnits="px"
+        commands={{ image: imageCommand }}
       />
 
       <div className="flex items-center justify-end gap-4">
