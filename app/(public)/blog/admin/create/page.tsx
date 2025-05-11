@@ -14,6 +14,8 @@ export default function BlogCreatePage() {
     content: string;
     keywords: string[];
     shortDesc: string;
+    emailSubject: string;
+    shortUrl: string;
   }) => {
     // Ici, tu peux envoyer les données à ton API ou à Prisma
     // Par exemple :

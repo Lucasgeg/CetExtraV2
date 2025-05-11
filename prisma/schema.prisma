@@ -110,6 +110,7 @@ model BlogPost {
   keywords     String[]
   shortDesc    String        @default("")
   emailSubject String        @default("Cet Extra") @map("email_subject")
+  shortUrl     String        @unique @default("")
   comments     BlogComment[]
 }
 

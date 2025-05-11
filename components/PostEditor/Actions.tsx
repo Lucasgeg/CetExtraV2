@@ -77,12 +77,14 @@ export function GenerateButton({
   content,
   setDescription,
   setKeywords,
-  setEmailSubject
+  setEmailSubject,
+  setShortUrl
 }: {
   content: string;
   setDescription: (desc: string) => void;
   setKeywords: (keywords: string[]) => void;
   setEmailSubject: (title: string) => void;
+  setShortUrl: (url: string) => void;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -100,9 +102,11 @@ export function GenerateButton({
       const preview: string = parsedContent.preview;
       const seo: string[] = parsedContent.seo;
       const emailSubject: string = parsedContent.emailSubject || "";
+      const shortUrl: string = parsedContent.shortUrl || "";
       setDescription(preview);
       setKeywords(seo);
       setEmailSubject(emailSubject);
+      setShortUrl(shortUrl);
     } catch (error) {
       console.error("Erreur lors de la génération :", error);
       // Gérer l'erreur ici, par exemple en affichant un message à l'utilisateur

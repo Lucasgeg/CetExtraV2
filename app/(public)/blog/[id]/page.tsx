@@ -15,12 +15,12 @@ type BlogPostPageParams = {
 export async function generateStaticParams() {
   const posts = await prisma.blogPost.findMany({
     where: { published: true },
-    select: { id: true },
+    select: { shortUrl: true },
     take: 10
   });
 
   return posts.map((post) => ({
-    id: post.id
+    id: post.shortUrl
   }));
 }
 
@@ -31,7 +31,7 @@ export async function generateMetadata(props: {
   const { id } = params;
 
   const post = await prisma.blogPost.findUnique({
-    where: { id, published: true },
+    where: { shortUrl: id, published: true },
     select: { title: true, shortDesc: true, keywords: true }
   });
   if (!post) return {};
@@ -71,12 +71,12 @@ export default async function BlogPostPage(props: {
   const params = await props.params;
   const { id } = params;
   const post = await prisma.blogPost.findUnique({
-    where: { id, published: true }
+    where: { shortUrl: id, published: true }
   });
   if (!post) return notFound();
 
   const comments = await prisma.blogComment.findMany({
-    where: { postId: id },
+    where: { postId: post.id },
     orderBy: { createdAt: "desc" }
   });
 
@@ -156,9 +156,9 @@ export default async function BlogPostPage(props: {
         {comments.length === 0 ? (
           <p className="text-gray-500">Aucun commentaire pour le moment.</p>
         ) : (
-          <CommentsList postId={id} />
+          <CommentsList postId={post.id} />
         )}
-        <AddCommentForm postId={id} />
+        <AddCommentForm postId={post.id} />
       </section>
     </div>
   );

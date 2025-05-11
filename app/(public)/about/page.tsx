@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29]">
+    <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-6">
       <section className="w-full max-w-2xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 text-center shadow-2xl">
         <h1 className="mb-4 text-4xl font-extrabold text-[#22345E] md:text-5xl">
           À propos de Cet Extra

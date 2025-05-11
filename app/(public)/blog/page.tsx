@@ -15,7 +15,8 @@ export default async function BlogListPage() {
       id: true,
       title: true,
       shortDesc: true,
-      createdAt: true
+      createdAt: true,
+      shortUrl: true
     }
   });
 
@@ -34,7 +35,10 @@ export default async function BlogListPage() {
                 className="rounded-lg border border-[#FDBA3B] bg-white p-6 shadow-md transition hover:border-[#F15A29] hover:shadow-lg"
               >
                 <h2 className="mb-2 text-2xl font-semibold text-[#F15A29]">
-                  <Link href={`/blog/${post.id}`} className="hover:underline">
+                  <Link
+                    href={`/blog/${post.shortUrl}`}
+                    className="hover:underline"
+                  >
                     {post.title}
                   </Link>
                 </h2>
@@ -43,7 +47,7 @@ export default async function BlogListPage() {
                 </p>
                 <p className="mb-4">{post.shortDesc}</p>
                 <Link
-                  href={`/blog/${post.id}`}
+                  href={`/blog/${post.shortUrl}`}
                   className="font-medium text-[#F15A29] underline hover:text-[#FDBA3B]"
                 >
                   Lire l'article →
