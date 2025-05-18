@@ -39,7 +39,7 @@ export default function RootLayout({
             </ul>
           </div>
         </nav>
-        <main className="w-full flex-1 bg-gradient-to-br from-indigo-50 via-white to-blue-100">
+        <main className="w-full flex-1 bg-gradient-to-r from-brand-gradient-start via-brand-gradient-mid to-brand-gradient-end">
           <div className="mx-auto h-full">{children}</div>
         </main>
       </div>

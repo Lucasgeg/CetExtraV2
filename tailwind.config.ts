@@ -10,6 +10,9 @@ export default {
   theme: {
     extend: {
       colors: {
+        "brand-gradient-start": "#22345E",
+        "brand-gradient-mid": "#FDBA3B",
+        "brand-gradient-end": "#F15A29",
         // Palette employeur (bleutée)
         employer: {
           primary: "#33335E",

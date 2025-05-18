@@ -1,4 +1,3 @@
-// app/about/page.tsx
 import { Metadata } from "next";
 import Link from "next/link";
 
@@ -31,18 +30,20 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-6">
-      <section className="w-full max-w-2xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 text-center shadow-2xl">
-        <h1 className="mb-4 text-4xl font-extrabold text-[#22345E] md:text-5xl">
+    <div className="flex w-full flex-1 flex-col items-center justify-center py-6">
+      <section className="w-full max-w-2xl rounded-2xl border-4 border-extra-border bg-white-soft p-8 text-center shadow-2xl">
+        <h1 className="mb-4 text-4xl font-extrabold text-employer-primary md:text-5xl">
           À propos de Cet Extra
         </h1>
-        <p className="mb-6 text-lg text-[#22345E] md:text-xl">
+        <p className="mb-6 text-lg text-employer-secondary md:text-xl">
           L’application qui simplifie le recrutement d’extras pour les
           professionnels de l’événementiel.
         </p>
 
-        <div className="mb-6 space-y-4 text-left text-[#22345E]">
-          <h2 className="text-2xl font-bold text-[#F15A29]">Ma mission</h2>
+        <div className="mb-6 space-y-4 text-left text-employer-primary">
+          <h2 className="text-2xl font-bold text-extra-secondary">
+            Ma mission
+          </h2>
           <p>
             Cet Extra est une plateforme que j’ai créée pour faciliter la mise
             en relation rapide et efficace entre employeurs de l’événementiel et
@@ -51,18 +52,18 @@ export default function AboutPage() {
             professionnels du secteur.
           </p>
 
-          <h2 className="text-2xl font-bold text-[#F15A29]">
+          <h2 className="text-2xl font-bold text-extra-secondary">
             Qui suis-je&nbsp;?
           </h2>
           <p>
-            Je m’appelle Lucas, anciennement maître d'hotel en restauration
+            Je m’appelle Lucas, anciennement maître d'hôtel en restauration
             pendant plus de 10 ans, aujourd’hui développeur web. Après avoir
-            observé les difficultées rencontrées par les employeurs pour trouver
+            observé les difficultés rencontrées par les employeurs pour trouver
             des extras disponibles au bon moment, j’ai décidé de créer une
             solution simple, moderne et intuitive.
           </p>
 
-          <h2 className="text-2xl font-bold text-[#F15A29]">
+          <h2 className="text-2xl font-bold text-extra-secondary">
             Pourquoi Cet Extra&nbsp;?
           </h2>
           <p>
@@ -79,7 +80,9 @@ export default function AboutPage() {
             un temps précieux dans leur organisation.
           </p>
 
-          <h2 className="text-2xl font-bold text-[#F15A29]">Mes valeurs</h2>
+          <h2 className="text-2xl font-bold text-extra-secondary">
+            Mes valeurs
+          </h2>
           <ul className="list-disc pl-5">
             <li>
               <b>Simplicité</b> : une interface claire, accessible à tous,
@@ -95,7 +98,7 @@ export default function AboutPage() {
             </li>
           </ul>
 
-          <h2 className="text-2xl font-bold text-[#F15A29]">Ma vision</h2>
+          <h2 className="text-2xl font-bold text-extra-secondary">Ma vision</h2>
           <p>
             Aujourd’hui, Cet Extra cible principalement les postes de serveur et
             cuisinier, mais j’ai l’ambition d’élargir rapidement à d’autres
@@ -106,14 +109,16 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="mb-8 text-[#22345E]">
-          <h2 className="text-2xl font-bold text-[#F15A29]">Restez informés</h2>
+        <div className="mb-8 text-employer-primary">
+          <h2 className="text-2xl font-bold text-extra-secondary">
+            Restez informés
+          </h2>
           <p>
             Pour suivre l’évolution du projet, découvrir les nouveautés ou vous
             inscrire aux notifications, rendez-vous sur mon&nbsp;
             <Link
               href="/blog"
-              className="font-medium text-[#F15A29] underline transition hover:text-[#FDBA3B]"
+              className="font-medium text-extra-secondary underline transition hover:text-extra-primary"
             >
               blog&nbsp;!
             </Link>
@@ -123,13 +128,13 @@ export default function AboutPage() {
         <div className="flex justify-center gap-4">
           <Link
             href="/blog"
-            className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
+            className="inline-block rounded-lg bg-extra-primary px-6 py-3 font-semibold text-extra-text-primary shadow transition hover:bg-extra-secondary hover:text-white-soft"
           >
             Découvrir le blog
           </Link>
           <Link
             href="/"
-            className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
+            className="inline-block rounded-lg bg-extra-primary px-6 py-3 font-semibold text-extra-text-primary shadow transition hover:bg-extra-secondary hover:text-white-soft"
           >
             Retour à l'accueil
           </Link>

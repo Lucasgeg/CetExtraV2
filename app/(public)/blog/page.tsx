@@ -1,5 +1,6 @@
 import prisma from "@/app/lib/prisma";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Blog | Cet Extra",
@@ -21,42 +22,42 @@ export default async function BlogListPage() {
   });
 
   return (
-    <>
-      <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-12">
-        <section className="max-w-2xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 shadow-2xl">
-          <h1 className="mb-8 text-center text-4xl font-extrabold text-[#22345E] md:text-5xl">
-            Le Blog
-          </h1>
+    <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto py-12">
+      <section className="max-w-2xl rounded-2xl border-4 border-extra-primary bg-extra-background/90 p-8 shadow-2xl">
+        <h1 className="mb-8 text-center text-4xl font-extrabold text-extra-text-primary md:text-5xl">
+          Le Blog
+        </h1>
 
-          <ul className="space-y-8 text-[#22345E]">
-            {posts.map((post) => (
-              <li
-                key={post.id}
-                className="rounded-lg border border-[#FDBA3B] bg-white p-6 shadow-md transition hover:border-[#F15A29] hover:shadow-lg"
-              >
-                <h2 className="mb-2 text-2xl font-semibold text-[#F15A29]">
-                  <Link
-                    href={`/blog/${post.shortUrl}`}
-                    className="hover:underline"
-                  >
-                    {post.title}
-                  </Link>
-                </h2>
-                <p className="mb-2 text-sm text-gray-600">
-                  {new Date(post.createdAt).toLocaleDateString("fr-FR")}
-                </p>
-                <p className="mb-4">{post.shortDesc}</p>
+        <ul className="space-y-8 text-extra-text-primary">
+          {posts.map((post) => (
+            <li
+              key={post.id}
+              className="rounded-lg border border-extra-primary bg-extra-background p-6 shadow-md transition hover:border-extra-secondary hover:shadow-lg"
+            >
+              <h2 className="mb-2 text-2xl font-semibold text-extra-secondary">
                 <Link
                   href={`/blog/${post.shortUrl}`}
-                  className="font-medium text-[#F15A29] underline hover:text-[#FDBA3B]"
+                  className="hover:text-extra-primary hover:underline"
                 >
-                  Lire l'article →
+                  {post.title}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    </>
+              </h2>
+              <p className="mb-2 text-sm text-extra-text-secondary">
+                {new Date(post.createdAt).toLocaleDateString("fr-FR")}
+              </p>
+              <p className="mb-4 text-extra-text-primary">{post.shortDesc}</p>
+              <Button
+                asChild
+                theme="extra"
+                variant="link"
+                className="px-0 text-base"
+              >
+                <Link href={`/blog/${post.shortUrl}`}>Lire l'article →</Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
   );
 }
