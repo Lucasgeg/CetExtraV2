@@ -27,27 +27,25 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} mx-auto max-w-screen-xl bg-yellow-primary antialiased`}
-        >
-          <div className="relative flex items-center">
-            <CetExtraLogo className="h-16 w-16 lg:invisible" />
-            <span className="absolute left-1/2 -translate-x-1/2 transform text-2xl lg:text-6xl">
-              Bienvenue John Doe
-            </span>
-            <div className="ml-auto flex gap-1">
-              <div className="h-7 w-7 rounded-full">
-                <Cog6ToothIcon className="h-full w-full" />
-              </div>
-              <div className="h-7 w-7">
-                <UserButton />
-              </div>
+      <div
+        className={`${geistSans.variable} ${geistMono.variable} bg-yellow-primary mx-auto flex min-h-screen max-w-screen-xl flex-col antialiased`}
+      >
+        <div className="relative flex items-center">
+          <CetExtraLogo className="h-16 w-16 lg:invisible" />
+          <span className="absolute left-1/2 -translate-x-1/2 transform text-2xl lg:text-6xl">
+            Bienvenue John Doe
+          </span>
+          <div className="ml-auto flex gap-1">
+            <div className="h-7 w-7 rounded-full">
+              <Cog6ToothIcon className="h-full w-full" />
+            </div>
+            <div className="h-7 w-7">
+              <UserButton />
             </div>
           </div>
-          {children}
-        </body>
-      </html>
+        </div>
+        {children}
+      </div>
     </ClerkProvider>
   );
 }

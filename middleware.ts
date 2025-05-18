@@ -16,7 +16,12 @@ const basePublicRoutes = [
 ];
 
 // Les routes publiques additionnelles pour dev/rec
-const devPublicRoutes = ["/sign-in(.*)", "/sign-up(.*)", "/api/users/sign-up"];
+const devPublicRoutes = ["/sign-up(.*)", "/api/users/sign-up"];
+
+const protectedRoutes = [
+  "/company(.*)", // Routes de l'entreprise
+  "/extra(.*)" // Routes de l'extra
+];
 
 // Détection de l'environnement
 const isProd = process.env.VERCEL_ENV === "production";
@@ -25,6 +30,8 @@ const isProd = process.env.VERCEL_ENV === "production";
 const isPublicRoute = createRouteMatcher(
   isProd ? basePublicRoutes : [...basePublicRoutes, ...devPublicRoutes]
 );
+
+const isProtectedRoute = createRouteMatcher(protectedRoutes);
 
 const isAdminRoute = createRouteMatcher(["/blog/admin(.*)"]);
 
@@ -42,6 +49,9 @@ export default clerkMiddleware(async (auth, request) => {
       return NextResponse.redirect(new URL("/", request.url));
     }
   } else {
+    if (isProtectedRoute(request)) {
+      await auth.protect(); // Redirige vers /sign-in si non connecté
+    }
     const { pathname } = request.nextUrl;
     if (userId && pathname === "/") {
       const isFromAuth =

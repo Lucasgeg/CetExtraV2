@@ -22,8 +22,8 @@ export default async function BlogListPage() {
 
   return (
     <>
-      <div className="flex w-full flex-1 flex-col items-center overflow-y-auto bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-12">
-        <section className="w-full max-w-2xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 shadow-2xl">
+      <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-12">
+        <section className="max-w-2xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 shadow-2xl">
           <h1 className="mb-8 text-center text-4xl font-extrabold text-[#22345E] md:text-5xl">
             Le Blog
           </h1>

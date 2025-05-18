@@ -10,8 +10,41 @@ export default {
   theme: {
     extend: {
       colors: {
-        "blue-primary": "#32325d",
-        "yellow-primary": "#fbbd41",
+        // Palette employeur (bleutée)
+        employer: {
+          primary: "#33335E",
+          secondary: "#2E7BA6",
+          accent: "#EA5F3E",
+          background: "#F4F7FA",
+          surface: "#E6ECF3",
+          border: "#C9D6E2",
+          text: {
+            primary: "#232336",
+            secondary: "#5A5A7A"
+          },
+          success: "#4BB543",
+          warning: "#F7B742",
+          error: "#EA5F3E"
+        },
+        // Palette extra (jaune/orangé)
+        extra: {
+          primary: "#F7B742",
+          secondary: "#EA5F3E",
+          accent: "#2E7BA6",
+          background: "#FFF8ED",
+          surface: "#FFF3D6",
+          border: "#EFD08C",
+          text: {
+            primary: "#503C1B",
+            secondary: "#9A7B3F"
+          },
+          success: "#4BB543",
+          warning: "#F7B742",
+          error: "#EA5F3E"
+        },
+        // Blanc et noir doux
+        "white-soft": "#F4F7FA",
+        "black-soft": "#232336",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

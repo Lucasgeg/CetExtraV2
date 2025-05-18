@@ -6,5 +6,6 @@ module.exports = {
       { userAgent: "*", allow: "/" },
       { userAgent: "*", disallow: ["/api/", "/private/"] }
     ]
-  }
+  },
+  exclude: ["/sign-in", "blog/admin", "/blog/admin/*", "/company/*"]
 };

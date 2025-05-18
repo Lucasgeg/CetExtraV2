@@ -1,10 +1,11 @@
 import { CetExtraLogo } from "@/components/icons/CetExtraLogo";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-      <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29]">
+      <div className="flex h-full w-full max-w-screen-xl flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29]">
         <header>
           <div className="mb-8 flex items-center justify-center">
             <CetExtraLogo className="h-60 w-60" aria-label="Logo Cet Extra" />
@@ -33,18 +34,12 @@ export default function Home() {
             </Link>
           </p>
           <div className="flex justify-center gap-4">
-            <Link
-              href="/blog"
-              className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
-            >
-              Découvrir le blog
-            </Link>
-            <Link
-              href="/about"
-              className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
-            >
-              A propos de nous
-            </Link>
+            <Button asChild theme="company" variant="default">
+              <Link href="/blog">Découvrir le blog</Link>
+            </Button>
+            <Button asChild theme="extra" variant="default">
+              <Link href="/about">A propos de nous</Link>
+            </Button>
           </div>
         </section>
       </div>
