@@ -22,11 +22,12 @@ export async function POST(request: Request) {
     (await request.json()) as SendMailResponse;
 
   const baseUrl = "https://cetextra.fr";
-  const unsubscribePath = "/unsubscribe";
+  const unsubscribePath = "/blog/unsubscribe";
 
   try {
     const subscribers = await prisma.blogSubscriber.findMany({
-      select: { email: true, id: true }
+      select: { email: true, id: true },
+      where: { subscribed: true }
     });
 
     // Envoi individualisé pour chaque subscriber

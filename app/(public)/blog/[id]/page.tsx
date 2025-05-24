@@ -123,7 +123,7 @@ export default async function BlogPostPage(props: {
   };
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] py-12">
+    <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] px-6 py-12">
       <article className="w-full max-w-4xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 shadow-2xl">
         <h1 className="mb-2 text-center text-4xl font-extrabold text-[#22345E] md:text-5xl">
           {post.title}

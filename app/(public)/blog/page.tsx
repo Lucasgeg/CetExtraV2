@@ -22,7 +22,7 @@ export default async function BlogListPage() {
   });
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto py-12">
+    <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto px-6 py-12">
       <section className="max-w-2xl rounded-2xl border-4 border-extra-primary bg-extra-background/90 p-8 shadow-2xl">
         <h1 className="mb-8 text-center text-4xl font-extrabold text-extra-text-primary md:text-5xl">
           Le Blog
