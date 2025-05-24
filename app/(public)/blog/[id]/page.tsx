@@ -32,7 +32,7 @@ export async function generateMetadata(props: {
 
   const post = await prisma.blogPost.findUnique({
     where: { shortUrl: id, published: true },
-    select: { title: true, shortDesc: true, keywords: true }
+    select: { title: true, shortDesc: true, keywords: true, shortUrl: true }
   });
   if (!post) return {};
 
@@ -45,7 +45,7 @@ export async function generateMetadata(props: {
     openGraph: {
       title: post.title + " | Cet Extra",
       description: post.shortDesc,
-      url: `https://cetextra.fr/blog/${id}`,
+      url: `https://cetextra.fr/blog/${post.shortUrl}`,
       type: "article",
       images: [
         {
@@ -61,6 +61,9 @@ export async function generateMetadata(props: {
       title: post.title + " | Cet Extra",
       description: post.shortDesc,
       images: ["/cetextralogo.jpeg"]
+    },
+    alternates: {
+      canonical: `https://cetextra.fr/blog/${post.shortUrl}`
     }
   };
 }

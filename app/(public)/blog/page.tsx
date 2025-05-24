@@ -3,9 +3,43 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Blog | Cet Extra",
+  title: "Blog Cet Extra – Recrutement extras événementiel & actus",
   description:
-    "Suivez l'évolution du projet, nos annonces et nos nouveautés sur le blog de Cet Extra."
+    "Découvrez toutes les actualités, conseils et nouveautés de la plateforme Cet Extra (cet extra) dédiée au recrutement d’extras pour l’événementiel et la restauration.",
+  keywords: [
+    "Cet Extra",
+    "cet extra",
+    "blog événementiel",
+    "recrutement extra",
+    "extras restauration",
+    "actualités extras",
+    "emploi événementiel"
+  ],
+  openGraph: {
+    title: "Blog Cet Extra – Recrutement extras événementiel & actus",
+    description:
+      "Toutes les actualités et conseils sur le recrutement d’extras en événementiel avec la plateforme Cet Extra.",
+    url: "https://www.cetextra.fr/blog",
+    type: "website",
+    images: [
+      {
+        url: "/cetextralogo.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Blog Cet Extra – Plateforme d’extras pour l’événementiel"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog Cet Extra – Recrutement extras événementiel & actus",
+    description:
+      "Toutes les actualités et conseils sur le recrutement d’extras en événementiel avec la plateforme Cet Extra.",
+    images: ["/cetextralogo.jpeg"]
+  },
+  alternates: {
+    canonical: "https://www.cetextra.fr/blog"
+  }
 };
 
 export default async function BlogListPage() {
