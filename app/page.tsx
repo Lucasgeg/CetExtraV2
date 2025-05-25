@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-      <div className="flex h-full w-full max-w-screen-xl flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] px-6">
+      <div className="flex h-full w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] px-6">
         <header>
           <div className="mb-8 flex items-center justify-center">
             <CetExtraLogo className="h-60 w-60" aria-label="Logo Cet Extra" />

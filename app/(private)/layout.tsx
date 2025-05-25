@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <div
-        className={`${geistSans.variable} ${geistMono.variable} bg-yellow-primary mx-auto flex min-h-screen max-w-screen-xl flex-col antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} mx-auto flex h-screen w-full flex-col px-6 antialiased`}
       >
         <div className="relative flex items-center">
           <CetExtraLogo className="h-16 w-16 lg:invisible" />
@@ -44,7 +44,9 @@ export default function RootLayout({
             </div>
           </div>
         </div>
-        {children}
+        <div className="my-auto flex max-h-[80vh] flex-1 bg-main-gradient p-6">
+          {children}
+        </div>
       </div>
     </ClerkProvider>
   );

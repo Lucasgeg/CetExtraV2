@@ -60,7 +60,7 @@ export default function RootLayout({
     <html lang="fr">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AnimatedBG />
-        <div className="mx-auto h-screen max-w-screen-xl">{children}</div>
+        <div className="mx-auto h-screen max-w-screen-3xl">{children}</div>
       </body>
     </html>
   );

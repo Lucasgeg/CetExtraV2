@@ -10,7 +10,7 @@ interface InputProps extends React.ComponentProps<"input"> {
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, errorMessage, ...props }, ref) => {
     return (
-      <div>
+      <div className="w-full">
         <input
           type={type}
           className={cn(
