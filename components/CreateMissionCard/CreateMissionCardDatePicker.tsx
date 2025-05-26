@@ -1,27 +1,32 @@
-import { cn } from "@/lib/utils";
+import { fr } from "date-fns/locale";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { DateTimePicker } from "../ui/dateTimePicker";
-import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 type CreateMissionCardDatePickerProps = {
   title: string;
   id: string;
-  value?: Date;
   placeholder?: string;
-  onDateChange: (date?: Date) => void;
   icon?: React.ReactNode;
   iconContainerClassName?: string;
   errorMessage?: string;
+  pickerProps?: Omit<
+    React.ComponentProps<typeof DateTimePicker>,
+    "value" | "onChange"
+  > & {
+    value?: Date;
+    onChange?: (date?: Date) => void;
+  };
 };
 
 export const CreateMissionCardDatePicker = ({
   id,
-  onDateChange,
   placeholder,
   title,
-  value,
   icon,
-  iconContainerClassName
+  iconContainerClassName,
+  errorMessage,
+  pickerProps
 }: CreateMissionCardDatePickerProps) => {
   return (
     <Card className="h-full max-h-40">
@@ -33,15 +38,21 @@ export const CreateMissionCardDatePicker = ({
           {title}
         </h2>
       </CardHeader>
-      <CardContent className="flex flex-col justify-start md:flex-row">
+      <CardContent className="flex flex-col justify-start">
         <DateTimePicker
           hourCycle={24}
           locale={fr}
           placeholder={placeholder}
-          value={value}
+          value={pickerProps?.value}
+          onChange={pickerProps?.onChange}
           className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary md:h-14"
-          onChange={onDateChange}
+          {...pickerProps}
         />
+        {errorMessage && (
+          <div className="mt-1 max-w-40 text-justify text-sm text-red-500">
+            {errorMessage}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

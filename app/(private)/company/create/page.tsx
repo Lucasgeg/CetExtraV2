@@ -1,6 +1,5 @@
 "use client";
 import { CreateMissionCard } from "@/components/CreateMissionCard/CreateMissionCard";
-import { useState } from "react";
 import {
   DocumentTextIcon,
   SparklesIcon,
@@ -8,82 +7,158 @@ import {
   MapPinIcon
 } from "@heroicons/react/24/outline";
 import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/CreateMissionCardDatePicker";
+import { Controller, useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+
+type FormValues = {
+  missionName: string;
+  missionDescription: string;
+  missionStartDate: string;
+  missionEndDate: string;
+  location: string;
+};
 
 export default function CreateMissionPage() {
-  const [missionName, setMissionName] = useState("");
-  const [missionDescription, setMissionDescription] = useState("");
-  const [missionStartDate, setMissionStartDate] = useState<Date | undefined>(
-    undefined
-  );
-  const [missionEndDate, setMissionEndDate] = useState<Date | undefined>(
-    undefined
-  );
-  const [location, setLocation] = useState("");
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting }
+  } = useForm<FormValues>({
+    defaultValues: {
+      missionName: "",
+      missionDescription: "",
+      missionStartDate: "",
+      missionEndDate: "",
+      location: ""
+    }
+  });
+
+  const onSubmit = (data: FormValues) => {
+    // Traite les données du formulaire ici
+    console.log(data);
+  };
 
   return (
-    <div className="h-full w-full">
-      <div className="flex items-center justify-center">
-        <h1 className="text-2xl font-bold text-employer-secondary">
-          Créer une mission
-        </h1>
-      </div>
-      <div className="grid h-full gap-4 p-4 lg:grid-cols-3">
-        <div className="flex h-full flex-col justify-around lg:gap-4">
-          <CreateMissionCard
-            id="missionName"
-            variant="input"
-            onInputChange={(e) => setMissionName(e.target.value)}
-            placeholder="Nom de la mission"
-            title="Nom de la mission"
-            type="text"
-            value={missionName}
-            icon={<DocumentTextIcon className="w-8" />}
-            iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
-          />
-          <CreateMissionCard
-            id="location"
-            variant="input"
-            onInputChange={(e) => setLocation(e.target.value)}
-            placeholder="Lieu de la mission"
-            title="lieu de la mission"
-            type="text"
-            value={missionName}
-            icon={<MapPinIcon className="w-8" />}
-            iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
-          />
-          <CreateMissionCard
-            id="missionDescription"
-            variant="textarea"
-            onTextareaChange={(e) => setMissionDescription(e.target.value)}
-            placeholder="Description de la mission"
-            title="Description de la mission"
-            type="text"
-            value={missionDescription}
-            icon={<SparklesIcon className="w-8" />}
-            iconContainerClassName="bg-gradient-to-br from-employer-secondary to-[#F3E8FF]"
-          />
-          <CreateMissionCardDatePicker
-            id="missionStartDate"
-            title="Date de début de la mission"
-            value={missionStartDate}
-            placeholder="Sélectionnez la date de début"
-            onDateChange={(date) => console.log(date)}
-            icon={<CalendarDaysIcon className="w-8" />}
-            iconContainerClassName="bg-gradient-to-br from-green-600 to-[#F3E8FF]"
-          />
-          <CreateMissionCardDatePicker
-            id="missionStartDate"
-            title="Date de fin de la mission"
-            value={missionEndDate}
-            placeholder="Sélectionnez la date de fin"
-            onDateChange={(date) => console.log(date)}
-            icon={<CalendarDaysIcon className="w-8" />}
-            iconContainerClassName="bg-gradient-to-br from-red-600 to-[#F3E8FF]"
-          />
+    <>
+      <h1 className="col-span-3 text-center text-2xl font-bold text-employer-secondary">
+        Créer une mission
+      </h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="h-full w-full">
+        <div className="grid h-full grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+          <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
+            <Controller
+              name="missionName"
+              control={control}
+              rules={{ required: "Le nom de la mission est requis" }}
+              render={({ field }) => (
+                <CreateMissionCard
+                  id="missionName"
+                  variant="input"
+                  inputProps={{
+                    ...field,
+                    disabled: isSubmitting
+                  }}
+                  placeholder="Nom de la mission"
+                  title="Nom de la mission"
+                  type="text"
+                  icon={<DocumentTextIcon className="w-8" />}
+                  iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
+                  errorMessage={errors.missionName?.message}
+                />
+              )}
+            />
+            <Controller
+              name="location"
+              control={control}
+              rules={{ required: "Le lieu de la mission est requis" }}
+              render={({ field }) => (
+                <CreateMissionCard
+                  id="location"
+                  variant="input"
+                  inputProps={{
+                    ...field,
+                    disabled: isSubmitting
+                  }}
+                  placeholder="Lieu de la mission"
+                  title="Lieu de la mission"
+                  type="text"
+                  icon={<MapPinIcon className="w-8" />}
+                  iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
+                  errorMessage={errors.location?.message}
+                />
+              )}
+            />
+            <Controller
+              name="missionDescription"
+              control={control}
+              render={({ field }) => (
+                <CreateMissionCard
+                  id="missionDescription"
+                  variant="textarea"
+                  textareaProps={{
+                    ...field,
+                    disabled: isSubmitting
+                  }}
+                  placeholder="Description de la mission"
+                  title="Description de la mission"
+                  type="text"
+                  icon={<SparklesIcon className="w-8" />}
+                  iconContainerClassName="bg-gradient-to-br from-employer-secondary to-[#F3E8FF]"
+                  errorMessage={errors.missionDescription?.message}
+                />
+              )}
+            />
+            <Controller
+              name="missionStartDate"
+              control={control}
+              rules={{ required: "Date de début requise" }}
+              render={({ field }) => (
+                <CreateMissionCardDatePicker
+                  id="missionStartDate"
+                  title="Date de début"
+                  icon={<CalendarDaysIcon className="w-8" />}
+                  pickerProps={{
+                    value:
+                      field.value && !isNaN(new Date(field.value).getTime())
+                        ? new Date(field.value)
+                        : undefined,
+                    onChange: field.onChange
+                  }}
+                  errorMessage={errors.missionStartDate?.message}
+                  iconContainerClassName="bg-gradient-to-br from-green-600 to-[#F3E8FF]"
+                />
+              )}
+            />
+            <Controller
+              name="missionEndDate"
+              control={control}
+              rules={{ required: "Date de fin requise" }}
+              render={({ field }) => (
+                <CreateMissionCardDatePicker
+                  id="missionEndDate"
+                  title="Date de fin"
+                  icon={<CalendarDaysIcon className="w-8" />}
+                  pickerProps={{
+                    value:
+                      field.value && !isNaN(new Date(field.value).getTime())
+                        ? new Date(field.value)
+                        : undefined,
+                    onChange: field.onChange
+                  }}
+                  errorMessage={errors.missionEndDate?.message}
+                  iconContainerClassName="bg-gradient-to-br from-red-600 to-[#F3E8FF]"
+                />
+              )}
+            />
+          </div>
+          <div className="h-full w-full bg-green-400">test</div>
+          <div className="h-full w-full bg-blue-400">
+            <Button theme="company" type="submit">
+              valider
+            </Button>
+          </div>
         </div>
-        <div className="h-full w-full bg-green-400">test</div>
-        <div className="h-full w-full bg-blue-400">tata</div>
-      </div>
-    </div>
+      </form>
+    </>
   );
 }

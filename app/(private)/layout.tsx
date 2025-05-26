@@ -44,7 +44,7 @@ export default function RootLayout({
             </div>
           </div>
         </div>
-        <div className="my-auto flex max-h-[80vh] flex-1 bg-main-gradient p-6">
+        <div className="my-auto flex flex-1 flex-col bg-main-gradient p-6 lg:max-h-[80vh]">
           {children}
         </div>
       </div>
