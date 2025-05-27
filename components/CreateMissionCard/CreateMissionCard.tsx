@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import React from "react";
+import styles from "./MissionCard.module.css";
 
 type CreateMissionCardProps = {
   title: string;
@@ -36,34 +37,42 @@ export const CreateMissionCard = ({
   textareaProps
 }: CreateMissionCardProps) => {
   return (
-    <Card className={cn("h-full max-h-36", className)}>
+    <Card
+      className={cn("flex h-full max-h-36 min-h-0 flex-1 flex-col", className)}
+    >
       <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
-        <div className={cn("rounded-lg p-1", iconContainerClassName)}>
+        <div
+          className={cn(
+            "rounded-lg p-1",
+            iconContainerClassName,
+            styles.iconWrapper
+          )}
+        >
           {icon}
         </div>
         <h2 className="w-auto text-lg font-semibold text-employer-primary">
           {title}
         </h2>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex h-full flex-col">
         {variant === "input" && (
           <Input
             id={id}
             type={type}
             placeholder={placeholder}
             errorMessage={errorMessage}
-            className="w-full border-employer-border focus:border-employer-secondary focus:ring-employer-secondary md:h-14"
+            className="w-full border-employer-border focus:border-employer-secondary focus:ring-employer-secondary"
             {...inputProps}
           />
         )}
 
         {variant === "textarea" && (
-          <div className="w-full">
+          <>
             <textarea
               id={id}
               placeholder={placeholder}
               className={cn(
-                "w-full resize-none rounded-md border-employer-border p-2 focus:border-employer-secondary focus:ring-employer-secondary md:h-20",
+                "min-h-0 w-full flex-1 resize-none rounded-md border-employer-border p-2 focus:border-employer-secondary focus:ring-employer-secondary",
                 errorMessage && "border-red-500"
               )}
               {...textareaProps}
@@ -73,7 +82,7 @@ export const CreateMissionCard = ({
                 {errorMessage}
               </div>
             )}
-          </div>
+          </>
         )}
       </CardContent>
     </Card>

@@ -2,6 +2,7 @@ import { fr } from "date-fns/locale";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { DateTimePicker } from "../ui/dateTimePicker";
 import { cn } from "@/lib/utils";
+import styles from "./MissionCard.module.css";
 
 type CreateMissionCardDatePickerProps = {
   title: string;
@@ -29,9 +30,15 @@ export const CreateMissionCardDatePicker = ({
   pickerProps
 }: CreateMissionCardDatePickerProps) => {
   return (
-    <Card className="h-full max-h-40">
+    <Card className="max-h-36 min-h-0 flex-1">
       <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
-        <div className={cn("rounded-lg p-1", iconContainerClassName)}>
+        <div
+          className={cn(
+            "rounded-lg p-1",
+            iconContainerClassName,
+            styles.iconWrapper
+          )}
+        >
           {icon}
         </div>
         <h2 className="w-auto text-lg font-semibold text-employer-primary">
@@ -45,7 +52,7 @@ export const CreateMissionCardDatePicker = ({
           placeholder={placeholder}
           value={pickerProps?.value}
           onChange={pickerProps?.onChange}
-          className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary md:h-14"
+          className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
           {...pickerProps}
         />
         {errorMessage && (

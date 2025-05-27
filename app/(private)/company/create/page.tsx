@@ -61,7 +61,7 @@ export default function CreateMissionPage() {
                   placeholder="Nom de la mission"
                   title="Nom de la mission"
                   type="text"
-                  icon={<DocumentTextIcon className="w-8" />}
+                  icon={<DocumentTextIcon />}
                   iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
                   errorMessage={errors.missionName?.message}
                 />
@@ -82,29 +82,9 @@ export default function CreateMissionPage() {
                   placeholder="Lieu de la mission"
                   title="Lieu de la mission"
                   type="text"
-                  icon={<MapPinIcon className="w-8" />}
+                  icon={<MapPinIcon />}
                   iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
                   errorMessage={errors.location?.message}
-                />
-              )}
-            />
-            <Controller
-              name="missionDescription"
-              control={control}
-              render={({ field }) => (
-                <CreateMissionCard
-                  id="missionDescription"
-                  variant="textarea"
-                  textareaProps={{
-                    ...field,
-                    disabled: isSubmitting
-                  }}
-                  placeholder="Description de la mission"
-                  title="Description de la mission"
-                  type="text"
-                  icon={<SparklesIcon className="w-8" />}
-                  iconContainerClassName="bg-gradient-to-br from-employer-secondary to-[#F3E8FF]"
-                  errorMessage={errors.missionDescription?.message}
                 />
               )}
             />
@@ -116,7 +96,7 @@ export default function CreateMissionPage() {
                 <CreateMissionCardDatePicker
                   id="missionStartDate"
                   title="Date de début"
-                  icon={<CalendarDaysIcon className="w-8" />}
+                  icon={<CalendarDaysIcon />}
                   pickerProps={{
                     value:
                       field.value && !isNaN(new Date(field.value).getTime())
@@ -137,7 +117,7 @@ export default function CreateMissionPage() {
                 <CreateMissionCardDatePicker
                   id="missionEndDate"
                   title="Date de fin"
-                  icon={<CalendarDaysIcon className="w-8" />}
+                  icon={<CalendarDaysIcon />}
                   pickerProps={{
                     value:
                       field.value && !isNaN(new Date(field.value).getTime())
@@ -151,7 +131,29 @@ export default function CreateMissionPage() {
               )}
             />
           </div>
-          <div className="h-full w-full bg-green-400">test</div>
+          <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
+            <Controller
+              name="missionDescription"
+              control={control}
+              render={({ field }) => (
+                <CreateMissionCard
+                  id="missionDescription"
+                  variant="textarea"
+                  textareaProps={{
+                    ...field,
+                    disabled: isSubmitting
+                  }}
+                  placeholder="Description de la mission"
+                  title="Description de la mission"
+                  type="text"
+                  icon={<SparklesIcon />}
+                  iconContainerClassName="bg-gradient-to-br from-employer-secondary to-[#F3E8FF]"
+                  errorMessage={errors.missionDescription?.message}
+                  className="h-full max-h-[50%]"
+                />
+              )}
+            />
+          </div>
           <div className="h-full w-full bg-blue-400">
             <Button theme="company" type="submit">
               valider
