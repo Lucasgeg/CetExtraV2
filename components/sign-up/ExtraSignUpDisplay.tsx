@@ -46,11 +46,6 @@ export const ExtraSignUpDisplay = ({
       value: EnumMissionJob.COOK,
       label: "Cuisinier",
       description: "Travail en cuisine"
-    },
-    {
-      value: EnumMissionJob.BOTH,
-      label: "Les deux",
-      description: "Travail en cuisine et en salle"
     }
   ];
 

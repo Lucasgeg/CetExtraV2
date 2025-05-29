@@ -4,39 +4,52 @@ import {
   DocumentTextIcon,
   SparklesIcon,
   CalendarDaysIcon,
-  MapPinIcon
+  MapPinIcon,
+  MagnifyingGlassIcon,
+  UsersIcon
 } from "@heroicons/react/24/outline";
 import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/CreateMissionCardDatePicker";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { EnumJobOptions } from "@/store/types";
+import { TeamGestionnaryItem } from "@/components/TeamGestionnaryItem/TeamGestionnaryItem";
 
 type FormValues = {
   missionName: string;
   missionDescription: string;
   missionStartDate: string;
   missionEndDate: string;
+  additionalInfo?: string;
   location: string;
+  extraJobOptions: EnumJobOptions[];
 };
 
 export default function CreateMissionPage() {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
+    watch
   } = useForm<FormValues>({
     defaultValues: {
       missionName: "",
       missionDescription: "",
       missionStartDate: "",
       missionEndDate: "",
-      location: ""
+      location: "",
+      extraJobOptions: []
     }
   });
 
+  const selectedJobOptions = watch("extraJobOptions", []);
   const onSubmit = (data: FormValues) => {
     // Traite les données du formulaire ici
     console.log(data);
   };
+  const options = Object.entries(EnumJobOptions).map(([key, value]) => ({
+    label: value,
+    value: key
+  }));
 
   return (
     <>
@@ -153,8 +166,85 @@ export default function CreateMissionPage() {
                 />
               )}
             />
+            <Controller
+              name="additionalInfo"
+              control={control}
+              render={({ field }) => (
+                <CreateMissionCard
+                  id="additionalInfo"
+                  variant="textarea"
+                  textareaProps={{
+                    ...field,
+                    disabled: isSubmitting
+                  }}
+                  placeholder="Expérience nécessaire, tenue fournies, etc."
+                  title="Informations supplémentaires"
+                  type="text"
+                  icon={<MagnifyingGlassIcon />}
+                  iconContainerClassName="bg-gradient-to-br from-employer-secondary to-[#F3E8FF]"
+                  errorMessage={errors.missionDescription?.message}
+                  className="h-full max-h-[50%]"
+                />
+              )}
+            />
+            <Controller
+              name="extraJobOptions"
+              control={control}
+              render={({ field }) => {
+                const selectedOptions = options.filter((opt) =>
+                  field.value?.includes(opt.value as EnumJobOptions)
+                );
+                return (
+                  <CreateMissionCard
+                    type=""
+                    id="extraJobOptions"
+                    variant="select"
+                    selectProps={{
+                      options,
+                      value: selectedOptions,
+                      onChange: (selected) => {
+                        field.onChange(
+                          selected.map((opt) => opt.value as EnumJobOptions)
+                        );
+                      },
+                      withSearch: true
+                    }}
+                    placeholder="Sélectionnez les postes requis"
+                    title="Postes requis"
+                    icon={<UsersIcon />}
+                    iconContainerClassName="bg-gradient-to-br from-extra-primary to-[#F3E8FF]"
+                    errorMessage={errors.extraJobOptions?.message}
+                    className="border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
+                  />
+                );
+              }}
+            />
           </div>
-          <div className="h-full w-full bg-blue-400">
+          <div className="h-full w-full bg-employer-background">
+            <div>
+              <h2 className="text-center text-lg font-semibold text-employer-primary">
+                Gestion de l'équipe:
+              </h2>
+              {selectedJobOptions.length > 0 ? (
+                <ul className="list-disc pl-5">
+                  {selectedJobOptions.map((option) => (
+                    <li key={option} className="text-employer-secondary">
+                      {option}
+                      <TeamGestionnaryItem
+                        onDelete={() => {}}
+                        onInvite={() => {}}
+                        tipNumber={1}
+                        job={option}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center text-employer-secondary">
+                  Aucune équipe sélectionnée
+                </p>
+              )}
+            </div>
             <Button theme="company" type="submit">
               valider
             </Button>

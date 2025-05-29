@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
 import React from "react";
 import styles from "./MissionCard.module.css";
+import MultipleSelector, { Option } from "../ui/MultipleSelector";
 
 type CreateMissionCardProps = {
   title: string;
@@ -11,7 +12,7 @@ type CreateMissionCardProps = {
   placeholder: string;
   icon?: React.ReactNode;
   iconContainerClassName?: string;
-  variant?: "input" | "textarea";
+  variant?: "input" | "textarea" | "select";
   errorMessage?: string;
   className?: string;
   // Props pour React Hook Form (Controller ou register)
@@ -20,6 +21,15 @@ type CreateMissionCardProps = {
   };
   textareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     ref?: React.Ref<HTMLTextAreaElement>;
+  };
+  selectProps?: {
+    options: Option[];
+    value: Option[];
+    onChange: (options: Option[]) => void;
+    placeholder?: string;
+    maxSelected?: number;
+    creatable?: boolean;
+    withSearch?: boolean;
   };
 };
 
@@ -34,7 +44,8 @@ export const CreateMissionCard = ({
   className,
   errorMessage,
   inputProps,
-  textareaProps
+  textareaProps,
+  selectProps
 }: CreateMissionCardProps) => {
   return (
     <Card
@@ -54,7 +65,7 @@ export const CreateMissionCard = ({
           {title}
         </h2>
       </CardHeader>
-      <CardContent className="flex h-full flex-col">
+      <CardContent className="flex h-full flex-col justify-center">
         {variant === "input" && (
           <Input
             id={id}
@@ -83,6 +94,21 @@ export const CreateMissionCard = ({
               </div>
             )}
           </>
+        )}
+
+        {variant === "select" && selectProps && (
+          <MultipleSelector
+            placement="top"
+            badgeClassName="bg-extra-primary text-employer-primary hover:bg-employer-secondary"
+            withSearch={selectProps.withSearch}
+            options={selectProps.options}
+            value={selectProps.value}
+            onChange={selectProps.onChange}
+            placeholder={selectProps.placeholder}
+            maxSelected={selectProps.maxSelected}
+            creatable={selectProps.creatable}
+            className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
+          />
         )}
       </CardContent>
     </Card>

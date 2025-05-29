@@ -30,7 +30,7 @@ export const CreateMissionCardDatePicker = ({
   pickerProps
 }: CreateMissionCardDatePickerProps) => {
   return (
-    <Card className="max-h-36 min-h-0 flex-1">
+    <Card className="flex h-full max-h-36 min-h-0 flex-1 flex-col">
       <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
         <div
           className={cn(
@@ -45,11 +45,11 @@ export const CreateMissionCardDatePicker = ({
           {title}
         </h2>
       </CardHeader>
-      <CardContent className="flex flex-col justify-start">
+      <CardContent className="flex h-full flex-col justify-center">
         <DateTimePicker
           hourCycle={24}
           locale={fr}
-          placeholder={placeholder}
+          placeholder="Sélectionnez une date"
           value={pickerProps?.value}
           onChange={pickerProps?.onChange}
           className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"

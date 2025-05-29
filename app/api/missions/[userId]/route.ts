@@ -131,12 +131,12 @@ export async function GET(
       const missions = await prisma.mission.findMany({
         where: {
           creatorId: userId,
-          mission_date: startDateCondition()
+          mission_start_date: startDateCondition()
         },
         select: {
           name: true,
           id: true,
-          mission_date: true,
+          mission_start_date: true,
           missionLocation: {
             select: {
               fullName: true
@@ -145,9 +145,10 @@ export async function GET(
         },
         take: take ? parseInt(take) : undefined,
         orderBy: {
-          mission_date: "asc"
+          mission_start_date: "asc"
         }
       });
+      console.log(missions);
 
       return NextResponse.json(missions);
     } catch (error) {
