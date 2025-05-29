@@ -13,6 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EnumJobOptions } from "@/store/types";
 import { TeamGestionnaryItem } from "@/components/TeamGestionnaryItem/TeamGestionnaryItem";
+import { Fragment, useEffect } from "react";
 
 type FormValues = {
   missionName: string;
@@ -22,6 +23,7 @@ type FormValues = {
   additionalInfo?: string;
   location: string;
   extraJobOptions: EnumJobOptions[];
+  teamCounts: Partial<Record<EnumJobOptions, number>>;
 };
 
 export default function CreateMissionPage() {
@@ -29,7 +31,8 @@ export default function CreateMissionPage() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch
+    watch,
+    setValue
   } = useForm<FormValues>({
     defaultValues: {
       missionName: "",
@@ -37,11 +40,42 @@ export default function CreateMissionPage() {
       missionStartDate: "",
       missionEndDate: "",
       location: "",
-      extraJobOptions: []
+      extraJobOptions: [],
+      teamCounts: {}
     }
   });
 
   const selectedJobOptions = watch("extraJobOptions", []);
+  const teamCounts = watch("teamCounts", {});
+
+  useEffect(() => {
+    setValue(
+      "teamCounts",
+      selectedJobOptions.reduce(
+        (acc, job) => {
+          acc[job] =
+            teamCounts?.[job] && teamCounts[job] > 0 ? teamCounts[job] : 1;
+          return acc;
+        },
+        {} as Partial<Record<EnumJobOptions, number>>
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedJobOptions]);
+
+  const onIncrement = (job: EnumJobOptions) => {
+    setValue("teamCounts", {
+      ...teamCounts,
+      [job]: (teamCounts?.[job] || 1) + 1
+    });
+  };
+  const onDecrement = (job: EnumJobOptions) => {
+    setValue("teamCounts", {
+      ...teamCounts,
+      [job]: Math.max(1, (teamCounts?.[job] || 1) - 1)
+    });
+  };
+
   const onSubmit = (data: FormValues) => {
     // Traite les données du formulaire ici
     console.log(data);
@@ -187,6 +221,47 @@ export default function CreateMissionPage() {
                 />
               )}
             />
+
+            {/* {selectedJobOptions.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-center text-lg font-semibold text-employer-primary">
+                  Nombre de personnes par poste:
+                </h3>
+                {selectedJobOptions.map((option) => (
+                  <div
+                    key={option}
+                    className="flex items-center justify-between p-2"
+                  >
+                    <span className="text-employer-secondary">{option}</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        onClick={() => onDecrement(option as EnumJobOptions)}
+                        disabled={isSubmitting}
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                      >
+                        -
+                      </Button>
+                      <span className="text-employer-primary">
+                        {teamCounts[option] || 1}
+                      </span>
+                      <Button
+                        type="button"
+                        onClick={() => onIncrement(option as EnumJobOptions)}
+                        disabled={isSubmitting}
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )} */}
+          </div>
+          <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
             <Controller
               name="extraJobOptions"
               control={control}
@@ -219,24 +294,49 @@ export default function CreateMissionPage() {
                 );
               }}
             />
-          </div>
-          <div className="h-full w-full bg-employer-background">
-            <div>
+
+            <div className="flex-1 overflow-auto rounded-lg bg-employer-background shadow-md">
               <h2 className="text-center text-lg font-semibold text-employer-primary">
                 Gestion de l'équipe:
               </h2>
+
               {selectedJobOptions.length > 0 ? (
-                <ul className="list-disc pl-5">
-                  {selectedJobOptions.map((option) => (
-                    <li key={option} className="text-employer-secondary">
-                      {option}
-                      <TeamGestionnaryItem
-                        onDelete={() => {}}
-                        onInvite={() => {}}
-                        tipNumber={1}
-                        job={option}
-                      />
-                    </li>
+                <ul className="px-6 py-4">
+                  {selectedJobOptions.map((option, index) => (
+                    <Fragment key={option}>
+                      <li className="flex justify-between text-employer-secondary">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
+                            {index + 1}
+                          </span>
+                          {option}
+                        </div>
+                        <div className="flex min-w-32 items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            className="ml-2 rounded bg-extra-primary px-2 py-1 text-white hover:bg-extra-secondary"
+                            onClick={() => onDecrement(option)}
+                            aria-label={`Retirer un ${option}`}
+                          >
+                            -
+                          </button>
+                          <span className="w-6 text-center font-bold">
+                            {teamCounts?.[option] || 1}
+                          </span>
+                          <button
+                            type="button"
+                            className="rounded bg-extra-primary px-2 py-1 text-white hover:bg-extra-secondary"
+                            onClick={() => onIncrement(option)}
+                            aria-label={`Ajouter un ${option}`}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </li>
+                      {index < selectedJobOptions.length - 1 && (
+                        <hr className="border-t-1 mx-auto my-2 w-1/2 border border-employer-secondary" />
+                      )}
+                    </Fragment>
                   ))}
                 </ul>
               ) : (
