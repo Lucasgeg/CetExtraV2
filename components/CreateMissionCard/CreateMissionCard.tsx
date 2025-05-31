@@ -4,6 +4,8 @@ import { Input } from "../ui/input";
 import React from "react";
 import styles from "./MissionCard.module.css";
 import MultipleSelector, { Option } from "../ui/MultipleSelector";
+import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
+import type { Suggestion } from "@/types/api";
 
 type CreateMissionCardProps = {
   title: string;
@@ -12,7 +14,7 @@ type CreateMissionCardProps = {
   placeholder: string;
   icon?: React.ReactNode;
   iconContainerClassName?: string;
-  variant?: "input" | "textarea" | "select";
+  variant?: "input" | "textarea" | "select" | "location";
   errorMessage?: string;
   className?: string;
   // Props pour React Hook Form (Controller ou register)
@@ -31,6 +33,11 @@ type CreateMissionCardProps = {
     creatable?: boolean;
     withSearch?: boolean;
   };
+  locationProps?: {
+    errorMessage?: string;
+    handleClick?: (suggestion: Suggestion) => void;
+    value?: Suggestion;
+  };
 };
 
 export const CreateMissionCard = ({
@@ -45,7 +52,8 @@ export const CreateMissionCard = ({
   errorMessage,
   inputProps,
   textareaProps,
-  selectProps
+  selectProps,
+  locationProps
 }: CreateMissionCardProps) => {
   return (
     <Card
@@ -108,6 +116,15 @@ export const CreateMissionCard = ({
             maxSelected={selectProps.maxSelected}
             creatable={selectProps.creatable}
             className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
+          />
+        )}
+
+        {variant === "location" && (
+          <AddressAutocomplete
+            missionlocation
+            errorMessage={errorMessage}
+            handleClick={locationProps?.handleClick}
+            value={locationProps?.value || undefined}
           />
         )}
       </CardContent>

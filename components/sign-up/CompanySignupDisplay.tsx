@@ -38,7 +38,11 @@ export const CompanySignupDisplay = ({
         value={company.contactLastName}
         errorMessage={errorMessages?.contactFirstName}
       />
-      <AddressAutocomplete errorMessage={errorMessages?.location} isCompany />
+      <div className="flex flex-col items-center justify-between gap-1 lg:flex-row">
+        <span>Adresse de votre entreprise:</span>
+
+        <AddressAutocomplete errorMessage={errorMessages?.location} />
+      </div>
     </>
   );
 };

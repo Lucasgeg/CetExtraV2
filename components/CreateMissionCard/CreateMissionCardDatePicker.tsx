@@ -53,6 +53,7 @@ export const CreateMissionCardDatePicker = ({
           value={pickerProps?.value}
           onChange={pickerProps?.onChange}
           className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
+          disabled={{ before: new Date() }}
           {...pickerProps}
         />
         {errorMessage && (

@@ -63,7 +63,7 @@ model Mission {
   mission_start_date DateTime
   mission_end_date   DateTime
   creatorId          String
-  missionLocationId  String?
+  missionLocationId  Int?
   creator            Company            @relation(fields: [creatorId], references: [id])
   missionLocation    MissionLocation?   @relation(fields: [missionLocationId], references: [id])
   employees          UserMission[]
@@ -71,20 +71,20 @@ model Mission {
 }
 
 model UserLocation {
-  id             String  @id @default(uuid())
+  id             Int     @id @default(autoincrement())
   lat            Float
   lon            Float
-  fullName       String?
+  fullName       String
   userId         String? @unique
   userLocationId String? @unique
   user           User?   @relation(fields: [userLocationId], references: [id], onDelete: Cascade)
 }
 
 model MissionLocation {
-  id       String    @id @default(uuid())
+  id       Int       @id @default(autoincrement())
   lat      Float
   lon      Float
-  fullName String?
+  fullName String
   mission  Mission[]
 }
 

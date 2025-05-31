@@ -12,8 +12,8 @@ import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/Crea
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EnumJobOptions } from "@/store/types";
-import { TeamGestionnaryItem } from "@/components/TeamGestionnaryItem/TeamGestionnaryItem";
 import { Fragment, useEffect } from "react";
+import { Suggestion } from "@/types/api";
 
 type FormValues = {
   missionName: string;
@@ -21,7 +21,7 @@ type FormValues = {
   missionStartDate: string;
   missionEndDate: string;
   additionalInfo?: string;
-  location: string;
+  location: Suggestion;
   extraJobOptions: EnumJobOptions[];
   teamCounts: Partial<Record<EnumJobOptions, number>>;
 };
@@ -39,7 +39,6 @@ export default function CreateMissionPage() {
       missionDescription: "",
       missionStartDate: "",
       missionEndDate: "",
-      location: "",
       extraJobOptions: [],
       teamCounts: {}
     }
@@ -121,17 +120,19 @@ export default function CreateMissionPage() {
               render={({ field }) => (
                 <CreateMissionCard
                   id="location"
-                  variant="input"
-                  inputProps={{
-                    ...field,
-                    disabled: isSubmitting
-                  }}
+                  variant="location"
                   placeholder="Lieu de la mission"
                   title="Lieu de la mission"
                   type="text"
                   icon={<MapPinIcon />}
                   iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
-                  errorMessage={errors.location?.message}
+                  locationProps={{
+                    errorMessage: errors.location?.message,
+                    handleClick: (suggestion: Suggestion) => {
+                      field.onChange(suggestion);
+                    },
+                    value: field.value
+                  }}
                 />
               )}
             />
@@ -221,45 +222,6 @@ export default function CreateMissionPage() {
                 />
               )}
             />
-
-            {/* {selectedJobOptions.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-center text-lg font-semibold text-employer-primary">
-                  Nombre de personnes par poste:
-                </h3>
-                {selectedJobOptions.map((option) => (
-                  <div
-                    key={option}
-                    className="flex items-center justify-between p-2"
-                  >
-                    <span className="text-employer-secondary">{option}</span>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        onClick={() => onDecrement(option as EnumJobOptions)}
-                        disabled={isSubmitting}
-                        variant="outline"
-                        className="h-8 w-8 p-0"
-                      >
-                        -
-                      </Button>
-                      <span className="text-employer-primary">
-                        {teamCounts[option] || 1}
-                      </span>
-                      <Button
-                        type="button"
-                        onClick={() => onIncrement(option as EnumJobOptions)}
-                        disabled={isSubmitting}
-                        variant="outline"
-                        className="h-8 w-8 p-0"
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )} */}
           </div>
           <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
             <Controller

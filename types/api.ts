@@ -56,3 +56,28 @@ export type GetCommentByPostIdType = {
   createdAt: Date;
   content: string;
 };
+
+export interface Suggestion {
+  display_name: string;
+  lat: number;
+  lon: number;
+  place_id: number;
+}
+
+type Address = {
+  house_number: string;
+  road: string;
+  postcode: string;
+  city?: string;
+  town?: string;
+  village?: string;
+  country: string;
+};
+
+export type NominatimResponse = {
+  address: Address;
+  name?: string;
+  lat: string;
+  lon: string;
+  place_id: number;
+};

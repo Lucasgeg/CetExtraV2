@@ -265,9 +265,9 @@ function Calendar({
       };
     }
     return genMonths(locale);
-  }, []);
+  }, [props.locale]);
 
-  const YEARS = React.useMemo(() => genYears(yearRange), []);
+  const YEARS = React.useMemo(() => genYears(yearRange), [yearRange]);
   const disableLeftNavigation = () => {
     const today = new Date();
     const startDate = new Date(today.getFullYear() - yearRange, 0, 1);
@@ -690,7 +690,10 @@ type DateTimePickerProps = {
   value?: Date;
   onChange?: (date: Date | undefined) => void;
   onMonthChange?: (date: Date | undefined) => void;
-  disabled?: boolean;
+  /**
+   * Accepts a boolean (for disabling the input) or a DayPicker 'disabled' prop (for disabling dates)
+   */
+  disabled?: boolean | DayPickerProps["disabled"];
   /** showing `AM/PM` or not. */
   hourCycle?: 12 | 24;
   placeholder?: string;
@@ -833,9 +836,12 @@ const DateTimePicker = React.forwardRef<
       };
     }
 
+    // Determine if the input should be disabled (for PopoverTrigger)
+    const isInputDisabled = typeof disabled === "boolean" ? disabled : false;
+
     return (
       <Popover>
-        <PopoverTrigger asChild disabled={disabled}>
+        <PopoverTrigger asChild disabled={isInputDisabled}>
           <Button
             variant="outline"
             theme={theme}
@@ -880,6 +886,8 @@ const DateTimePicker = React.forwardRef<
             onMonthChange={handleMonthChange}
             yearRange={yearRange}
             locale={locale}
+            // Forward the disabled prop to Calendar/DayPicker
+            disabled={typeof disabled === "boolean" ? undefined : disabled}
             {...props}
           />
           {granularity !== "day" && (
