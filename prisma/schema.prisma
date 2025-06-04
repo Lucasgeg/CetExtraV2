@@ -48,10 +48,10 @@ model Company {
 
 model RequiredPosition {
   id        String     @id @default(uuid())
-  mission   Mission    @relation(fields: [missionId], references: [id])
   missionId String
   jobType   MissionJob
   quantity  Int
+  mission   Mission    @relation(fields: [missionId], references: [id])
 
   @@unique([missionId, jobType])
 }
@@ -60,32 +60,35 @@ model Mission {
   id                 String             @id @default(uuid())
   name               String
   description        String?
+  additionalInfo     String?
   mission_start_date DateTime
   mission_end_date   DateTime
   creatorId          String
-  missionLocationId  Int?
+  missionLocationId  String?
   creator            Company            @relation(fields: [creatorId], references: [id])
   missionLocation    MissionLocation?   @relation(fields: [missionLocationId], references: [id])
-  employees          UserMission[]
   requiredPositions  RequiredPosition[]
+  employees          UserMission[]
 }
 
 model UserLocation {
-  id             Int     @id @default(autoincrement())
   lat            Float
   lon            Float
   fullName       String
   userId         String? @unique
   userLocationId String? @unique
+  id             String  @id @default(uuid())
+  nominatimId    Int?    @unique
   user           User?   @relation(fields: [userLocationId], references: [id], onDelete: Cascade)
 }
 
 model MissionLocation {
-  id       Int       @id @default(autoincrement())
-  lat      Float
-  lon      Float
-  fullName String
-  mission  Mission[]
+  lat         Float
+  lon         Float
+  fullName    String
+  id          String    @id @default(uuid())
+  nominatimId Int?      @unique
+  mission     Mission[]
 }
 
 model UserMission {

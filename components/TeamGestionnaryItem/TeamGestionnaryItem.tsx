@@ -1,10 +1,10 @@
-import { EnumJobOptions } from "@/store/types";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { EnvelopeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { EnumMissionJob } from "@/store/types";
 
 type TeamGestionnaryItemProps = {
-  job: EnumJobOptions;
+  job: EnumMissionJob;
   tipNumber: number;
   value?: string;
   onDelete: () => void;

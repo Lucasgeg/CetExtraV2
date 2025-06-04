@@ -85,6 +85,7 @@ interface MultipleSelectorProps {
   hideClearAllButton?: boolean;
   placement?: "top" | "bottom";
   withSearch?: boolean;
+  errorMessage?: string;
 }
 
 export interface MultipleSelectorRef {
@@ -208,7 +209,8 @@ const MultipleSelector = React.forwardRef<
       inputProps,
       hideClearAllButton = false,
       placement = "bottom",
-      withSearch = false
+      withSearch = false,
+      errorMessage
     }: MultipleSelectorProps,
     ref: React.Ref<MultipleSelectorRef>
   ) => {
@@ -569,6 +571,11 @@ const MultipleSelector = React.forwardRef<
             </button>
           </div>
         </div>
+        {errorMessage && (
+          <div className="mt-1 max-w-40 text-justify text-sm text-red-500">
+            {errorMessage}
+          </div>
+        )}
         {open && (
           <div className={cn("w-full", dropdownPositionClass)}>
             <Command>

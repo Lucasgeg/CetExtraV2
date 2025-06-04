@@ -5,13 +5,14 @@ import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 import { Suggestion } from "@/types/api";
+import { X } from "lucide-react";
 
 type AdressAutocompleteProps = {
   inputclassName?: string;
   popOverClassName?: string;
   errorMessage?: string;
   missionlocation?: boolean;
-  handleClick?: (suggestion: Suggestion) => void;
+  handleClick?: (suggestion: Suggestion | undefined) => void;
   value?: Suggestion;
 };
 
@@ -28,8 +29,7 @@ export const AddressAutocomplete = ({
   const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
     null
   );
-  const debouncedValue = useDebounce(query, 250);
-  // const { updateUserProperty } = useSignUpStore();
+  const debouncedValue = useDebounce(query, 350);
 
   useEffect(() => {
     const searchQuery = async () => {
@@ -51,21 +51,8 @@ export const AddressAutocomplete = ({
       setSelectedAddress(null);
       setQuery("");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, selectedAddress]);
 
-  // const handleSuggestionClick = (suggestion: Suggestion) => {
-  //   setSelectedAddress(suggestion);
-  //   setQuery(suggestion.display_name);
-  //   setQuery("");
-  //   setSuggestions([]);
-  //   const userAdress: Omit<UserLocation, "id"> = {
-  //     fullName: suggestion.display_name,
-  //     lat: Number(suggestion.lat),
-  //     lon: Number(suggestion.lon)
-  //   };
-  //   updateUserProperty("location", userAdress);
-  // };
   const handleSelectSuggestion = (suggestion: Suggestion) => {
     setSelectedAddress(suggestion);
     setQuery("");
@@ -77,18 +64,38 @@ export const AddressAutocomplete = ({
   return (
     <div>
       <Popover open={suggestions?.length > 0}>
-        <div className="flex flex-col items-center justify-between lg:flex-row">
-          <PopoverAnchor
-            asChild
-            className="w-auto rounded-md border border-gray-300 p-2"
-          >
-            <Input
-              type="text"
-              value={selectedAddress?.display_name || query}
-              onChange={(e) => setQuery(e.target.value)}
-              className={cn("w-full", inputclassName)}
-              errorMessage={errorMessage}
-            />
+        <div className="relative flex flex-col items-center justify-between lg:flex-row">
+          <PopoverAnchor asChild>
+            <div className="relative w-full">
+              <Input
+                type="text"
+                value={selectedAddress?.display_name || query}
+                onChange={(e) => setQuery(e.target.value)}
+                className={cn(
+                  "w-full",
+                  inputclassName,
+                  selectedAddress && "pr-8"
+                )}
+                placeholder="Rechercher une adresse"
+                errorMessage={errorMessage}
+                disabled={!!selectedAddress}
+              />
+              {selectedAddress && (
+                <button
+                  type="button"
+                  aria-label="Supprimer l'adresse sélectionnée"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                  onClick={() => {
+                    setSelectedAddress(null);
+                    setQuery("");
+                    setSuggestions([]);
+                    if (handleClick) handleClick(undefined);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </PopoverAnchor>
         </div>
         <PopoverContent className={popOverClassName}>

@@ -148,7 +148,6 @@ export async function GET(
           mission_start_date: "asc"
         }
       });
-      console.log(missions);
 
       return NextResponse.json(missions);
     } catch (error) {

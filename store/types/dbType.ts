@@ -1,13 +1,7 @@
 // Enums
 export enum EnumMissionJob {
-  WAITER = "waiter",
-  COOK = "cook"
-}
-
-// Must be in french
-export enum EnumJobOptions {
-  SERVEUR = "Serveur",
-  CUISINIER = "Cuisinier"
+  WAITER = "Serveur",
+  COOK = "Cuisinier"
 }
 
 export enum EnumRole {

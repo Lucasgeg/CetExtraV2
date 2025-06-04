@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 import { DateTimePicker } from "../ui/dateTimePicker";
 import { cn } from "@/lib/utils";
 import styles from "./MissionCard.module.css";
+import { DayPickerProps } from "react-day-picker";
 
 type CreateMissionCardDatePickerProps = {
   title: string;
@@ -18,16 +19,16 @@ type CreateMissionCardDatePickerProps = {
     value?: Date;
     onChange?: (date?: Date) => void;
   };
+  disabled?: boolean | DayPickerProps["disabled"];
 };
 
 export const CreateMissionCardDatePicker = ({
-  id,
-  placeholder,
   title,
   icon,
   iconContainerClassName,
   errorMessage,
-  pickerProps
+  pickerProps,
+  disabled = false
 }: CreateMissionCardDatePickerProps) => {
   return (
     <Card className="flex h-full max-h-36 min-h-0 flex-1 flex-col">
@@ -53,7 +54,7 @@ export const CreateMissionCardDatePicker = ({
           value={pickerProps?.value}
           onChange={pickerProps?.onChange}
           className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
-          disabled={{ before: new Date() }}
+          disabled={disabled}
           {...pickerProps}
         />
         {errorMessage && (

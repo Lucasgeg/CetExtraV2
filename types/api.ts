@@ -1,3 +1,5 @@
+import { EnumMissionJob } from "@/store/types";
+
 type Location = {
   fullName?: string;
 };
@@ -80,4 +82,19 @@ export type NominatimResponse = {
   lat: string;
   lon: string;
   place_id: number;
+};
+
+export type TeamCount = {
+  [key in EnumMissionJob]?: number;
+};
+
+export type CreateMissionFormValues = {
+  missionName: string;
+  missionDescription: string;
+  missionStartDate: string;
+  missionEndDate: string;
+  additionalInfo?: string;
+  location: Suggestion;
+  extraJobOptions: EnumMissionJob[];
+  teamCounts: TeamCount;
 };

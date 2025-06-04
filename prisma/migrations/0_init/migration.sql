@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "MissionJob" AS ENUM ('waiter', 'cook', 'both');
+CREATE TYPE "MissionJob" AS ENUM ('waiter', 'cook');
 
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('extra', 'company');
@@ -65,29 +65,29 @@ CREATE TABLE "Mission" (
     "mission_start_date" TIMESTAMP(3) NOT NULL,
     "mission_end_date" TIMESTAMP(3) NOT NULL,
     "creatorId" TEXT NOT NULL,
-    "missionLocationId" TEXT,
+    "missionLocationId" INTEGER,
 
     CONSTRAINT "Mission_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "UserLocation" (
-    "id" TEXT NOT NULL,
     "lat" DOUBLE PRECISION NOT NULL,
     "lon" DOUBLE PRECISION NOT NULL,
-    "fullName" TEXT,
+    "fullName" TEXT NOT NULL,
     "userId" TEXT,
     "userLocationId" TEXT,
+    "id" SERIAL NOT NULL,
 
     CONSTRAINT "UserLocation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "MissionLocation" (
-    "id" TEXT NOT NULL,
     "lat" DOUBLE PRECISION NOT NULL,
     "lon" DOUBLE PRECISION NOT NULL,
-    "fullName" TEXT,
+    "fullName" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
 
     CONSTRAINT "MissionLocation_pkey" PRIMARY KEY ("id")
 );

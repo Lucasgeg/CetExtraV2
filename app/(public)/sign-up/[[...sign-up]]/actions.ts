@@ -7,35 +7,6 @@ export const getSuggestions = async (
   query: string,
   missionLocation: boolean
 ): Promise<Suggestion[]> => {
-  const getLocationFromDb = async (): Promise<Suggestion[]> => {
-    const suggestions: Suggestion[] = [];
-
-    const locations = await prisma.missionLocation.findMany({
-      where: {
-        fullName: {
-          contains: query,
-          mode: "insensitive"
-        }
-      },
-      select: {
-        fullName: true,
-        lat: true,
-        lon: true,
-        id: true
-      }
-    });
-    locations.forEach((location) => {
-      suggestions.push({
-        display_name: location.fullName,
-        lat: location.lat,
-        lon: location.lon,
-        place_id: location.id
-      });
-    });
-
-    return suggestions;
-  };
-
   const getLocationFromNominatim = async (): Promise<Suggestion[]> => {
     const response = await axios.get<NominatimResponse[]>(
       "https://nominatim.openstreetmap.org/search",
@@ -74,6 +45,40 @@ export const getSuggestions = async (
       };
     });
     suggestions.push(...formattedResponse);
+
+    return suggestions;
+  };
+
+  const getLocationFromDb = async (): Promise<Suggestion[]> => {
+    const suggestions: Suggestion[] = [];
+
+    const locations = await prisma.missionLocation.findMany({
+      where: {
+        fullName: {
+          contains: query,
+          mode: "insensitive"
+        }
+      },
+      select: {
+        fullName: true,
+        lat: true,
+        lon: true,
+        id: true
+      }
+    });
+    locations.forEach((location) => {
+      suggestions.push({
+        display_name: location.fullName,
+        lat: location.lat,
+        lon: location.lon,
+        place_id: Number(location.id)
+      });
+    });
+    if (locations.length < 5) {
+      // If less than 5 results, fetch from Nominatim
+      const nominatimSuggestions = await getLocationFromNominatim();
+      suggestions.push(...nominatimSuggestions);
+    }
 
     return suggestions;
   };

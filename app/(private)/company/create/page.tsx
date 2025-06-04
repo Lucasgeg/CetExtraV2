@@ -11,20 +11,10 @@ import {
 import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/CreateMissionCardDatePicker";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { EnumJobOptions } from "@/store/types";
+import { EnumMissionJob } from "@/store/types";
 import { Fragment, useEffect } from "react";
-import { Suggestion } from "@/types/api";
-
-type FormValues = {
-  missionName: string;
-  missionDescription: string;
-  missionStartDate: string;
-  missionEndDate: string;
-  additionalInfo?: string;
-  location: Suggestion;
-  extraJobOptions: EnumJobOptions[];
-  teamCounts: Partial<Record<EnumJobOptions, number>>;
-};
+import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
+import Link from "next/link";
 
 export default function CreateMissionPage() {
   const {
@@ -33,7 +23,7 @@ export default function CreateMissionPage() {
     formState: { errors, isSubmitting },
     watch,
     setValue
-  } = useForm<FormValues>({
+  } = useForm<CreateMissionFormValues>({
     defaultValues: {
       missionName: "",
       missionDescription: "",
@@ -44,42 +34,53 @@ export default function CreateMissionPage() {
     }
   });
 
+  // selectedJobOptions doit être de type (keyof typeof EnumMissionJob)[]
   const selectedJobOptions = watch("extraJobOptions", []);
-  const teamCounts = watch("teamCounts", {});
+  const teamCounts = watch("teamCounts", {}) as TeamCount;
+  const startDate = watch("missionStartDate");
 
   useEffect(() => {
     setValue(
       "teamCounts",
-      selectedJobOptions.reduce(
-        (acc, job) => {
-          acc[job] =
-            teamCounts?.[job] && teamCounts[job] > 0 ? teamCounts[job] : 1;
-          return acc;
-        },
-        {} as Partial<Record<EnumJobOptions, number>>
-      )
+      selectedJobOptions.reduce((acc, job) => {
+        acc[job] =
+          teamCounts?.[job] && teamCounts[job] > 0 ? teamCounts[job] : 1;
+        return acc;
+      }, {} as TeamCount)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedJobOptions]);
 
-  const onIncrement = (job: EnumJobOptions) => {
+  const onIncrement = (job: EnumMissionJob) => {
     setValue("teamCounts", {
       ...teamCounts,
       [job]: (teamCounts?.[job] || 1) + 1
-    });
+    } as TeamCount);
   };
-  const onDecrement = (job: EnumJobOptions) => {
+  const onDecrement = (job: EnumMissionJob) => {
     setValue("teamCounts", {
       ...teamCounts,
       [job]: Math.max(1, (teamCounts?.[job] || 1) - 1)
-    });
+    } as TeamCount);
   };
 
-  const onSubmit = (data: FormValues) => {
-    // Traite les données du formulaire ici
-    console.log(data);
+  const onSubmit = async (data: CreateMissionFormValues) => {
+    const reponse = await fetch("/api/missions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...data
+      })
+    });
+    if (!reponse.ok) {
+      const errorData = await reponse.json();
+      console.error("Error creating mission:", errorData);
+      return;
+    }
   };
-  const options = Object.entries(EnumJobOptions).map(([key, value]) => ({
+  const options = Object.entries(EnumMissionJob).map(([key, value]) => ({
     label: value,
     value: key
   }));
@@ -128,7 +129,7 @@ export default function CreateMissionPage() {
                   iconContainerClassName="bg-gradient-to-br from-[#6D28D9] to-[#C4B5FD]"
                   locationProps={{
                     errorMessage: errors.location?.message,
-                    handleClick: (suggestion: Suggestion) => {
+                    handleClick: (suggestion: Suggestion | undefined) => {
                       field.onChange(suggestion);
                     },
                     value: field.value
@@ -152,6 +153,7 @@ export default function CreateMissionPage() {
                         : undefined,
                     onChange: field.onChange
                   }}
+                  disabled={{ before: new Date() }}
                   errorMessage={errors.missionStartDate?.message}
                   iconContainerClassName="bg-gradient-to-br from-green-600 to-[#F3E8FF]"
                 />
@@ -166,6 +168,7 @@ export default function CreateMissionPage() {
                   id="missionEndDate"
                   title="Date de fin"
                   icon={<CalendarDaysIcon />}
+                  disabled={!startDate || { before: new Date(startDate) }}
                   pickerProps={{
                     value:
                       field.value && !isNaN(new Date(field.value).getTime())
@@ -217,7 +220,7 @@ export default function CreateMissionPage() {
                   type="text"
                   icon={<MagnifyingGlassIcon />}
                   iconContainerClassName="bg-gradient-to-br from-employer-secondary to-[#F3E8FF]"
-                  errorMessage={errors.missionDescription?.message}
+                  errorMessage={errors.additionalInfo?.message}
                   className="h-full max-h-[50%]"
                 />
               )}
@@ -227,9 +230,14 @@ export default function CreateMissionPage() {
             <Controller
               name="extraJobOptions"
               control={control}
+              rules={{
+                required: "Sélectionnez au moins un poste",
+                validate: (value) =>
+                  value.length > 0 || "Sélectionnez au moins un poste"
+              }}
               render={({ field }) => {
                 const selectedOptions = options.filter((opt) =>
-                  field.value?.includes(opt.value as EnumJobOptions)
+                  field.value?.includes(opt.value as EnumMissionJob)
                 );
                 return (
                   <CreateMissionCard
@@ -241,7 +249,7 @@ export default function CreateMissionPage() {
                       value: selectedOptions,
                       onChange: (selected) => {
                         field.onChange(
-                          selected.map((opt) => opt.value as EnumJobOptions)
+                          selected.map((opt) => opt.value as EnumMissionJob)
                         );
                       },
                       withSearch: true
@@ -251,7 +259,7 @@ export default function CreateMissionPage() {
                     icon={<UsersIcon />}
                     iconContainerClassName="bg-gradient-to-br from-extra-primary to-[#F3E8FF]"
                     errorMessage={errors.extraJobOptions?.message}
-                    className="border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
+                    className="min-h-24 border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
                   />
                 );
               }}
@@ -271,7 +279,14 @@ export default function CreateMissionPage() {
                           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
                             {index + 1}
                           </span>
-                          {option}
+                          {/* Affiche la valeur française via EnumMissionJob */}
+                          <span>
+                            {
+                              EnumMissionJob[
+                                option as unknown as keyof typeof EnumMissionJob
+                              ]
+                            }
+                          </span>
                         </div>
                         <div className="flex min-w-32 items-center justify-center gap-2">
                           <button
@@ -307,9 +322,30 @@ export default function CreateMissionPage() {
                 </p>
               )}
             </div>
-            <Button theme="company" type="submit">
-              valider
-            </Button>
+            <div className="flex justify-between gap-4">
+              <Link href={"/company"} className="w-full flex-1">
+                <Button
+                  theme="company"
+                  type="button"
+                  className="w-full lg:h-20"
+                  variant={"destructive"}
+                  disabled={isSubmitting}
+                >
+                  Annuler
+                </Button>
+              </Link>
+              <Button
+                theme="company"
+                type="submit"
+                className="group relative flex-1 overflow-hidden font-bold lg:h-20"
+                disabled={isSubmitting}
+              >
+                <span className="absolute inset-0 z-0 bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] bg-[length:300%_300%] transition-all duration-500 group-hover:animate-gradientHover"></span>
+                <span className="relative z-10 transition-all duration-200 group-hover:scale-105">
+                  Créer
+                </span>
+              </Button>
+            </div>
           </div>
         </div>
       </form>
