@@ -1,28 +1,29 @@
 import * as React from "react";
-
+import { UseFormRegisterReturn } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
 interface InputProps extends React.ComponentProps<"input"> {
   errorMessage?: string;
+  register?: UseFormRegisterReturn;
 }
 
-// Définition du composant Input
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, errorMessage, ...props }, ref) => {
+  ({ className, type, errorMessage, register, ...props }, ref) => {
     return (
-      <div>
+      <div className="w-full">
         <input
           type={type}
           className={cn(
             "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
             className,
-            errorMessage && "border-red-500" // par exemple, appliquant une bordure rouge en cas d'erreur
+            errorMessage && "border-red-500"
           )}
           ref={ref}
+          {...register}
           {...props}
         />
         {errorMessage && (
-          <div className="mt-1 max-w-40 text-justify text-sm text-red-500">
+          <div className="mt-1 max-w-52 text-justify text-sm text-red-500">
             {errorMessage}
           </div>
         )}
@@ -32,5 +33,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = "Input";
-
 export { Input };

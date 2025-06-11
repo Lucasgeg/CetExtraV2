@@ -27,7 +27,8 @@ export const NextMissionCard = ({ id }: { id: string }) => {
     },
     {
       id: "date",
-      accessorFn: (row) => new Date(row.mission_date).toLocaleDateString(),
+      accessorFn: (row) =>
+        new Date(row.mission_start_date).toLocaleDateString(),
       header: "Date"
     },
     {
@@ -36,6 +37,22 @@ export const NextMissionCard = ({ id }: { id: string }) => {
       header: "Lieu de mission"
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-gray-500">Chargement des missions...</p>
+      </div>
+    );
+  }
+
+  if (!companyData || companyData.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-gray-500">Aucune mission à venir</p>
+      </div>
+    );
+  }
   return (
     <CustomTable<GetCompanyMission>
       columns={columns}

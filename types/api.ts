@@ -1,3 +1,5 @@
+import { EnumMissionJob } from "@/store/types";
+
 type Location = {
   fullName?: string;
 };
@@ -5,7 +7,8 @@ type Location = {
 export type GetCompanyMission = {
   id: string;
   name: string;
-  mission_date: Date;
+  mission_start_date: Date;
+  mission_end_date: Date;
   missionLocation: Location;
 };
 
@@ -54,4 +57,44 @@ export type GetCommentByPostIdType = {
   author: string;
   createdAt: Date;
   content: string;
+};
+
+export interface Suggestion {
+  display_name: string;
+  lat: number;
+  lon: number;
+  place_id: number;
+}
+
+type Address = {
+  house_number: string;
+  road: string;
+  postcode: string;
+  city?: string;
+  town?: string;
+  village?: string;
+  country: string;
+};
+
+export type NominatimResponse = {
+  address: Address;
+  name?: string;
+  lat: string;
+  lon: string;
+  place_id: number;
+};
+
+export type TeamCount = {
+  [key in EnumMissionJob]?: number;
+};
+
+export type CreateMissionFormValues = {
+  missionName: string;
+  missionDescription: string;
+  missionStartDate: string;
+  missionEndDate: string;
+  additionalInfo?: string;
+  location: Suggestion;
+  extraJobOptions: EnumMissionJob[];
+  teamCounts: TeamCount;
 };

@@ -2,6 +2,7 @@
 import prisma from "@/app/lib/prisma";
 import { EnumRole, UserSignUpSchema } from "@/store/types";
 import { createClerkClient } from "@clerk/nextjs/server";
+import { MissionJob } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const clerkClient = createClerkClient({
@@ -44,7 +45,7 @@ const createExtra = async (data: UserSignUpSchema) => {
             first_name: data.extra.first_name,
             last_name: data.extra.last_name,
             birthdate: data.extra.birthdate,
-            missionJob: data.extra.missionJob,
+            missionJob: data.extra.missionJob.toLowerCase() as MissionJob,
             max_travel_distance: data.extra.max_travel_distance,
             phone: data.extra.phone
           }

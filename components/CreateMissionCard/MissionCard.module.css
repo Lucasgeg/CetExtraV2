@@ -1,0 +1,13 @@
+.iconWrapper {
+  width: clamp(12px, 6vw, 32px); /* Largeur responsive */
+  aspect-ratio: 1/1; /* Carré */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconWrapper svg {
+  width: 70%;
+  height: 70%;
+  display: block;
+}

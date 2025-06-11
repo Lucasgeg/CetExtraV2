@@ -38,7 +38,7 @@ export async function GET(
             },
             name: true,
             id: true,
-            mission_date: true,
+            mission_start_date: true,
             missionLocation: {
               select: {
                 fullName: true

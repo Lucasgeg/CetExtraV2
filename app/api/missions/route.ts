@@ -1,72 +1,113 @@
-// import prisma from "@/app/lib/prisma";
-// import { auth } from "@clerk/nextjs/server";
-// import { NextRequest, NextResponse } from "next/server";
+"use server";
+import prisma from "@/app/lib/prisma";
+import { CreateMissionFormValues } from "@/types/api";
+import { auth } from "@clerk/nextjs/server";
+import { MissionJob } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
-// export type CreateMissionProps = {
-//   name: string;
-//   description?: string;
-//   missionLocationId: string;
-//   missionDate: Date;
-// };
+export async function POST(req: NextRequest) {
+  const { sessionClaims, userId } = await auth();
+  if (
+    !sessionClaims ||
+    !userId ||
+    sessionClaims.publicMetadata.role !== "company"
+  ) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+  const {
+    location,
+    missionDescription,
+    missionEndDate,
+    missionName,
+    missionStartDate,
+    teamCounts,
+    additionalInfo
+  } = (await req.json()) as CreateMissionFormValues;
+  if (!missionName || !missionStartDate || !missionEndDate || !location) {
+    return new Response(
+      JSON.stringify({ message: "Missing required fields" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+  }
 
-// export async function POST(
-//   req: NextRequest,
-//   props: { params: Promise<{ userId: string }> }
-// ) {
-//   const { userId: clerkId } = await auth();
+  const creator = await prisma.user.findUnique({
+    where: {
+      clerkId: userId
+    },
+    select: {
+      company: {
+        select: {
+          id: true
+        }
+      }
+    }
+  });
 
-//   if (!clerkId) {
-//     return new Response("Unauthorized", { status: 401 });
-//   }
+  if (!creator?.company?.id) {
+    return new Response(JSON.stringify({ message: "Creator not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
 
-//   const user = await prisma.user.findUnique({
-//     where: {
-//       clerkId
-//     },
-//     select: {
-//       company: {
-//         select: {
-//           id: true
-//         }
-//       }
-//     }
-//   });
+  try {
+    const missionLocation = await prisma.missionLocation.upsert({
+      where: {
+        nominatimId: location.place_id
+      },
+      update: {},
+      create: {
+        nominatimId: location.place_id,
+        fullName: location.display_name,
+        lat: location.lat,
+        lon: location.lon
+      }
+    });
 
-//   // const {id: missionId} = await prisma.missionLocation.create({
-//   //   data:{
-//   //     lat:0,
-//   //     lon:0,
-//   //     fullName: "locationName",
-//   //   }
-//   // })
+    const mission = await prisma.mission.create({
+      data: {
+        name: missionName,
+        mission_end_date: new Date(missionEndDate),
+        mission_start_date: new Date(missionStartDate),
+        description: missionDescription,
+        missionLocationId: missionLocation.id,
+        additionalInfo,
+        creatorId: creator.company.id,
+        requiredPositions: {
+          create: Object.entries(teamCounts)
+            .filter(([, quantity]) => !!quantity && quantity > 0)
+            .map(([jobType, quantity]) => ({
+              jobType:
+                MissionJob[jobType.toLowerCase() as keyof typeof MissionJob],
+              quantity
+            }))
+        }
+      }
+    });
 
-//   // const results = await prisma.missionLocation.findMany({
-//   //   where: {
-//   //     fullName: {
-//   //       contains: "locationName",
-//   //       mode: "insensitive",
-//   //     }
-//   //   },
-//   //   select:{
-//   //     id: true,
-//   //     fullName: true,
-//   //   }
-//   // })
-
-//   const createMission = async () => {
-//     if (!user?.company?.id) {
-//       return new NextResponse("Not found", { status: 404 });
-//     }
-
-//     await prisma.mission.create({
-//       data: {
-//         mission_date: new Date(),
-//         name: "Mission 1",
-//         description: "Mission 1 description",
-//         creatorId: user.company.id,
-//         missionLocationId: "locationId"
-//       }
-//     });
-//   };
-//   return new Response("ok");
-// }
+    return NextResponse.json(
+      {
+        message: "Mission created successfully",
+        mission
+      },
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        message: "Error creating mission",
+        error: error instanceof Error ? error.message : String(error)
+      }),
+      { status: 500 }
+    );
+  }
+}

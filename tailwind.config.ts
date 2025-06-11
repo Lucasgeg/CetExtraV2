@@ -110,11 +110,23 @@ export default {
           to: {
             height: "0"
           }
+        },
+        gradientHover: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "100% 50%" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out"
+        "accordion-up": "accordion-up 0.2s ease-out",
+        gradientHover: "gradientHover 2s ease infinite"
+      },
+      backgroundImage: {
+        "main-gradient": "linear-gradient(135deg, #06041B 0%, #33335E 100%)"
+      },
+      maxWidth: {
+        "screen-3xl": "1920px",
+        "screen-4xl": "2560px"
       }
     }
   },

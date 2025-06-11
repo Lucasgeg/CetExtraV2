@@ -1,8 +1,7 @@
 // Enums
 export enum EnumMissionJob {
-  WAITER = "waiter",
-  COOK = "cook",
-  BOTH = "both"
+  WAITER = "Serveur",
+  COOK = "Cuisinier"
 }
 
 export enum EnumRole {
