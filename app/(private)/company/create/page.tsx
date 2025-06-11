@@ -12,9 +12,10 @@ import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/Crea
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EnumMissionJob } from "@/store/types";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
 import Link from "next/link";
+import ValidationMission from "@/components/ValidationMission/ValidationMission";
 
 export default function CreateMissionPage() {
   const {
@@ -33,7 +34,7 @@ export default function CreateMissionPage() {
       teamCounts: {}
     }
   });
-
+  const [confirmView, setConfirmView] = useState(false);
   // selectedJobOptions doit être de type (keyof typeof EnumMissionJob)[]
   const selectedJobOptions = watch("extraJobOptions", []);
   const teamCounts = watch("teamCounts", {}) as TeamCount;
@@ -336,9 +337,10 @@ export default function CreateMissionPage() {
               </Link>
               <Button
                 theme="company"
-                type="submit"
+                type="button"
                 className="group relative flex-1 overflow-hidden font-bold lg:h-20"
                 disabled={isSubmitting}
+                onClick={() => setConfirmView(true)}
               >
                 <span className="absolute inset-0 z-0 bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] bg-[length:300%_300%] transition-all duration-500 group-hover:animate-gradientHover"></span>
                 <span className="relative z-10 transition-all duration-200 group-hover:scale-105">
