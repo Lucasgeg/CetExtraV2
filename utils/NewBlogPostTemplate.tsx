@@ -1,13 +1,11 @@
 export function NewBlogPostTemplate({
   title,
   shortDesc,
-  url,
-  unsubscribeUrl
+  url
 }: {
   title: string;
   shortDesc: string;
   url: string;
-  unsubscribeUrl: string;
 }) {
   return (
     <div
@@ -106,7 +104,10 @@ export function NewBlogPostTemplate({
             >
               Vous recevez cet email car vous êtes abonné au blog{" "}
               <strong>Cet Extra</strong>.<br />
-              <a href={unsubscribeUrl} style={{ color: "#F15A29" }}>
+              <a
+                href={"https://cetextra.fr/blog/unsubscribe"}
+                style={{ color: "#F15A29" }}
+              >
                 Se désinscrire
               </a>
             </td>

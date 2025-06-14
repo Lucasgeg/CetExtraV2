@@ -25,36 +25,33 @@ export async function POST(request: Request) {
   const unsubscribePath = "/blog/unsubscribe";
 
   try {
-    const subscribers = await prisma.blogSubscriber.findMany({
-      select: { email: true, id: true },
+    const subscribersList = await prisma.blogSubscriber.findMany({
+      select: { email: true },
       where: { subscribed: true }
     });
 
-    // Envoi individualisé pour chaque subscriber
-    const results = await Promise.all(
-      subscribers.map(async (subscriber) => {
-        const unsubscribeUrl = `${baseUrl}${unsubscribePath}?id=${subscriber.id}`;
-
-        return resend.emails.send({
-          from: "Cet Extra <no-reply@cetextra.fr>",
-          to: [subscriber.email],
-          subject: emailSubject,
-          react: NewBlogPostTemplate({
-            title,
-            shortDesc,
-            url: `${baseUrl}/blog/${postId}`,
-            unsubscribeUrl
-          }),
-          headers: {
-            "List-Unsubscribe": `<${unsubscribeUrl}>`,
-            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
-          }
-        });
-      })
+    const subscriberEmails = subscribersList.map(
+      (subscriber) => subscriber.email
     );
+
+    const results = await resend.emails.send({
+      from: "Cet Extra <no-reply@cetextra.fr>",
+      to: ["admin@cetextra.fr"],
+      bcc: subscriberEmails,
+      subject: emailSubject,
+      react: NewBlogPostTemplate({
+        title,
+        shortDesc,
+        url: `${baseUrl}/blog/${postId}`
+      }),
+      headers: {
+        "List-Unsubscribe": `<${baseUrl}${unsubscribePath}>`
+      }
+    });
 
     return Response.json({ data: results });
   } catch (error) {
+    console.error("Erreur lors de l'envoi des emails :", error);
     return Response.json({ error }, { status: 500 });
   }
 }
