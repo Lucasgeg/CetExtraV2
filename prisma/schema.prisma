@@ -23,15 +23,15 @@ model User {
 }
 
 model Extra {
-  id                  String     @id @default(uuid())
-  userId              String     @unique
+  id                  String       @id @default(uuid())
+  userId              String       @unique
   first_name          String
   last_name           String
   birthdate           DateTime
   phone               String?
-  missionJob          MissionJob @default(waiter)
+  missionJobs         MissionJob[] @default([])
   max_travel_distance Int
-  user                User       @relation(fields: [userId], references: [id])
+  user                User         @relation(fields: [userId], references: [id])
 }
 
 model Company {
