@@ -84,6 +84,7 @@ interface MultipleSelectorProps {
   /** hide the clear all button. */
   hideClearAllButton?: boolean;
   placement?: "top" | "bottom";
+  dropdownClassName?: string;
   withSearch?: boolean;
   errorMessage?: string;
 }
@@ -191,6 +192,7 @@ const MultipleSelector = React.forwardRef<
       defaultOptions: arrayDefaultOptions = [],
       options: arrayOptions,
       delay,
+      dropdownClassName,
       onSearch,
       onSearchSync,
       loadingIndicator,
@@ -627,7 +629,10 @@ const MultipleSelector = React.forwardRef<
                       <CommandGroup
                         key={key}
                         heading={key}
-                        className="h-full max-h-52 overflow-auto"
+                        className={cn(
+                          "h-full max-h-52 overflow-auto",
+                          dropdownClassName
+                        )}
                       >
                         <>
                           {dropdowns.map((option) => {

@@ -1,10 +1,11 @@
+import { Suggestion } from "@/types/api";
 import { Company, Extra, UserLocation, EnumRole } from "./dbType";
 
 export type UserSignUpSchema = {
   email: string;
   clerkId: string;
   role: EnumRole;
-  location: Omit<UserLocation, "id">;
+  location?: Suggestion;
   password: string;
   confirmPassword: string;
   // Champs communs à Extra et Company

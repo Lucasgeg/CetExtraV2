@@ -34,11 +34,6 @@ const initialState: UserSignUpSchema = {
   email: "",
   clerkId: "",
   role: EnumRole.EXTRA,
-  location: {
-    lat: 0,
-    lon: 0,
-    fullName: ""
-  },
   password: "",
   confirmPassword: ""
 };
@@ -49,7 +44,7 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
   confirmPassword: "",
   errorMessages: {},
   extra: {
-    missionJob: EnumMissionJob.WAITER,
+    missionJob: [EnumMissionJob.WAITER],
     max_travel_distance: 5
   },
   company: {},

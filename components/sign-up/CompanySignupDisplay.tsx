@@ -22,21 +22,27 @@ export const CompanySignupDisplay = ({
     <>
       <LabelledInput
         label="Nom de votre entreprise"
-        onChange={(e) => handleChange("company_name", e.target.value)}
-        value={company.company_name}
-        errorMessage={errorMessages?.companyName}
+        inputProps={{
+          onChange: (e) => handleChange("company_name", e.target.value),
+          value: company.company_name,
+          errorMessage: errorMessages?.companyName
+        }}
       />
       <LabelledInput
         label="Prénom du contact"
-        onChange={(e) => handleChange("contactFirstName", e.target.value)}
-        value={company.contactFirstName}
-        errorMessage={errorMessages?.contactLastName}
+        inputProps={{
+          onChange: (e) => handleChange("contactFirstName", e.target.value),
+          value: company.contactFirstName,
+          errorMessage: errorMessages?.contactFirstName
+        }}
       />
       <LabelledInput
         label="Nom du contact"
-        onChange={(e) => handleChange("contactLastName", e.target.value)}
-        value={company.contactLastName}
-        errorMessage={errorMessages?.contactFirstName}
+        inputProps={{
+          onChange: (e) => handleChange("contactLastName", e.target.value),
+          value: company.contactLastName,
+          errorMessage: errorMessages?.contactLastName
+        }}
       />
       <div className="flex flex-col items-center justify-between gap-1 lg:flex-row">
         <span>Adresse de votre entreprise:</span>

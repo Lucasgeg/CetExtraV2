@@ -27,10 +27,7 @@ export async function POST(req: Request) {
 }
 
 const createExtra = async (data: UserSignUpSchema) => {
-  if (!data.extra) {
-    return;
-  }
-  if (!data.extra.birthdate) {
+  if (!data.extra || !data.location || !data.extra.birthdate) {
     return;
   }
 
@@ -45,16 +42,19 @@ const createExtra = async (data: UserSignUpSchema) => {
             first_name: data.extra.first_name,
             last_name: data.extra.last_name,
             birthdate: data.extra.birthdate,
-            missionJob: data.extra.missionJob.toLowerCase() as MissionJob,
+            missionJobs: data.extra.missionJob.map(
+              (job) => job.toLowerCase() as MissionJob
+            ),
             max_travel_distance: data.extra.max_travel_distance,
             phone: data.extra.phone
           }
         },
         userLocation: {
           create: {
-            fullName: data.location.fullName,
+            fullName: data.location.display_name,
             lat: data.location.lat,
-            lon: data.location.lon
+            lon: data.location.lon,
+            nominatimId: data.location.place_id
           }
         }
       }
@@ -66,8 +66,8 @@ const createExtra = async (data: UserSignUpSchema) => {
     });
     return NextResponse.json({ message: "User created" });
   } catch (error) {
+    console.error("Error during the process:", error);
     await clerkClient.users.deleteUser(data.clerkId);
-    console.error("Error deleting user:", error);
     return NextResponse.json(
       { message: "Error deleting user", stackTrace: error },
       { status: 500 }
@@ -76,7 +76,7 @@ const createExtra = async (data: UserSignUpSchema) => {
 };
 
 const createCompany = async (data: UserSignUpSchema) => {
-  if (!data.company) {
+  if (!data.company || !data.location) {
     return;
   }
   try {
@@ -95,9 +95,10 @@ const createCompany = async (data: UserSignUpSchema) => {
         },
         userLocation: {
           create: {
-            fullName: data.location.fullName,
+            fullName: data.location.display_name,
             lat: data.location.lat,
-            lon: data.location.lon
+            lon: data.location.lon,
+            nominatimId: data.location.place_id
           }
         }
       }

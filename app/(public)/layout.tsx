@@ -40,7 +40,7 @@ export default function RootLayout({
           </div>
         </nav>
         <main className="w-full flex-1 bg-gradient-to-r from-brand-gradient-start via-brand-gradient-mid to-brand-gradient-end">
-          <div className="mx-auto h-full">{children}</div>
+          <div className="flex h-[calc(100vh-4rem)] flex-col">{children}</div>
         </main>
       </div>
     </ClerkProvider>

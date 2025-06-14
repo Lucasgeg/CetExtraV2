@@ -53,7 +53,9 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
                 <span>{option.label}</span>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-sm font-medium">{option.description}</p>
+                <p className="text-sm font-medium text-black">
+                  {option.description}
+                </p>
               </TooltipContent>
             </Tooltip>
           </label>

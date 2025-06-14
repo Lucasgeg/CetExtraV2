@@ -15,7 +15,6 @@ import { EnumMissionJob } from "@/store/types";
 import { Fragment, useEffect, useState } from "react";
 import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
 import Link from "next/link";
-import ValidationMission from "@/components/ValidationMission/ValidationMission";
 
 export default function CreateMissionPage() {
   const {

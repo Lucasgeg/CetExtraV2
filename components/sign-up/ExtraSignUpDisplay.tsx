@@ -6,28 +6,45 @@ import {
   Items,
   LabelledSelect
 } from "../ui/atom/LabelledSelect/LabelledSelect";
-import { RadioGroup } from "../ui/RadioGroup";
-import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
 import { Extra, ExtraErrorMessages, EnumMissionJob } from "@/store/types";
+import MultipleSelector from "../ui/MultipleSelector";
 
 export const ExtraSignUpDisplay = ({
   errorMessages
 }: {
   errorMessages?: ExtraErrorMessages;
 }) => {
-  const { extra, updateExtraProperty, setErrorMessages } = useSignUpStore();
+  const {
+    extra,
+    updateExtraProperty,
+    setErrorMessages,
+    updateUserProperty,
+    user
+  } = useSignUpStore();
 
-  const [selectedMissionJob, setSelectedMissionJob] = useState<EnumMissionJob>(
-    EnumMissionJob.WAITER
-  );
+  const [selectedMissionJobs, setSelectedMissionJobs] = useState<
+    { value: string; label: string }[]
+  >([]);
+
   const [selectedMaxTravelDistance, setSelectedMaxTravelDistance] = useState<
     number | undefined
   >(undefined);
 
-  const handleMissionJobChange = (value: string) => {
-    const missionJob = value as EnumMissionJob;
-    setSelectedMissionJob(missionJob);
-    updateExtraProperty("missionJob", missionJob);
+  const missionJobOptions = Object.entries(EnumMissionJob).map(
+    ([key, value]) => ({
+      label: value,
+      value: key
+    })
+  );
+
+  const handleMissionJobsChange = (
+    options: { value: string; label: string }[]
+  ) => {
+    setSelectedMissionJobs(options);
+    updateExtraProperty(
+      "missionJob",
+      options.map((opt) => opt.value as EnumMissionJob)
+    );
   };
 
   const handleMaxTravelDistanceChange = (value: string) => {
@@ -35,19 +52,6 @@ export const ExtraSignUpDisplay = ({
     if (selectedMaxTravelDistance)
       updateExtraProperty("max_travel_distance", selectedMaxTravelDistance);
   };
-
-  const missionJobOptions = [
-    {
-      value: EnumMissionJob.WAITER,
-      label: "Serveur",
-      description: "Travail en salle"
-    },
-    {
-      value: EnumMissionJob.COOK,
-      label: "Cuisinier",
-      description: "Travail en cuisine"
-    }
-  ];
 
   const handleChange = (
     key: keyof Omit<Extra, "id">,
@@ -71,27 +75,48 @@ export const ExtraSignUpDisplay = ({
     <>
       <div className="flex flex-col items-center lg:flex-row">
         <span className="lg:w-1/3">Tu recherche un poste de:</span>
-        <RadioGroup
-          name="missionJob"
-          options={missionJobOptions}
-          selectedValue={selectedMissionJob}
-          onChange={handleMissionJobChange}
-        />
+        <div className="flex-1">
+          <MultipleSelector
+            dropdownClassName="w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary"
+            placement="top"
+            badgeClassName="bg-extra-primary text-employer-primary hover:bg-employer-secondary"
+            withSearch={true}
+            options={missionJobOptions}
+            value={selectedMissionJobs}
+            onChange={handleMissionJobsChange}
+            maxSelected={missionJobOptions.length}
+            className="w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary"
+          />
+        </div>
       </div>
 
       <LabelledInput
         label="Ton nom"
-        onChange={(e) => handleChange("last_name", e.target.value)}
-        value={extra?.last_name || ""}
-        errorMessage={errorMessages?.lastName}
+        inputProps={{
+          value: extra?.last_name || "",
+          onChange: (e) => handleChange("last_name", e.target.value),
+          errorMessage: errorMessages?.lastName
+        }}
       />
       <LabelledInput
         label="Ton prénom"
-        onChange={(e) => handleChange("first_name", e.target.value)}
-        value={extra?.first_name || ""}
-        errorMessage={errorMessages?.firstName}
+        inputProps={{
+          value: extra?.first_name || "",
+          onChange: (e) => handleChange("first_name", e.target.value),
+          errorMessage: errorMessages?.firstName
+        }}
       />
-      <AddressAutocomplete errorMessage={errorMessages?.location} />
+      <LabelledInput
+        variant="location"
+        label="Ton adresse"
+        locationProps={{
+          errorMessage: errorMessages?.location,
+          handleClick: (suggestion) => {
+            updateUserProperty("location", suggestion);
+          },
+          value: user?.location
+        }}
+      />
       <DatePickerInput
         onSelectedDateAction={(e) => handleChange("birthdate", e)}
         label="Date de naissance"
@@ -106,8 +131,10 @@ export const ExtraSignUpDisplay = ({
       />
       <LabelledInput
         label="Ton numéro de téléphone"
-        onChange={(e) => handleChange("phone", e.target.value)}
-        value={extra?.phone || ""}
+        inputProps={{
+          value: extra?.phone || "",
+          onChange: (e) => handleChange("phone", e.target.value)
+        }}
       />
     </>
   );

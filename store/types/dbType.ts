@@ -1,3 +1,5 @@
+import { Suggestion } from "@/types/api";
+
 // Enums
 export enum EnumMissionJob {
   WAITER = "Serveur",
@@ -19,7 +21,7 @@ export interface UserLocation {
 export type User = {
   role: EnumRole;
   email: string;
-  address: UserLocation;
+  address: Suggestion;
   extra?: Extra;
   company?: Company;
 };
@@ -29,7 +31,7 @@ export type Extra = {
   last_name: string;
   birthdate?: Date;
   phone?: string;
-  missionJob: EnumMissionJob;
+  missionJob: EnumMissionJob[];
   max_travel_distance: number;
 };
 
