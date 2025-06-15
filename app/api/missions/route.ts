@@ -1,12 +1,14 @@
 "use server";
 import prisma from "@/app/lib/prisma";
 import { CreateMissionFormValues } from "@/types/api";
+import { convertToFrenchTime } from "@/utils/date";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { sessionClaims, userId } = await auth();
+
   if (
     !sessionClaims ||
     !userId ||
@@ -73,8 +75,8 @@ export async function POST(req: NextRequest) {
     const mission = await prisma.mission.create({
       data: {
         name: missionName,
-        mission_end_date: new Date(missionEndDate),
-        mission_start_date: new Date(missionStartDate),
+        mission_end_date: convertToFrenchTime(missionStartDate),
+        mission_start_date: convertToFrenchTime(missionEndDate),
         description: missionDescription,
         missionLocationId: missionLocation.id,
         additionalInfo,

@@ -43,11 +43,13 @@ export const AddressAutocomplete = ({
 
   useEffect(() => {
     // Synchronise selectedAddress avec la prop value RHF
-    if (value && value.place_id !== selectedAddress?.place_id) {
+    if (
+      value &&
+      (!selectedAddress || value.place_id !== selectedAddress.place_id)
+    ) {
       setSelectedAddress(value);
       setQuery("");
-    }
-    if (!value && selectedAddress) {
+    } else if (!value && selectedAddress) {
       setSelectedAddress(null);
       setQuery("");
     }
