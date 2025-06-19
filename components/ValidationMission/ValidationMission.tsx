@@ -13,11 +13,13 @@ import { Button } from "../ui/button";
 type ValidationMissionProps = {
   formData: CreateMissionFormValues;
   onCancel: () => void;
+  isSubmitting: boolean;
 };
 
 export default function ValidationMission({
   formData,
-  onCancel
+  onCancel,
+  isSubmitting
 }: ValidationMissionProps) {
   const center: LatLngExpression = [
     formData.location.lat,
@@ -116,6 +118,8 @@ export default function ValidationMission({
               className="font-bold"
               size="lg"
               onClick={onCancel}
+              disabled={isSubmitting}
+              variant={"outline"}
             >
               Annuler
             </Button>
@@ -126,6 +130,7 @@ export default function ValidationMission({
               size="lg"
               autoFocus
               type="submit"
+              disabled={isSubmitting}
             >
               Valider
             </Button>

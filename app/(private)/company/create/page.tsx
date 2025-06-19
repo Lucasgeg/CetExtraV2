@@ -16,6 +16,13 @@ import { Fragment, useEffect, useState } from "react";
 import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
 import Link from "next/link";
 import ValidationMission from "@/components/ValidationMission/ValidationMission";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 
 export default function CreateMissionPage() {
   const {
@@ -25,7 +32,8 @@ export default function CreateMissionPage() {
     watch,
     setValue,
     getValues,
-    trigger
+    trigger,
+    reset: resetFormValues
   } = useForm<CreateMissionFormValues>({
     defaultValues: {
       missionName: "",
@@ -39,9 +47,18 @@ export default function CreateMissionPage() {
   });
   const [confirmView, setConfirmView] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const selectedJobOptions = watch("extraJobOptions", []);
   const teamCounts = watch("teamCounts", {}) as TeamCount;
   const startDate = watch("missionStartDate");
+
+  const handleResetForm = () => {
+    setIsSuccess(false);
+    setConfirmView(false);
+    setFormIsValid(false);
+    resetFormValues();
+    setValue("additionalInfo", "");
+  };
 
   const checkFormValidity = async () => {
     const isValid = await trigger();
@@ -77,7 +94,7 @@ export default function CreateMissionPage() {
   };
 
   const onSubmit = async (data: CreateMissionFormValues) => {
-    const reponse = await fetch("/api/missions", {
+    const response = await fetch("/api/missions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -86,10 +103,13 @@ export default function CreateMissionPage() {
         ...data
       })
     });
-    if (!reponse.ok) {
-      const errorData = await reponse.json();
+    if (!response.ok) {
+      const errorData = await response.json();
       console.error("Error creating mission:", errorData);
       return;
+    }
+    if (response.ok) {
+      setIsSuccess(true);
     }
   };
   const options = Object.entries(EnumMissionJob).map(([key, value]) => ({
@@ -114,6 +134,7 @@ export default function CreateMissionPage() {
           <ValidationMission
             formData={getValues()}
             onCancel={handleCancelValidation}
+            isSubmitting={isSubmitting}
           />
         ) : (
           <div className="grid h-full grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
@@ -304,7 +325,6 @@ export default function CreateMissionPage() {
                             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
                               {index + 1}
                             </span>
-                            {/* Affiche la valeur française via EnumMissionJob */}
                             <span>
                               {
                                 EnumMissionJob[
@@ -376,6 +396,34 @@ export default function CreateMissionPage() {
           </div>
         )}
       </form>
+      <Dialog open={isSuccess} onOpenChange={setIsSuccess}>
+        <DialogContent aria-describedby="dialog-description">
+          <DialogHeader className="mx-auto">
+            <DialogDescription>
+              Ecran de succès de création de mission
+            </DialogDescription>
+            <DialogTitle>Votre mission a été créée avec succès !</DialogTitle>
+          </DialogHeader>
+          <p className="text-center text-employer-secondary">
+            Vous pouvez maintenant consulter vos missions dans votre tableau de
+            bord ou créer une nouvelle mission.
+          </p>
+          <div className="mt-4 flex justify-center">
+            <Link href="/company" className="w-full max-w-xs">
+              <Button theme="company" className="w-full" autoFocus={isSuccess}>
+                Retour au tableau de bord
+              </Button>
+            </Link>
+            <Button
+              theme="company"
+              className="ml-2 w-full max-w-xs"
+              onClick={handleResetForm}
+            >
+              Créer une nouvelle mission
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
