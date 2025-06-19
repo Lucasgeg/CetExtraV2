@@ -9,7 +9,12 @@ export const CompanySignupDisplay = ({
   errorMessages?: CompanyErrorMessages;
 }) => {
   // Informations nécessaire pour un entreprise:
-  const { company, updateCompanyProperty, setErrorMessages } = useSignUpStore();
+  const {
+    company,
+    updateCompanyProperty,
+    setErrorMessages,
+    updateUserProperty
+  } = useSignUpStore();
 
   const handleChange = (key: keyof Omit<Company, "id">, value?: string) => {
     if (errorMessages) {
@@ -47,7 +52,10 @@ export const CompanySignupDisplay = ({
       <div className="flex flex-col items-center justify-between gap-1 lg:flex-row">
         <span>Adresse de votre entreprise:</span>
 
-        <AddressAutocomplete errorMessage={errorMessages?.location} />
+        <AddressAutocomplete
+          errorMessage={errorMessages?.location}
+          handleClick={(s) => updateUserProperty("location", s)}
+        />
       </div>
     </>
   );

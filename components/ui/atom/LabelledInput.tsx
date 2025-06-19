@@ -11,7 +11,7 @@ interface LabelledInputProps {
   variant?: "input" | "location";
   locationProps?: {
     errorMessage?: string;
-    handleClick?: (suggestion: Suggestion | undefined) => void;
+    handleClick: (suggestion: Suggestion | undefined) => void;
     value?: Suggestion;
   };
   inputProps?: {
@@ -37,11 +37,11 @@ export const LabelledInput = ({
       )}
     >
       <span>{label}</span>
-      {variant === "location" && (
+      {variant === "location" && locationProps && (
         <AddressAutocomplete
           missionlocation
           errorMessage={locationProps?.errorMessage}
-          handleClick={locationProps?.handleClick}
+          handleClick={locationProps.handleClick}
           value={locationProps?.value || undefined}
           inputclassName="w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary"
         />

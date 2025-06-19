@@ -12,7 +12,7 @@ type AdressAutocompleteProps = {
   popOverClassName?: string;
   errorMessage?: string;
   missionlocation?: boolean;
-  handleClick?: (suggestion: Suggestion | undefined) => void;
+  handleClick: (suggestion: Suggestion | undefined) => void;
   value?: Suggestion;
 };
 
@@ -27,7 +27,7 @@ export const AddressAutocomplete = ({
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
-    null
+    value || null
   );
   const debouncedValue = useDebounce(query, 350);
 
@@ -42,7 +42,6 @@ export const AddressAutocomplete = ({
   }, [debouncedValue, missionlocation]);
 
   useEffect(() => {
-    // Synchronise selectedAddress avec la prop value RHF
     if (
       value &&
       (!selectedAddress || value.place_id !== selectedAddress.place_id)
@@ -53,7 +52,7 @@ export const AddressAutocomplete = ({
       setSelectedAddress(null);
       setQuery("");
     }
-  }, [value, selectedAddress]);
+  }, [value?.place_id]);
 
   const handleSelectSuggestion = (suggestion: Suggestion) => {
     setSelectedAddress(suggestion);
@@ -91,7 +90,7 @@ export const AddressAutocomplete = ({
                     setSelectedAddress(null);
                     setQuery("");
                     setSuggestions([]);
-                    if (handleClick) handleClick(undefined);
+                    handleClick(undefined);
                   }}
                 >
                   <X className="h-4 w-4" />

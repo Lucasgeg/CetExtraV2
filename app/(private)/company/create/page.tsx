@@ -33,7 +33,8 @@ export default function CreateMissionPage() {
       missionStartDate: "",
       missionEndDate: "",
       extraJobOptions: [],
-      teamCounts: {}
+      teamCounts: {},
+      location: undefined
     }
   });
   const [confirmView, setConfirmView] = useState(false);
@@ -96,8 +97,10 @@ export default function CreateMissionPage() {
     value: key
   }));
 
-  if (formIsValid && confirmView) {
-  }
+  const handleCancelValidation = () => {
+    setConfirmView(false);
+    setFormIsValid(false);
+  };
 
   return (
     <>
@@ -110,7 +113,7 @@ export default function CreateMissionPage() {
         {formIsValid && confirmView ? (
           <ValidationMission
             formData={getValues()}
-            onCancel={() => setConfirmView(false)}
+            onCancel={handleCancelValidation}
           />
         ) : (
           <div className="grid h-full grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">

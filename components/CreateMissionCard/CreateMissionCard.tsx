@@ -35,7 +35,7 @@ type CreateMissionCardProps = {
   };
   locationProps?: {
     errorMessage?: string;
-    handleClick?: (suggestion: Suggestion | undefined) => void;
+    handleClick: (suggestion: Suggestion | undefined) => void;
     value?: Suggestion;
   };
 };
@@ -119,11 +119,11 @@ export const CreateMissionCard = ({
           />
         )}
 
-        {variant === "location" && (
+        {variant === "location" && locationProps?.handleClick && (
           <AddressAutocomplete
             missionlocation
             errorMessage={locationProps?.errorMessage}
-            handleClick={locationProps?.handleClick}
+            handleClick={locationProps.handleClick}
             value={locationProps?.value || undefined}
             inputclassName="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
           />
