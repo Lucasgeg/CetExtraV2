@@ -123,7 +123,7 @@ export default function CreateMissionPage() {
   };
 
   return (
-    <>
+    <div className="h-auto pb-6 lg:h-full">
       <h1 className="col-span-3 text-center text-2xl font-bold text-employer-secondary">
         {confirmView
           ? "Récapitulatif de la mission"
@@ -397,18 +397,18 @@ export default function CreateMissionPage() {
         )}
       </form>
       <Dialog open={isSuccess} onOpenChange={setIsSuccess}>
-        <DialogContent aria-describedby="dialog-description">
+        <DialogContent
+          aria-describedby="dialog-description"
+          className="max-w-[100vw]"
+        >
           <DialogHeader className="mx-auto">
-            <DialogDescription>
-              Ecran de succès de création de mission
-            </DialogDescription>
             <DialogTitle>Votre mission a été créée avec succès !</DialogTitle>
           </DialogHeader>
           <p className="text-center text-employer-secondary">
             Vous pouvez maintenant consulter vos missions dans votre tableau de
             bord ou créer une nouvelle mission.
           </p>
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-col items-center justify-center gap-4">
             <Link href="/company" className="w-full max-w-xs">
               <Button theme="company" className="w-full" autoFocus={isSuccess}>
                 Retour au tableau de bord
@@ -416,7 +416,7 @@ export default function CreateMissionPage() {
             </Link>
             <Button
               theme="company"
-              className="ml-2 w-full max-w-xs"
+              className="w-full max-w-xs"
               onClick={handleResetForm}
             >
               Créer une nouvelle mission
@@ -424,6 +424,6 @@ export default function CreateMissionPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

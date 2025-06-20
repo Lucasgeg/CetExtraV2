@@ -111,30 +111,30 @@ export default function ValidationMission({
           <span className="text-lg font-bold italic text-employer-primary">
             {formData.location.display_name}
           </span>
-          <div className="flex w-full justify-end gap-6">
-            <Button
-              type="button"
-              theme="company"
-              className="font-bold"
-              size="lg"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              variant={"outline"}
-            >
-              Annuler
-            </Button>
-            <Button
-              theme="company"
-              className="font-bold"
-              variant={"destructive"}
-              size="lg"
-              autoFocus
-              type="submit"
-              disabled={isSubmitting}
-            >
-              Valider
-            </Button>
-          </div>
+        </div>
+        <div className="flex w-full justify-center gap-6">
+          <Button
+            type="button"
+            theme="company"
+            className="font-bold"
+            size="lg"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            variant={"outline"}
+          >
+            Annuler
+          </Button>
+          <Button
+            theme="company"
+            className="font-bold"
+            variant={"destructive"}
+            size="lg"
+            autoFocus
+            type="submit"
+            disabled={isSubmitting}
+          >
+            Valider
+          </Button>
         </div>
       </div>
     </>

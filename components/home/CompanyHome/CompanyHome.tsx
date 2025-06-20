@@ -11,10 +11,9 @@ export const CompanyHome = () => {
 
   if (loading) return <Loader size={20} />;
   if (!data?.companyId) return null;
-
   return (
     <>
-      <div className="sm:col-span-4 lg:col-span-3">
+      <div className="h-full max-h-[30vh] sm:col-span-4 lg:col-span-3 lg:max-h-max">
         <NextMissionCard id={data.companyId} />
       </div>
 

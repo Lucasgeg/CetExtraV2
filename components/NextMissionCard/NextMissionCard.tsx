@@ -56,7 +56,7 @@ export const NextMissionCard = ({ id }: { id: string }) => {
   return (
     <CustomTable<GetCompanyMission>
       columns={columns}
-      rows={companyData}
+      rows={[...companyData, ...companyData]}
       title="Prochaines Missions"
       loading={loading}
     />
