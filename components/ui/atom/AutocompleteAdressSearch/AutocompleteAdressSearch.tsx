@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Popover, PopoverAnchor, PopoverContent } from "../../popover";
-import { getSuggestions } from "@/app/(public)/sign-up/[[...sign-up]]/actions";
 import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
@@ -33,9 +32,27 @@ export const AddressAutocomplete = ({
 
   useEffect(() => {
     const searchQuery = async () => {
-      if (debouncedValue.length > 5) {
-        const results = await getSuggestions(debouncedValue, missionlocation);
-        setSuggestions(results);
+      if (debouncedValue.length > 4) {
+        try {
+          const params = new URLSearchParams({
+            query: debouncedValue,
+            missionLocation: missionlocation.toString()
+          });
+
+          const response = await fetch(`/api/address?${params}`);
+          if (response.ok) {
+            const results = await response.json();
+            setSuggestions(results);
+          } else {
+            console.error("Failed to fetch address suggestions");
+            setSuggestions([]);
+          }
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+          setSuggestions([]);
+        }
+      } else {
+        setSuggestions([]);
       }
     };
     searchQuery();
@@ -99,8 +116,12 @@ export const AddressAutocomplete = ({
             </div>
           </PopoverAnchor>
         </div>
-        <PopoverContent className={popOverClassName}>
-          <ul className="mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
+        <PopoverContent
+          className={cn("w-full p-0", popOverClassName)}
+          align="start"
+          sideOffset={4}
+        >
+          <ul className="max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
             {suggestions.map((suggestion) => (
               <li
                 key={suggestion.place_id}

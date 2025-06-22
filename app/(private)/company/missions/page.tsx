@@ -16,7 +16,6 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
-import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 
 const MISSIONS_PER_PAGE = 10;
 
@@ -32,7 +31,7 @@ export default function CompanyMissionsPage() {
   const [totalMissions, setTotalMissions] = useState(0);
 
   const totalPages = Math.ceil(totalMissions / MISSIONS_PER_PAGE);
-  // <MagnifyingGlassIcon />
+
   const columns: ColumnDef<GetCompanyMission>[] = useMemo(
     () => [
       {
