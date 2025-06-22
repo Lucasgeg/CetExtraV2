@@ -4,59 +4,82 @@ import { GetCompanyMission } from "@/types/api";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import CustomTable from "../CustomTable/CustomTable";
-import { useEffect, useState } from "react";
+import { Loader } from "../ui/Loader/Loader";
+import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export const NextMissionCard = ({ id }: { id: string }) => {
-  const [companyData, setCompanyData] = useState<GetCompanyMission[]>([]);
-
-  const { data, loading } = useFetch<GetCompanyMission[]>(
-    `/api/missions/${id}?missionSelector=incoming&isCompany=true`
+  const { data, loading } = useFetch<{
+    missions: GetCompanyMission[];
+    total: number;
+  }>(
+    `/api/missions/${id}?missionSelector=incoming&isCompany=true&take=5&fields=id,name,mission_start_date,missionLocation.fullName`
   );
-
-  useEffect(() => {
-    if (data) {
-      setCompanyData(data);
-    }
-  }, [data]);
 
   const columns: ColumnDef<GetCompanyMission>[] = [
     {
-      id: "name",
-      cell: ({ cell }) => <Link href="#">{cell.row.original.name}</Link>,
+      accessorKey: "name",
+      cell: ({ row }) => <Link href="#">{row.original.name}</Link>,
       header: "Nom"
     },
     {
-      id: "date",
-      accessorFn: (row) =>
-        new Date(row.mission_start_date).toLocaleDateString(),
+      accessorKey: "mission_start_date",
+      cell: ({ row }) =>
+        new Date(row.original.mission_start_date).toLocaleDateString("fr-FR"),
       header: "Date"
     },
     {
-      id: "fullName",
-      accessorFn: (row) => row.missionLocation.fullName,
+      accessorKey: "missionLocation.fullName",
+      cell: ({ row }) => row.original.missionLocation?.fullName || "Non défini",
       header: "Lieu de mission"
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <button
+            className="rounded p-1 text-blue-600 hover:bg-blue-100"
+            title="Voir les détails"
+          >
+            <MagnifyingGlassIcon className="h-4 w-4" />
+          </button>
+          <button
+            className="rounded p-1 text-red-600 hover:bg-red-100"
+            title="Supprimer"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      )
     }
   ];
 
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-gray-500">Chargement des missions...</p>
+        <Loader
+          size="lg"
+          text="Chargement des prochaines missions"
+          variant="dots"
+        />
       </div>
     );
   }
 
-  if (!companyData || companyData.length === 0) {
+  const missions = data?.missions || [];
+
+  if (missions.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-gray-500">Aucune mission à venir</p>
       </div>
     );
   }
+
   return (
     <CustomTable<GetCompanyMission>
       columns={columns}
-      rows={[...companyData, ...companyData]}
+      rows={missions}
       title="Prochaines Missions"
       loading={loading}
     />

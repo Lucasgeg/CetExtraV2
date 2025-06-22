@@ -98,7 +98,7 @@ export default function CustomTable<T>({
                     <td
                       key={cell.id}
                       className={classNames(
-                        "border-b border-gray-100 px-2 py-1 sm:px-6 sm:py-3",
+                        "border-b border-gray-100 px-2 py-1 sm:px-6 sm:py-5",
                         "text-xs sm:text-sm",
                         idx === 0 ? "text-left" : "text-right"
                       )}

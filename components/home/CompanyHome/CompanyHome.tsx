@@ -5,6 +5,7 @@ import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import { Loader } from "lucide-react";
 import { Button } from "../../ui/button";
 import Link from "next/link";
+import { Switch } from "@/components/ui/atom/Switch/Switch";
 
 export const CompanyHome = () => {
   const { loading, data } = useStore(useCurrentUserStore, (state) => state);
@@ -24,7 +25,7 @@ export const CompanyHome = () => {
         theme="company"
         className="h-full text-lg lg:col-span-2 lg:col-start-3 lg:row-start-2 lg:text-base"
       >
-        <Link href="/missions">Toutes les missions</Link>
+        <Link href="/company/missions">Toutes les missions</Link>
       </Button>
 
       <Button

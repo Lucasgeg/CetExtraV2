@@ -98,3 +98,31 @@ export type CreateMissionFormValues = {
   extraJobOptions: EnumMissionJob[];
   teamCounts: TeamCount;
 };
+
+export enum AllowedFields {
+  // Champs de base de Mission
+  ID = "id",
+  NAME = "name",
+  DESCRIPTION = "description",
+  MISSION_START_DATE = "mission_start_date",
+  MISSION_END_DATE = "mission_end_date",
+  ADDITIONAL_INFO = "additionalInfo",
+
+  // Champs de MissionLocation
+  LOCATION_FULL_NAME = "missionLocation.fullName",
+  LOCATION_LAT = "missionLocation.lat",
+  LOCATION_LON = "missionLocation.lon",
+
+  // Champs de Creator (Company)
+  CREATOR_COMPANY_NAME = "creator.company_name",
+
+  // Champs pour UserMission (côté extra)
+  START_DATE = "start_date",
+  DURATION = "duration"
+}
+
+export enum EnumMissionSelector {
+  ALL = "all",
+  INCOMING = "incoming",
+  PAST = "past"
+}
