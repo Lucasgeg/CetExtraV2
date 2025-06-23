@@ -5,9 +5,11 @@ import "leaflet/dist/leaflet.css";
 
 type MapContainerComponentProps = {
   center: LatLngExpression;
-  points: BasePoint[];
+  points: Point[];
   zoom?: number;
   height?: string;
+  maxHeight?: string;
+  className?: string;
 };
 
 type BasePoint = {
@@ -29,32 +31,42 @@ export type ExtraPoint = BasePoint & {
 
 export type Point = MissionPoint | ExtraPoint;
 
-const DynamicMap = dynamic(() => import("./DynamicMapContent"), {
-  ssr: false,
-  loading: () => (
-    <div
-      style={{
-        minHeight: "400px",
-        width: "100%",
-        borderRadius: "1.25em",
-        backgroundColor: "#f3f4f6",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
-      }}
-    >
-      <div>Chargement de la carte...</div>
-    </div>
-  )
-});
-
 export default function MapContainerComponent({
   center,
   points,
   zoom = 17,
-  height = "400px"
+  height,
+  maxHeight,
+  className
 }: MapContainerComponentProps) {
+  const DynamicMapWithHeight = dynamic(() => import("./DynamicMapContent"), {
+    ssr: false,
+    loading: () => (
+      <div
+        style={{
+          height,
+          maxHeight,
+          width: "100%",
+          borderRadius: "1.25em",
+          backgroundColor: "#f3f4f6",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+        className={className}
+      >
+        <div>Chargement de la carte...</div>
+      </div>
+    )
+  });
+
   return (
-    <DynamicMap center={center} points={points} zoom={zoom} height={height} />
+    <DynamicMapWithHeight
+      center={center}
+      points={points}
+      zoom={zoom}
+      height={height}
+      maxHeight=""
+    />
   );
 }

@@ -26,31 +26,6 @@ export const NextMissionCard = ({ id }: { id: string }) => {
       cell: ({ row }) =>
         new Date(row.original.mission_start_date).toLocaleDateString("fr-FR"),
       header: "Date"
-    },
-    {
-      accessorKey: "missionLocation.fullName",
-      cell: ({ row }) => row.original.missionLocation?.fullName || "Non défini",
-      header: "Lieu de mission"
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-          <button
-            className="rounded p-1 text-blue-600 hover:bg-blue-100"
-            title="Voir les détails"
-          >
-            <MagnifyingGlassIcon className="h-4 w-4" />
-          </button>
-          <button
-            className="rounded p-1 text-red-600 hover:bg-red-100"
-            title="Supprimer"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </button>
-        </div>
-      )
     }
   ];
 

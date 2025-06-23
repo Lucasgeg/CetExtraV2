@@ -146,7 +146,6 @@ export async function GET(
     const params = await props.params;
     const { userId } = params;
 
-    // Validation du userId
     if (!userId || typeof userId !== "string") {
       return NextResponse.json(
         { message: "Invalid userId parameter" },

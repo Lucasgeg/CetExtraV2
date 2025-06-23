@@ -3,12 +3,12 @@ import { type LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MapContainerComponent, {
   MissionPoint
-} from "../MapContainerComponent/MapContainerComponent";
+} from "../../MapContainerComponent/MapContainerComponent";
 import { CreateMissionFormValues } from "@/types/api";
-import { DetailListItem, DetailsList } from "../ui/DetailsList/DetailsList";
+import { DetailListItem, DetailsList } from "../DetailsList/DetailsList";
 import { EnumMissionJob } from "@/store/types";
-import { Card, CardContent, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardTitle } from "../card";
+import { Button } from "../button";
 
 type ValidationMissionProps = {
   formData: CreateMissionFormValues;

@@ -69,7 +69,7 @@ export const AddressAutocomplete = ({
       setSelectedAddress(null);
       setQuery("");
     }
-  }, [value?.place_id]);
+  }, [selectedAddress, value]);
 
   const handleSelectSuggestion = (suggestion: Suggestion) => {
     setSelectedAddress(suggestion);

@@ -23,7 +23,7 @@ export const CompanyHome = () => {
         fullWidth
         rounded="2xl"
         theme="company"
-        className="h-full text-lg lg:col-span-2 lg:col-start-3 lg:row-start-2 lg:text-base"
+        className="h-full text-lg lg:col-span-3 lg:col-start-1 lg:row-start-2 lg:text-base"
       >
         <Link href="/company/missions">Toutes les missions</Link>
       </Button>
@@ -53,7 +53,7 @@ export const CompanyHome = () => {
         fullWidth
         rounded="2xl"
         theme="company"
-        className="h-full text-lg lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:text-base"
+        className="h-full text-lg lg:col-span-1 lg:col-start-4 lg:row-start-2 lg:text-base"
         variant="disabled"
       >
         Statistiques (A venir)

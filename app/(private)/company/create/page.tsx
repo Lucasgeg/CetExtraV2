@@ -1,5 +1,5 @@
 "use client";
-import { CreateMissionCard } from "@/components/CreateMissionCard/CreateMissionCard";
+import { MissionCard } from "@/components/CreateMissionCard/CreateMissionCard";
 import {
   DocumentTextIcon,
   SparklesIcon,
@@ -15,7 +15,7 @@ import { EnumMissionJob } from "@/store/types";
 import { Fragment, useEffect, useState } from "react";
 import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
 import Link from "next/link";
-import ValidationMission from "@/components/ValidationMission/ValidationMission";
+import ValidationMission from "@/components/ui/ValidationMission/ValidationMission";
 import {
   Dialog,
   DialogContent,
@@ -144,7 +144,7 @@ export default function CreateMissionPage() {
                 control={control}
                 rules={{ required: "Le nom de la mission est requis" }}
                 render={({ field }) => (
-                  <CreateMissionCard
+                  <MissionCard
                     id="missionName"
                     variant="input"
                     inputProps={{
@@ -165,7 +165,7 @@ export default function CreateMissionPage() {
                 control={control}
                 rules={{ required: "Le lieu de la mission est requis" }}
                 render={({ field }) => (
-                  <CreateMissionCard
+                  <MissionCard
                     id="location"
                     variant="location"
                     placeholder="Lieu de la mission"
@@ -197,7 +197,12 @@ export default function CreateMissionPage() {
                         field.value && !isNaN(new Date(field.value).getTime())
                           ? new Date(field.value)
                           : undefined,
-                      onChange: field.onChange
+                      onChange: (date) => {
+                        // Conservez la date locale sans conversion timezone
+                        if (date) {
+                          field.onChange(date.toISOString());
+                        }
+                      }
                     }}
                     disabled={{ before: new Date() }}
                     errorMessage={errors.missionStartDate?.message}
@@ -220,7 +225,12 @@ export default function CreateMissionPage() {
                         field.value && !isNaN(new Date(field.value).getTime())
                           ? new Date(field.value)
                           : undefined,
-                      onChange: field.onChange
+                      onChange: (date) => {
+                        // Conservez la date locale sans conversion timezone
+                        if (date) {
+                          field.onChange(date.toISOString());
+                        }
+                      }
                     }}
                     errorMessage={errors.missionEndDate?.message}
                     iconContainerClassName="bg-gradient-to-br from-red-600 to-[#F3E8FF]"
@@ -233,7 +243,7 @@ export default function CreateMissionPage() {
                 name="missionDescription"
                 control={control}
                 render={({ field }) => (
-                  <CreateMissionCard
+                  <MissionCard
                     id="missionDescription"
                     variant="textarea"
                     textareaProps={{
@@ -254,7 +264,7 @@ export default function CreateMissionPage() {
                 name="additionalInfo"
                 control={control}
                 render={({ field }) => (
-                  <CreateMissionCard
+                  <MissionCard
                     id="additionalInfo"
                     variant="textarea"
                     textareaProps={{
@@ -286,7 +296,7 @@ export default function CreateMissionPage() {
                     field.value?.includes(opt.value as EnumMissionJob)
                   );
                   return (
-                    <CreateMissionCard
+                    <MissionCard
                       type=""
                       id="extraJobOptions"
                       variant="select"

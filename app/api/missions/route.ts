@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
     const mission = await prisma.mission.create({
       data: {
         name: missionName,
-        mission_end_date: convertToFrenchTime(missionStartDate),
-        mission_start_date: convertToFrenchTime(missionEndDate),
+        mission_end_date: new Date(missionEndDate),
+        mission_start_date: new Date(missionStartDate),
         description: missionDescription,
         missionLocationId: missionLocation.id,
         additionalInfo,

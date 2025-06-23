@@ -126,3 +126,52 @@ export enum EnumMissionSelector {
   INCOMING = "incoming",
   PAST = "past"
 }
+
+export interface MissionLocation {
+  id: string;
+  lat: number;
+  lon: number;
+  fullName: string;
+  nominatimId: number | null;
+}
+
+export interface RequiredPosition {
+  id: string;
+  missionId: string;
+  jobType: EnumMissionJob;
+  quantity: number;
+}
+
+export interface UserMission {
+  id: string;
+  userId: string;
+  missionId: string;
+  start_date: string;
+  missionJob: EnumMissionJob;
+  duration: number;
+  hourly_rate: number;
+  created_at: string;
+  status: "pending" | "accepted" | "refused";
+  updated_at: string;
+}
+
+export interface MissionDetailResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  additionalInfo: string | null;
+  mission_start_date: string;
+  mission_end_date: string;
+  creatorId: string;
+  missionLocationId: string | null;
+  missionLocation: MissionLocation | null;
+  requiredPositions: RequiredPosition[];
+  employees: UserMission[];
+}
+
+export interface ApiErrorResponse {
+  message: string;
+}
+
+// Type union pour la réponse complète
+export type MissionDetailApiResponse = MissionDetailResponse;

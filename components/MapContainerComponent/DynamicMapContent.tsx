@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { type LatLngExpression, divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import styles from "./MapContainerComponent.module.css";
+import { cn } from "@/lib/utils";
 
 type BasePoint = {
   id: string;
@@ -28,6 +29,8 @@ type DynamicMapContentProps = {
   points: BasePoint[];
   zoom?: number;
   height?: string;
+  maxHeight?: string;
+  className?: string;
 };
 
 const missionIcon = divIcon({
@@ -46,14 +49,22 @@ export default function DynamicMapContent({
   center,
   points,
   zoom = 17,
-  height = "400px"
+  height,
+  maxHeight,
+  className
 }: DynamicMapContentProps) {
   return (
     <MapContainer
-      style={{ minHeight: height, width: "100%", borderRadius: "1.25em" }}
+      style={{
+        height: height,
+        minHeight: "300px",
+        width: "100%",
+        borderRadius: "1.25em",
+        maxHeight
+      }}
       center={center}
       zoom={zoom}
-      className={styles.leafletTile}
+      className={cn(styles.mapContainer, className)}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

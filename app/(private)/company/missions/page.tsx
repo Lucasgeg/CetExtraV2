@@ -16,6 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
+import Link from "next/link";
 
 const MISSIONS_PER_PAGE = 10;
 
@@ -87,12 +88,13 @@ export default function CompanyMissionsPage() {
         header: "Actions",
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
-            <button
+            <Link
               className="rounded p-1 text-blue-600 hover:bg-blue-100"
               title="Voir les détails"
+              href={`/company/missions/${row.original.id}`}
             >
               <MagnifyingGlassIcon className="h-4 w-4" />
-            </button>
+            </Link>
             <button
               className="rounded p-1 text-red-600 hover:bg-red-100"
               title="Supprimer"

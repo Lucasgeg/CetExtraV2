@@ -40,7 +40,7 @@ type CreateMissionCardProps = {
   };
 };
 
-export const CreateMissionCard = ({
+export const MissionCard = ({
   id,
   placeholder,
   title,
