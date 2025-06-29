@@ -90,7 +90,7 @@ export type TeamCount = {
 
 export type CreateMissionFormValues = {
   missionName: string;
-  missionDescription: string;
+  missionDescription?: string;
   missionStartDate: string;
   missionEndDate: string;
   additionalInfo?: string;

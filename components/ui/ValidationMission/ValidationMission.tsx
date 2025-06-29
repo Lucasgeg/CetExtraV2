@@ -64,6 +64,7 @@ export default function ValidationMission({
         ` à ${getTimes(formData.missionEndDate)}`
     }
   ];
+
   const getJobLabel = (jobKey: string): string => {
     return EnumMissionJob[jobKey as keyof typeof EnumMissionJob] || jobKey;
   };
@@ -77,8 +78,8 @@ export default function ValidationMission({
 
   return (
     <>
-      <div className="grid h-full grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
-        <div className="overflow-y-auto rounded-lg bg-employer-background p-4 shadow-md">
+      <div className="grid h-full grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3">
+        <div className="flex h-full flex-col overflow-y-auto rounded-lg bg-employer-background p-4 shadow-md">
           <h2 className="text-lg font-bold text-employer-primary">
             Détails de la mission
           </h2>
@@ -88,7 +89,7 @@ export default function ValidationMission({
           </h2>
           <DetailsList items={requiredPositions} />
         </div>
-        <div className="flex flex-col items-center justify-between gap-5 rounded-lg bg-employer-background p-4 shadow-md">
+        <div className="flex h-full flex-col items-center justify-between gap-5 rounded-lg bg-employer-background p-4 shadow-md">
           <Card className="h-full w-full">
             <CardTitle className="text-lg font-bold text-employer-primary">
               Description de la mission
@@ -107,34 +108,39 @@ export default function ValidationMission({
           </Card>
         </div>
         <div className="flex h-full flex-col items-center justify-center overflow-auto rounded-lg bg-employer-background p-4 shadow-md">
-          <MapContainerComponent center={center} points={points} />
+          <MapContainerComponent
+            center={center}
+            points={points}
+            height="100%"
+          />
+
           <span className="text-lg font-bold italic text-employer-primary">
-            {formData.location.display_name}
+            {formData.location?.display_name}
           </span>
-        </div>
-        <div className="flex w-full justify-center gap-6">
-          <Button
-            type="button"
-            theme="company"
-            className="font-bold"
-            size="lg"
-            onClick={onCancel}
-            disabled={isSubmitting}
-            variant={"outline"}
-          >
-            Annuler
-          </Button>
-          <Button
-            theme="company"
-            className="font-bold"
-            variant={"destructive"}
-            size="lg"
-            autoFocus
-            type="submit"
-            disabled={isSubmitting}
-          >
-            Valider
-          </Button>
+          <div className="mt-2 flex w-full justify-end gap-6">
+            <Button
+              type="button"
+              theme="company"
+              className="font-bold"
+              size="lg"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              variant={"outline"}
+            >
+              Annuler
+            </Button>
+            <Button
+              theme="company"
+              className="font-bold"
+              variant={"destructive"}
+              size="lg"
+              autoFocus
+              type="submit"
+              disabled={isSubmitting}
+            >
+              Valider
+            </Button>
+          </div>
         </div>
       </div>
     </>

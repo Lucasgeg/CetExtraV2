@@ -47,14 +47,19 @@ export default function CreateMissionPage() {
   const [confirmView, setConfirmView] = useState(false);
   const [formIsValid, setFormIsValid] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [createdMissionId, setCreatedMissionId] = useState<string | undefined>(
+    undefined
+  );
   const selectedJobOptions = watch("extraJobOptions", []);
   const teamCounts = watch("teamCounts", {}) as TeamCount;
   const startDate = watch("missionStartDate");
+  const currentLocation = watch("location");
 
   const handleResetForm = () => {
     setIsSuccess(false);
     setConfirmView(false);
     setFormIsValid(false);
+    setCreatedMissionId(undefined);
     resetFormValues();
     setValue("additionalInfo", "");
   };
@@ -106,6 +111,7 @@ export default function CreateMissionPage() {
       return;
     }
     if (response.ok) {
+      setCreatedMissionId((await response.json()).mission.id);
       setIsSuccess(true);
     }
   };
@@ -173,9 +179,13 @@ export default function CreateMissionPage() {
                     locationProps={{
                       errorMessage: errors.location?.message,
                       handleClick: (suggestion: Suggestion | undefined) => {
-                        field.onChange(suggestion);
+                        if (suggestion === undefined) {
+                          field.onChange(undefined);
+                        } else {
+                          field.onChange(suggestion);
+                        }
                       },
-                      value: field.value
+                      value: currentLocation
                     }}
                   />
                 )}
@@ -195,7 +205,6 @@ export default function CreateMissionPage() {
                           ? new Date(field.value)
                           : undefined,
                       onChange: (date) => {
-                        // Conservez la date locale sans conversion timezone
                         if (date) {
                           field.onChange(date.toISOString());
                         }
@@ -223,7 +232,6 @@ export default function CreateMissionPage() {
                           ? new Date(field.value)
                           : undefined,
                       onChange: (date) => {
-                        // Conservez la date locale sans conversion timezone
                         if (date) {
                           field.onChange(date.toISOString());
                         }
@@ -429,6 +437,14 @@ export default function CreateMissionPage() {
             >
               Créer une nouvelle mission
             </Button>
+            <Link
+              href={`/company/missions/${createdMissionId}`}
+              className="w-full max-w-xs"
+            >
+              <Button theme="company" className="w-full max-w-xs">
+                Voir la mission créée
+              </Button>
+            </Link>
           </div>
         </DialogContent>
       </Dialog>

@@ -81,16 +81,18 @@ const getLocationFromDb = async (q: string): Promise<Suggestion[]> => {
         fullName: true,
         lat: true,
         lon: true,
-        id: true
+        id: true,
+        nominatimId: true
       }
     });
+    console.info("results from db:", locations);
 
     locations.forEach((location) => {
       suggestions.push({
         display_name: location.fullName,
         lat: location.lat,
         lon: location.lon,
-        place_id: Number(location.id)
+        place_id: Number(location.nominatimId)
       });
     });
     if (locations.length < 5) {

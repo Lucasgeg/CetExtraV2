@@ -25,10 +25,12 @@ export const AddressAutocomplete = ({
 }: AdressAutocompleteProps) => {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
-    value || null
-  );
+  const [selectedAddress, setSelectedAddress] = useState<
+    Suggestion | undefined
+  >(value || undefined);
   const debouncedValue = useDebounce(query, 350);
+
+  console.log(value);
 
   useEffect(() => {
     const searchQuery = async () => {
@@ -66,7 +68,7 @@ export const AddressAutocomplete = ({
       setSelectedAddress(value);
       setQuery("");
     } else if (!value && selectedAddress) {
-      setSelectedAddress(null);
+      setSelectedAddress(undefined);
       setQuery("");
     }
   }, [selectedAddress, value]);
@@ -99,19 +101,31 @@ export const AddressAutocomplete = ({
                 disabled={!!selectedAddress}
               />
               {selectedAddress && (
-                <button
-                  type="button"
-                  aria-label="Supprimer l'adresse sélectionnée"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-                  onClick={() => {
-                    setSelectedAddress(null);
-                    setQuery("");
-                    setSuggestions([]);
-                    handleClick(undefined);
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <>
+                  <button
+                    type="button"
+                    aria-label="Supprimer l'adresse sélectionnée"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                    onClick={() => {
+                      setSelectedAddress(undefined);
+                      setQuery("");
+                      setSuggestions([]);
+                      handleClick(undefined);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Supprimer l'adresse sélectionnée"
+                    className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                    onClick={() => {
+                      setSelectedAddress(undefined);
+                    }}
+                  >
+                    <span className="h-4 w-4">A</span>
+                  </button>
+                </>
               )}
             </div>
           </PopoverAnchor>
