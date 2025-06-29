@@ -6,6 +6,10 @@ Allow: /
 User-agent: *
 Disallow: /api/
 Disallow: /private/
+Disallow: /sign-in
+Disallow: /blog/admin
+Disallow: /blog/admin/
+Disallow: /company/
 
 # Host
 Host: https://cetextra.fr
