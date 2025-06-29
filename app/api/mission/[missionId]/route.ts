@@ -21,7 +21,20 @@ export async function GET(
       include: {
         missionLocation: true,
         requiredPositions: true,
-        employees: true
+        employees: {
+          include: {
+            user: {
+              select: {
+                extra: {
+                  select: {
+                    last_name: true,
+                    first_name: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     });
 

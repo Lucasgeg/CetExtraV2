@@ -153,6 +153,14 @@ export interface UserMission {
   created_at: string;
   status: "pending" | "accepted" | "refused";
   updated_at: string;
+  user: MissionDetailResponseExtra;
+}
+
+interface MissionDetailResponseExtra {
+  extra: {
+    first_name: string;
+    last_name: string;
+  };
 }
 
 export interface MissionDetailResponse {

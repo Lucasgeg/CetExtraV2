@@ -12,14 +12,13 @@ import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/Crea
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EnumMissionJob } from "@/store/types";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
 import Link from "next/link";
 import ValidationMission from "@/components/ui/ValidationMission/ValidationMission";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
@@ -68,17 +67,15 @@ export default function CreateMissionPage() {
     }
   };
 
-  useEffect(() => {
-    setValue(
-      "teamCounts",
-      selectedJobOptions.reduce((acc, job) => {
-        acc[job] =
-          teamCounts?.[job] && teamCounts[job] > 0 ? teamCounts[job] : 1;
-        return acc;
-      }, {} as TeamCount)
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedJobOptions]);
+  const handleJobOptionChange = (selected: EnumMissionJob[]) => {
+    const newTeamCounts = selected.reduce((acc, job) => {
+      acc[job] = teamCounts?.[job] && teamCounts[job] > 0 ? teamCounts[job] : 1;
+      return acc;
+    }, {} as TeamCount);
+
+    setValue("extraJobOptions", selected);
+    setValue("teamCounts", newTeamCounts);
+  };
 
   const onIncrement = (job: EnumMissionJob) => {
     setValue("teamCounts", {
@@ -304,9 +301,10 @@ export default function CreateMissionPage() {
                         options,
                         value: selectedOptions,
                         onChange: (selected) => {
-                          field.onChange(
-                            selected.map((opt) => opt.value as EnumMissionJob)
+                          const jobValues = selected.map(
+                            (opt) => opt.value as EnumMissionJob
                           );
+                          handleJobOptionChange(jobValues);
                         },
                         withSearch: true
                       }}

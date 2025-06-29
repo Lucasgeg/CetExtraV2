@@ -1,46 +1,121 @@
 import { Input } from "../input";
 import { Button } from "../button";
-import { EnvelopeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { EnumMissionJob } from "@/store/types";
+import {
+  EnvelopeIcon,
+  QuestionMarkCircleIcon,
+  TrashIcon
+} from "@heroicons/react/24/outline";
+import { Dialog, DialogContent, DialogTitle } from "../dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { ReactNode, useState } from "react";
 
 type TeamGestionnaryItemProps = {
-  job: EnumMissionJob;
   tipNumber: number;
   value?: string;
   onDelete: () => void;
-  onInvite: () => void;
+  isOccupied?: boolean;
+  modalInfo?: ModalInfo;
 };
 
-function capitalizeFirstLetter(str: string) {
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
+type ModalInfo = {
+  title: string;
+  content: ReactNode | string;
+};
 
 export const TeamGestionnaryItem = ({
   tipNumber,
   value,
-  job,
   onDelete,
-  onInvite
+  isOccupied = false,
+  modalInfo
 }: TeamGestionnaryItemProps) => {
+  const [_, setOpenInviteDialog] = useState(false);
   return (
-    <div className="flex w-full items-center gap-2 rounded-xl border border-extra-border bg-gradient-to-r from-[#2E7BA6]/30 to-[#FFF8ED]/60 px-4 py-2 shadow-sm">
-      <span className="flex aspect-square h-7 w-7 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
-        {tipNumber}
-      </span>
-      <Input
-        value={value || `Nom du ${capitalizeFirstLetter(job)}`}
-        onChange={() => {}}
-        className="w-full flex-1"
-      />
-      <div className="flex">
-        <Button variant="ghost" onClick={onDelete}>
-          <TrashIcon className="h-4 w-4 text-red-500" />
-        </Button>
-        <Button variant="ghost" onClick={onInvite}>
-          <EnvelopeIcon className="h-4 w-4 text-green-500" />
-        </Button>
+    <Dialog>
+      <div
+        className={`flex w-full items-center gap-2 rounded-xl px-4 py-2 shadow-sm ${
+          isOccupied
+            ? "bg-gradient-to-r from-green-200/60 to-green-100/60"
+            : "bg-gradient-to-r from-[#2E7BA6]/30 to-[#FFF8ED]/60"
+        }`}
+      >
+        <span
+          className={`flex aspect-square h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+            isOccupied
+              ? "bg-green-500/40 text-black-soft"
+              : "bg-extra-surface text-black-soft"
+          }`}
+        >
+          {tipNumber}
+        </span>
+        <Input
+          value={value}
+          onChange={() => {}}
+          className="w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+          readOnly
+        />
+        <div className="flex">
+          {isOccupied && (
+            <>
+              <Button variant="ghost" onClick={onDelete}>
+                <TrashIcon className="h-4 w-4 text-red-500" strokeWidth={2} />
+              </Button>
+
+              <DialogTrigger asChild>
+                <Button variant="ghost">
+                  <QuestionMarkCircleIcon
+                    className="h-4 w-4 text-extra-accent"
+                    strokeWidth={2}
+                  />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>{modalInfo?.title}</DialogTitle>
+                <div className="mt-2">
+                  {typeof modalInfo?.content === "string" ? (
+                    <p>{modalInfo.content}</p>
+                  ) : (
+                    modalInfo?.content
+                  )}
+                </div>
+              </DialogContent>
+            </>
+          )}
+          {!isOccupied && (
+            <>
+              <DialogTrigger asChild>
+                <Button variant="ghost">
+                  <EnvelopeIcon
+                    className="h-4 w-4 text-extra-accent"
+                    strokeWidth={2}
+                  />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Inviter une personne</DialogTitle>
+                <div className="mt-2">
+                  <p className="text-sm text-black-soft">
+                    Vous pouvez inviter une personne à rejoindre votre équipe
+                    pour ce poste. Si la personne n'est pas encore inscrite sur
+                    la plateforme, elle recevra un email d'invitation.
+                  </p>
+                  <Input
+                    type="email"
+                    placeholder="Enter email address"
+                    className="mt-4 w-full"
+                  />
+                  <Button
+                    className="mt-4 w-full"
+                    onClick={() => setOpenInviteDialog(false)}
+                  >
+                    Envoyer l'invitation
+                  </Button>
+                </div>
+              </DialogContent>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </Dialog>
   );
 };
