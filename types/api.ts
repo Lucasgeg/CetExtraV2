@@ -181,5 +181,4 @@ export interface ApiErrorResponse {
   message: string;
 }
 
-// Type union pour la réponse complète
 export type MissionDetailApiResponse = MissionDetailResponse;

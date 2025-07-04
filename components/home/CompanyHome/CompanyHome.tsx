@@ -5,7 +5,6 @@ import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import { Loader } from "lucide-react";
 import { Button } from "../../ui/button";
 import Link from "next/link";
-import { Switch } from "@/components/ui/atom/Switch/Switch";
 
 export const CompanyHome = () => {
   const { loading, data } = useStore(useCurrentUserStore, (state) => state);

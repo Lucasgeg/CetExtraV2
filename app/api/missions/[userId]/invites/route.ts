@@ -27,7 +27,7 @@ export async function GET(
       },
       select: {
         id: true,
-        start_date: true,
+        missionStartDate: true,
         duration: true,
         mission: {
           select: {
@@ -51,7 +51,7 @@ export async function GET(
       },
       take: take ? parseInt(take) : undefined,
       orderBy: {
-        start_date: "asc"
+        missionStartDate: "asc"
       }
     });
 

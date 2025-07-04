@@ -220,12 +220,12 @@ export async function GET(
         const missions = await prisma.userMission.findMany({
           where: {
             user: { clerkId: userId },
-            start_date: startDateCondition()
+            missionStartDate: startDateCondition()
           },
           select: selectObject,
           take: take ? parseInt(take) : undefined,
           skip: skip ? parseInt(skip) : undefined,
-          orderBy: { start_date: "asc" }
+          orderBy: { missionStartDate: "asc" }
         });
 
         const totalDuration = missions.reduce((acc, mission) => {

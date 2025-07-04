@@ -99,20 +99,35 @@ model MissionLocation {
 }
 
 model UserMission {
-  id          String            @id @default(uuid())
-  userId      String
-  missionId   String
-  start_date  DateTime
-  missionJob  MissionJob
-  duration    Int
-  hourly_rate Float
-  created_at  DateTime          @default(now())
-  status      UserMissionStatus
-  updated_at  DateTime          @updatedAt
-  mission     Mission           @relation(fields: [missionId], references: [id])
-  user        User              @relation(fields: [userId], references: [id])
+  id               String            @id @default(uuid())
+  userId           String
+  missionId        String
+  missionStartDate DateTime
+  missionJob       MissionJob
+  duration         Int
+  hourly_rate      Float
+  created_at       DateTime          @default(now())
+  status           UserMissionStatus
+  updated_at       DateTime          @updatedAt
+  mission          Mission           @relation(fields: [missionId], references: [id])
+  user             User              @relation(fields: [userId], references: [id])
 
   @@unique([userId, missionId])
+}
+
+model Invitation {
+  id               String     @id @default(uuid())
+  email            String
+  missionId        String
+  missionStartDate DateTime
+  missionJob       MissionJob
+  duration         Int
+  hourlyRate       Float
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  mission          Mission    @relation(fields: [missionId], references: [id])
+
+  @@index([email])
 }
 
 model BlogPost {
@@ -145,17 +160,6 @@ model BlogSubscriber {
   subscribed Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
-  @@index([email])
-}
-
-model Invitation {
-  id        String   @id @default(uuid())
-  email     String
-  missionId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  mission   Mission  @relation(fields: [missionId], references: [id])
 
   @@index([email])
 }
