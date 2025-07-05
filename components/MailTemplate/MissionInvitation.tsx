@@ -22,30 +22,39 @@ export type MissionInvitationProps = {
   missionLocation: string;
   missionJob: string;
   duration: number;
+  missionDate: string;
   isAllreadyRegistered: boolean;
   ctaUrl?: string;
 };
 
-export const MissionInvitationEmail = ({
+export const MissionInvitation = ({
   companyName,
   missionName,
   missionLocation,
   missionJob,
   duration,
+  missionDate,
   isAllreadyRegistered,
-  ctaUrl = "https://cetextra.fr/sign-up"
+  ctaUrl
 }: MissionInvitationProps) => {
+  // Définir l’URL et le texte du bouton selon le statut
+  const buttonUrl = isAllreadyRegistered
+    ? "https://cetextra.fr/sign-in"
+    : ctaUrl || "https://cetextra.fr/sign-up";
+  const buttonText = isAllreadyRegistered
+    ? "Me connecter et voir la mission 🚀"
+    : "Créer mon compte et voir la mission 🚀";
+  const infoText = isAllreadyRegistered
+    ? "Connectez-vous pour visualiser la mission proposée par l’employeur."
+    : "Créez votre compte gratuitement pour visualiser la mission et profiter de tous les avantages de Cet Extra.";
+
   return (
     <Html lang="fr">
       <Head />
       <Tailwind>
         <Img
           alt="logo Cet Extra"
-          src={
-            process.env.VERCEL_URL
-              ? `https://${process.env.VERCEL_URL}/cetextralogo.jpeg`
-              : "/static/cetextralogo.jpeg"
-          }
+          src="https://cetextra.fr/cetextralogo.jpeg"
           className="mx-auto h-[10rem] w-[10rem] rounded-md"
         />
         <Preview>
@@ -75,6 +84,17 @@ export const MissionInvitationEmail = ({
                   </Text>
                   <ul className="mb-4 pl-6 text-base text-[#232336]">
                     <li>
+                      <strong>Date :</strong>{" "}
+                      {new Date(missionDate).toLocaleString("fr-FR", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </li>
+                    <li>
                       <strong>Lieu :</strong> {missionLocation}
                     </li>
                     <li>
@@ -82,9 +102,7 @@ export const MissionInvitationEmail = ({
                     </li>
                   </ul>
                   <Text className="mb-4 text-center text-base text-[#232336]">
-                    Rejoignez une équipe dynamique et vivez une nouvelle
-                    expérience professionnelle enrichissante dans
-                    l’événementiel.
+                    {infoText}
                   </Text>
                   <Text className="mb-2 text-center font-semibold text-[#22345E]">
                     Pourquoi rejoindre cette mission via Cet Extra ?
@@ -98,28 +116,12 @@ export const MissionInvitationEmail = ({
                   </ul>
                   <div className="my-6 text-center">
                     <Button
-                      href={ctaUrl}
+                      href={buttonUrl}
                       className="rounded-lg bg-[#FDBA3B] px-8 py-4 text-lg font-bold text-[#22345E] shadow"
-                      style={{
-                        backgroundColor: "#FDBA3B",
-                        color: "#22345E",
-                        borderRadius: "8px",
-                        fontWeight: "bold",
-                        fontSize: "1.1rem",
-                        boxShadow: "0 2px 8px rgba(253,186,59,0.18)",
-                        textDecoration: "none",
-                        display: "inline-block"
-                      }}
                     >
-                      Créer mon compte et accepter la mission 🚀
+                      {buttonText}
                     </Button>
                   </div>
-                  {isAllreadyRegistered && (
-                    <Text className="mt-4 text-center text-base text-[#5A5A7A]">
-                      Vous avez déjà un compte ? Connectez-vous pour accepter la
-                      mission.
-                    </Text>
-                  )}
                   <Hr className="my-6" />
                   <Text className="text-center text-sm text-[#5A5A7A]">
                     Pour toute question, contactez l’équipe Cet Extra.
@@ -146,15 +148,27 @@ export const MissionInvitationEmail = ({
   );
 };
 
-export default MissionInvitationEmail;
+export default MissionInvitation;
 
-MissionInvitationEmail.PreviewProps = {
-  receiverEmail: "paul.dupont@email.com",
+// MissionInvitation.PreviewProps = {
+//   receiverEmail: "paul.dupont@email.com",
+//   companyName: "Le Traiteur Parisien",
+//   missionName: "Cocktail dînatoire au Musée d'Orsay",
+//   missionLocation: "1 Rue de la Légion d'Honneur, 75007 Paris",
+//   missionJob: "Serveur",
+//   duration: 6,
+//   isAllreadyRegistered: false,
+//   ctaUrl: "https://cetextra.fr/inscription"
+// };
+
+MissionInvitation.PreviewProps = {
+  receiverEmail: "julie.martin@email.com",
   companyName: "Le Traiteur Parisien",
   missionName: "Cocktail dînatoire au Musée d'Orsay",
   missionLocation: "1 Rue de la Légion d'Honneur, 75007 Paris",
   missionJob: "Serveur",
   duration: 6,
-  isAllreadyRegistered: false,
-  ctaUrl: "https://cetextra.fr/inscription"
+  missionDate: "2024-05-15T18:00:00Z",
+  isAllreadyRegistered: true,
+  ctaUrl: "https://cetextra.fr/login"
 };

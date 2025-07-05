@@ -182,3 +182,8 @@ export interface ApiErrorResponse {
 }
 
 export type MissionDetailApiResponse = MissionDetailResponse;
+
+export type TransactionResult =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | { success: true; data: any }
+  | { success: false; error: string; status: number };
