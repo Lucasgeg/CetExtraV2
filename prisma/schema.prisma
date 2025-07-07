@@ -103,8 +103,8 @@ model UserMission {
   userId           String
   missionId        String
   missionStartDate DateTime
+  missionEndDate   DateTime
   missionJob       MissionJob
-  duration         Int
   hourly_rate      Float
   created_at       DateTime          @default(now())
   status           UserMissionStatus
@@ -120,8 +120,8 @@ model Invitation {
   email            String
   missionId        String
   missionStartDate DateTime
+  missionEndDate   DateTime
   missionJob       MissionJob
-  duration         Int
   hourlyRate       Float
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt

@@ -1,3 +1,4 @@
+import { formatDuration } from "@/utils/date";
 import {
   Html,
   Head,
@@ -21,7 +22,7 @@ export type MissionInvitationProps = {
   missionName: string;
   missionLocation: string;
   missionJob: string;
-  duration: number;
+  duration: number; // milliseconds
   missionDate: string;
   isAllreadyRegistered: boolean;
   ctaUrl?: string;
@@ -98,7 +99,7 @@ export const MissionInvitation = ({
                       <strong>Lieu :</strong> {missionLocation}
                     </li>
                     <li>
-                      <strong>Durée :</strong> {duration} heure(s)
+                      <strong>Durée :</strong> {formatDuration(duration)}
                     </li>
                   </ul>
                   <Text className="mb-4 text-center text-base text-[#232336]">
@@ -156,7 +157,7 @@ export default MissionInvitation;
 //   missionName: "Cocktail dînatoire au Musée d'Orsay",
 //   missionLocation: "1 Rue de la Légion d'Honneur, 75007 Paris",
 //   missionJob: "Serveur",
-//   duration: 6,
+//   duration: 288440000,
 //   isAllreadyRegistered: false,
 //   ctaUrl: "https://cetextra.fr/inscription"
 // };
@@ -167,7 +168,7 @@ MissionInvitation.PreviewProps = {
   missionName: "Cocktail dînatoire au Musée d'Orsay",
   missionLocation: "1 Rue de la Légion d'Honneur, 75007 Paris",
   missionJob: "Serveur",
-  duration: 6,
+  duration: 288440000,
   missionDate: "2024-05-15T18:00:00Z",
   isAllreadyRegistered: true,
   ctaUrl: "https://cetextra.fr/login"

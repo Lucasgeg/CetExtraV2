@@ -1,8 +1,9 @@
 import prisma from "@/app/lib/prisma";
 import MissionInvitation from "@/components/MailTemplate/MissionInvitation";
-import { EnumMissionJob, EnumRole } from "@/store/types";
+import { EnumRole } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
+import { MissionInviteBody } from "@/types/MissionInvite";
 import { getMissionJobKey } from "@/utils/enum";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
@@ -11,14 +12,6 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-type MissionInviteBody = {
-  receiverEmail: string;
-  expeditorUserId: string;
-  missionJob: EnumMissionJob;
-  missionStartDate: string;
-  duration: number;
-};
 
 export async function POST(
   req: Request,
@@ -29,10 +22,14 @@ export async function POST(
   const {
     expeditorUserId,
     receiverEmail,
-    duration,
+    missionEndDate,
     missionJob,
     missionStartDate
   } = (await req.json()) as MissionInviteBody;
+
+  if (!missionStartDate || missionStartDate < new Date().toISOString()) {
+    throw new ApiError("Mission start date must be a valid future date", 400);
+  }
 
   if (
     !sessionClaims ||
@@ -102,20 +99,19 @@ export async function POST(
 
         if (userFromDb !== null) {
           try {
-            const userMission = await createUserMissionFromDb(
+            await createUserMissionFromDb(
               {
                 receiverEmail,
                 expeditorUserId,
                 missionJob,
                 missionStartDate: new Date(missionStartDate).toISOString(),
-                duration
+                missionEndDate: new Date(missionEndDate).toISOString()
               },
               missionId,
               userFromDb.id,
               tx
             );
-          } catch (error) {
-            // console.error("Error creating user mission:", error);
+          } catch {
             return {
               success: false,
               error: "Failed to create user mission",
@@ -124,15 +120,17 @@ export async function POST(
           }
 
           try {
+            const duration =
+              new Date(missionEndDate).getTime() -
+              new Date(missionStartDate).getTime();
             await resend.emails.send({
               from: "Cet Extra <no-reply@cetextra.fr>",
-              to: ["admin@cetextra.fr"],
-              bcc: receiverEmail,
+              to: [receiverEmail],
               subject: "Invitation à une mission",
               react: MissionInvitation({
                 companyName: user.company?.company_name,
                 isAllreadyRegistered: true,
-                duration: duration,
+                duration: duration, // Duration in milliseconds
                 missionJob: missionJob,
                 missionDate: new Date(missionStartDate).toISOString(),
                 missionName: user.company.createdMissions[0].name,
@@ -145,8 +143,7 @@ export async function POST(
                 "List-Unsubscribe": "<https://cetextra.fr/blog/unsubscribe>"
               }
             });
-          } catch (error) {
-            // console.error("Transaction operation failed:", error);
+          } catch {
             return {
               success: false,
               error: "Failed to process invitation",
@@ -165,12 +162,15 @@ export async function POST(
                 expeditorUserId,
                 missionJob,
                 missionStartDate: new Date(missionStartDate).toISOString(),
-                duration
+                missionEndDate: new Date(missionEndDate).toISOString()
               },
               missionId,
               tx
             );
-            console.log("User invitation created:", userMission);
+            console.info("User invitation created:", userMission);
+            const duration =
+              new Date(missionEndDate).getTime() -
+              new Date(missionStartDate).getTime();
             await resend.emails.send({
               from: "Cet Extra <no-reply@cetextra.fr>",
               to: [receiverEmail],
@@ -191,7 +191,7 @@ export async function POST(
                 "List-Unsubscribe": "<https://cetextra.fr/blog/unsubscribe>"
               }
             });
-          } catch (error) {
+          } catch {
             // console.error("Error sending email:", error);
             return {
               success: false,
@@ -246,8 +246,9 @@ const createUserMissionFromDb = async (
   userId: string,
   tx: Prisma.TransactionClient
 ) => {
-  const missionJobKey = (getMissionJobKey(body.missionJob).toLowerCase() +
-    "a") as MissionJob;
+  const missionJobKey = getMissionJobKey(
+    body.missionJob
+  ).toLowerCase() as MissionJob;
 
   return await tx.userMission.create({
     data: {
@@ -256,7 +257,7 @@ const createUserMissionFromDb = async (
       missionStartDate: new Date(body.missionStartDate),
       missionJob: missionJobKey,
 
-      duration: body.duration,
+      missionEndDate: new Date(body.missionEndDate),
       hourly_rate: 0,
       status: "pending"
     }
@@ -268,14 +269,15 @@ const createUserInvitation = async (
   missionId: string,
   tx: Prisma.TransactionClient
 ) => {
-  const missionJobKey = (getMissionJobKey(body.missionJob).toLowerCase() +
-    "a") as MissionJob;
+  const missionJobKey = getMissionJobKey(
+    body.missionJob
+  ).toLowerCase() as MissionJob;
 
   return await tx.invitation.create({
     data: {
       email: body.receiverEmail,
       missionId: missionId,
-      duration: body.duration,
+      missionEndDate: new Date(body.missionEndDate),
       missionJob: missionJobKey,
       missionStartDate: new Date(body.missionStartDate),
       hourlyRate: 0

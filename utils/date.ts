@@ -37,3 +37,32 @@ export const formatDateTimeLocal = (dateString: string): string => {
     date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
   );
 };
+
+export const formatDuration = (durationMs: number): string => {
+  const totalMinutes = Math.floor(durationMs / (1000 * 60));
+  const totalHours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalHours / 24);
+
+  const remainingHours = totalHours % 24;
+  const remainingMinutes = totalMinutes % 60;
+
+  const parts: string[] = [];
+
+  if (days > 0) {
+    parts.push(`${days} jour${days > 1 ? "s" : ""}`);
+  }
+
+  if (remainingHours > 0) {
+    parts.push(`${remainingHours} heure${remainingHours > 1 ? "s" : ""}`);
+  }
+
+  if (remainingMinutes > 0) {
+    parts.push(`${remainingMinutes} minute${remainingMinutes > 1 ? "s" : ""}`);
+  }
+
+  if (parts.length === 0) {
+    return "0 minute";
+  }
+
+  return parts.join(" ");
+};

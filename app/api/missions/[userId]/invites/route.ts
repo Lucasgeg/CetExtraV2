@@ -28,7 +28,7 @@ export async function GET(
       select: {
         id: true,
         missionStartDate: true,
-        duration: true,
+        missionEndDate: true,
         mission: {
           select: {
             creator: {
