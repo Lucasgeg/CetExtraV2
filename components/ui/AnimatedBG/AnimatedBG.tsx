@@ -2,6 +2,7 @@ import React from "react";
 import "./AnimatedBG.css";
 
 export const AnimatedBG = () => {
+  return;
   return (
     <div className="background -z-10">
       <span></span>

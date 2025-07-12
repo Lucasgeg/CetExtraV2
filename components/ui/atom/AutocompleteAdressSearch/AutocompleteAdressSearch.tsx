@@ -30,8 +30,6 @@ export const AddressAutocomplete = ({
   >(value || undefined);
   const debouncedValue = useDebounce(query, 350);
 
-  console.log(value);
-
   useEffect(() => {
     const searchQuery = async () => {
       if (debouncedValue.length > 4) {
@@ -114,16 +112,6 @@ export const AddressAutocomplete = ({
                     }}
                   >
                     <X className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Supprimer l'adresse sélectionnée"
-                    className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-                    onClick={() => {
-                      setSelectedAddress(undefined);
-                    }}
-                  >
-                    <span className="h-4 w-4">A</span>
                   </button>
                 </>
               )}

@@ -1,5 +1,4 @@
 "use client";
-import { MissionCard } from "@/components/CreateMissionCard/CreateMissionCard";
 import {
   DocumentTextIcon,
   SparklesIcon,
@@ -8,20 +7,40 @@ import {
   MagnifyingGlassIcon,
   UsersIcon
 } from "@heroicons/react/24/outline";
-import { CreateMissionCardDatePicker } from "@/components/CreateMissionCard/CreateMissionCardDatePicker";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EnumMissionJob } from "@/store/types";
 import { Fragment, useState } from "react";
 import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
 import Link from "next/link";
-import ValidationMission from "@/components/ui/ValidationMission/ValidationMission";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import dynamic from "next/dynamic";
+
+const MissionCard = dynamic(
+  () =>
+    import("@/components/CreateMissionCard/CreateMissionCard").then((mod) => ({
+      default: mod.MissionCard
+    })),
+  { ssr: false }
+);
+
+const CreateMissionCardDatePicker = dynamic(
+  () =>
+    import("@/components/CreateMissionCard/CreateMissionCardDatePicker").then(
+      (mod) => ({ default: mod.CreateMissionCardDatePicker })
+    ),
+  { ssr: false }
+);
+
+const ValidationMission = dynamic(
+  () => import("@/components/ui/ValidationMission/ValidationMission"),
+  { ssr: false }
+);
 
 export default function CreateMissionPage() {
   const {
@@ -321,7 +340,7 @@ export default function CreateMissionPage() {
                       icon={<UsersIcon />}
                       iconContainerClassName="bg-gradient-to-br from-extra-primary to-[#F3E8FF]"
                       errorMessage={errors.extraJobOptions?.message}
-                      className="min-h-24 border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
+                      className="max-h-36 min-h-24 border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
                     />
                   );
                 }}

@@ -216,45 +216,51 @@ export default function MissionDetailPage() {
             </DialogContent>
           </Dialog>
           <div className="flex flex-1 flex-col gap-1 overflow-auto rounded-lg bg-employer-background p-4 shadow-md">
-            {teamItems.map((item, index) => (
-              <TeamGestionnaryItem
-                key={`${item.job}-${index}`}
-                tipNumber={index + 1}
-                value={
-                  item.employee
-                    ? `${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} - ${item.employee.user.extra.first_name} ${item.employee.user.extra.last_name}`
-                    : `Place de ${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} disponible`
-                }
-                onDelete={() => {
-                  // Logique pour supprimer l'assignation
-                  console.log("Supprimer assignation:", item.employee?.id);
-                }}
-                isOccupied={item.isOccupied}
-                modalInfo={
-                  item.isOccupied
-                    ? {
-                        title: "Informations sur l'extra",
-                        content: (
-                          <div>
-                            <p>
-                              Nom: {item.employee?.user.extra.first_name}{" "}
-                              {item.employee?.user.extra.last_name}
-                            </p>
-                            <p>
-                              Poste:{" "}
-                              {getJobLabel(
-                                item.job.toUpperCase() as EnumMissionJob
-                              )}
-                            </p>
-                            <p>Date de début: {item.employee?.start_date}</p>
-                            <p>Durée: {item.employee?.duration} heures</p>
-                          </div>
-                        )
-                      }
-                    : undefined
-                }
-              />
-            ))}
+            {teamItems.map((item, index) => {
+              return (
+                <TeamGestionnaryItem
+                  key={`${item.job}-${index}`}
+                  tipNumber={index + 1}
+                  value={
+                    item.employee
+                      ? `${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} - ${item.employee.user.extra.first_name} ${item.employee.user.extra.last_name}`
+                      : `Place de ${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} disponible`
+                  }
+                  onDelete={() => {
+                    // Logique pour supprimer l'assignation
+                    console.log("Supprimer assignation:", item.employee?.id);
+                  }}
+                  isOccupied={item.isOccupied}
+                  modalInfo={
+                    item.isOccupied
+                      ? {
+                          title: "Informations sur l'extra",
+                          content: (
+                            <div>
+                              <p>
+                                Nom: {item.employee?.user.extra.first_name}{" "}
+                                {item.employee?.user.extra.last_name}
+                              </p>
+                              <p>
+                                Poste:{" "}
+                                {getJobLabel(
+                                  item.job.toUpperCase() as EnumMissionJob
+                                )}
+                              </p>
+                              <p>Date de début: {item.employee?.start_date}</p>
+                              <p>Durée: {item.employee?.duration} heures</p>
+                            </div>
+                          )
+                        }
+                      : undefined
+                  }
+                  missionJob={item.job.toUpperCase() as EnumMissionJob}
+                  maxDateEnd={data.mission_end_date}
+                  minDateSart={data.mission_start_date}
+                  missionId={id}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

@@ -5,7 +5,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import CustomTable from "../CustomTable/CustomTable";
 import { Loader } from "../ui/Loader/Loader";
-import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 export const NextMissionCard = ({ id }: { id: string }) => {
   const { data, loading } = useFetch<{

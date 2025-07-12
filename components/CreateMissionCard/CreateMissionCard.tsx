@@ -56,9 +56,7 @@ export const MissionCard = ({
   locationProps
 }: CreateMissionCardProps) => {
   return (
-    <Card
-      className={cn("flex h-full max-h-36 min-h-0 flex-1 flex-col", className)}
-    >
+    <Card className={cn("flex h-full min-h-0 flex-1 flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
         <div
           className={cn(

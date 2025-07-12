@@ -31,7 +31,7 @@ export const CreateMissionCardDatePicker = ({
   disabled = false
 }: CreateMissionCardDatePickerProps) => {
   return (
-    <Card className="flex h-full max-h-36 min-h-0 flex-1 flex-col">
+    <Card className="flex h-full min-h-0 flex-1 flex-col">
       <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
         <div
           className={cn(

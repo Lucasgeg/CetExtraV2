@@ -23,3 +23,15 @@ export const getMissionJobKey = (
   }
   return found[0];
 };
+
+export const getMissionJobValue = (jobLabel: string): EnumMissionJob => {
+  const entries = Object.entries(EnumMissionJob) as [
+    keyof typeof EnumMissionJob,
+    EnumMissionJob
+  ][];
+  const found = entries.find(([key, _]) => key === jobLabel.toUpperCase());
+  if (!found) {
+    throw new Error(`Invalid job label: ${jobLabel}`);
+  }
+  return found[1];
+};
