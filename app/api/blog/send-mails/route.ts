@@ -1,6 +1,7 @@
 import prisma from "@/app/lib/prisma";
 import { NewBlogPostTemplate } from "@/components/MailTemplate/NewBlogPostTemplate";
 import { auth } from "@clerk/nextjs/server";
+import { render } from "@react-email/components";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -33,17 +34,19 @@ export async function POST(request: Request) {
     const subscriberEmails = subscribersList.map(
       (subscriber) => subscriber.email
     );
+    const NewBlogPostEmail = NewBlogPostTemplate({
+      title,
+      shortDesc,
+      url: `${baseUrl}/blog/${postId}`
+    });
 
     const results = await resend.emails.send({
       from: "Cet Extra <no-reply@cetextra.fr>",
       to: ["admin@cetextra.fr"],
       bcc: subscriberEmails,
       subject: emailSubject,
-      react: NewBlogPostTemplate({
-        title,
-        shortDesc,
-        url: `${baseUrl}/blog/${postId}`
-      }),
+      react: NewBlogPostEmail,
+      text: await render(NewBlogPostEmail),
       headers: {
         "List-Unsubscribe": `<${baseUrl}${unsubscribePath}>`
       }

@@ -8,6 +8,7 @@ import { getMissionJobValue } from "@/utils/enum";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, Prisma } from "@prisma/client";
+import { render } from "@react-email/components";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
@@ -150,9 +151,18 @@ export async function POST(
         const userFromDb = await tx.user.findUnique({
           where: { email: receiverEmail },
           select: {
-            id: true
+            id: true,
+            role: true
           }
         });
+
+        if (userFromDb?.role === "company") {
+          return {
+            success: false,
+            error: "Vous ne pouvez pas inviter une entreprise à une mission",
+            status: 403
+          };
+        }
 
         if (userFromDb !== null) {
           try {
@@ -187,27 +197,29 @@ export async function POST(
               status: 500
             };
           }
-
           try {
             const duration =
               new Date(missionEndDate).getTime() -
               new Date(missionStartDate).getTime();
+            const missionInvitation = MissionInvitation({
+              companyName: user.company?.company_name,
+              isAllreadyRegistered: true,
+              duration: duration,
+              missionJob: getMissionJobValue(missionJob),
+              missionDate: new Date(missionStartDate).toISOString(),
+              missionName: user.company.createdMissions[0].name,
+              missionLocation:
+                user.company.createdMissions[0].missionLocation?.fullName ||
+                "Non spécifié",
+              receiverEmail: receiverEmail
+            });
+
             await resend.emails.send({
               from: "Cet Extra <no-reply@cetextra.fr>",
               to: [receiverEmail],
               subject: "Invitation à une mission",
-              react: MissionInvitation({
-                companyName: user.company?.company_name,
-                isAllreadyRegistered: true,
-                duration: duration,
-                missionJob: getMissionJobValue(missionJob),
-                missionDate: new Date(missionStartDate).toISOString(),
-                missionName: user.company.createdMissions[0].name,
-                missionLocation:
-                  user.company.createdMissions[0].missionLocation?.fullName ||
-                  "Non spécifié",
-                receiverEmail: receiverEmail
-              }),
+              react: missionInvitation,
+              text: await render(missionInvitation),
               headers: {
                 "List-Unsubscribe": "<https://cetextra.fr/blog/unsubscribe>"
               }
@@ -242,22 +254,25 @@ export async function POST(
             const duration =
               new Date(missionEndDate).getTime() -
               new Date(missionStartDate).getTime();
+            const missionInvitation = MissionInvitation({
+              companyName: user.company?.company_name,
+              isAllreadyRegistered: false,
+              duration: duration,
+              missionJob: missionJob,
+              missionDate: new Date(missionStartDate).toISOString(),
+              missionName: user.company.createdMissions[0].name,
+              missionLocation:
+                user.company.createdMissions[0].missionLocation?.fullName ||
+                "Non spécifié",
+              receiverEmail: receiverEmail
+            });
+
             await resend.emails.send({
               from: "Cet Extra <no-reply@cetextra.fr>",
               to: [receiverEmail],
               subject: "Invitation à une mission",
-              react: MissionInvitation({
-                companyName: user.company?.company_name,
-                isAllreadyRegistered: false,
-                duration: duration,
-                missionJob: missionJob,
-                missionDate: new Date(missionStartDate).toISOString(),
-                missionName: user.company.createdMissions[0].name,
-                missionLocation:
-                  user.company.createdMissions[0].missionLocation?.fullName ||
-                  "Non spécifié",
-                receiverEmail: receiverEmail
-              }),
+              react: missionInvitation,
+              text: await render(missionInvitation),
               headers: {
                 "List-Unsubscribe": "<https://cetextra.fr/blog/unsubscribe>"
               }
