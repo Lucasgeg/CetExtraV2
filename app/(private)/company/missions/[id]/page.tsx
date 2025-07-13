@@ -28,7 +28,7 @@ import { useParams } from "next/navigation";
 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { data, error, loading } = useFetch<MissionDetailApiResponse>(
+  const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
     `/api/mission/${id}`
   );
 
@@ -226,10 +226,6 @@ export default function MissionDetailPage() {
                       ? `${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} - ${item.employee.user.extra.first_name} ${item.employee.user.extra.last_name}`
                       : `Place de ${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} disponible`
                   }
-                  onDelete={() => {
-                    // Logique pour supprimer l'assignation
-                    console.log("Supprimer assignation:", item.employee?.id);
-                  }}
                   isOccupied={item.isOccupied}
                   modalInfo={
                     item.isOccupied
@@ -258,6 +254,8 @@ export default function MissionDetailPage() {
                   maxDateEnd={data.mission_end_date}
                   minDateSart={data.mission_start_date}
                   missionId={id}
+                  userId={item.employee?.userId}
+                  onDeleteFetch={refetch}
                 />
               );
             })}

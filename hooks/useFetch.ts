@@ -4,41 +4,33 @@ type UseFetchResult<T> = {
   data: T | null;
   loading: boolean;
   error: Error | null;
+  refetch: () => void;
 };
 
 function useFetch<T = unknown>(url: string): UseFetchResult<T> {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(url);
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true; // pour éviter un setState sur un composant démonté
-
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result: T = await response.json();
-        if (isMounted) setData(result);
-      } catch (err) {
-        if (isMounted) setError(err as Error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
     fetchData();
-
-    return () => {
-      isMounted = false;
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
-  return { data, loading, error };
+  return { data, error, loading, refetch: fetchData };
 }
 
 export default useFetch;

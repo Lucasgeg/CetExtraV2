@@ -168,7 +168,7 @@ MissionInvitation.PreviewProps = {
   missionName: "Cocktail dînatoire au Musée d'Orsay",
   missionLocation: "1 Rue de la Légion d'Honneur, 75007 Paris",
   missionJob: "Serveur",
-  duration: 288440000,
+  duration: 1000 * 60 * 60 * 3,
   missionDate: "2024-05-15T18:00:00Z",
   isAllreadyRegistered: true,
   ctaUrl: "https://cetextra.fr/login"

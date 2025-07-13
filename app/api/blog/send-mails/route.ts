@@ -12,6 +12,7 @@ type SendMailResponse = {
   shortDesc: string;
   postId: string;
   emailSubject: string;
+  shortUrl: string;
 };
 
 export async function POST(request: Request) {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   if (userId !== process.env.ADMIN_USER_ID) {
     return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
   }
-  const { postId, shortDesc, title, emailSubject } =
+  const { shortDesc, title, emailSubject, shortUrl } =
     (await request.json()) as SendMailResponse;
 
   const baseUrl = "https://cetextra.fr";
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
     const NewBlogPostEmail = NewBlogPostTemplate({
       title,
       shortDesc,
-      url: `${baseUrl}/blog/${postId}`
+      url: `${baseUrl}/blog/${shortUrl}`
     });
 
     const results = await resend.emails.send({

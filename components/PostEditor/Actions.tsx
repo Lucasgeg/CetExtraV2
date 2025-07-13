@@ -45,7 +45,8 @@ export function PublishToggle({ post }: { post: BlogPost }) {
             postId: data.id,
             shortDesc: data.shortDesc,
             title: data.title,
-            emailSubject: data.emailSubject
+            emailSubject: data.emailSubject,
+            shortUrl: data.shortUrl || ""
           })
         }).then((res) => res.json());
       }
