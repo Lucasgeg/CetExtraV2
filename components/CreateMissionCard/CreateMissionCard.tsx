@@ -35,12 +35,12 @@ type CreateMissionCardProps = {
   };
   locationProps?: {
     errorMessage?: string;
-    handleClick?: (suggestion: Suggestion | undefined) => void;
+    handleClick: (suggestion: Suggestion | undefined) => void;
     value?: Suggestion;
   };
 };
 
-export const CreateMissionCard = ({
+export const MissionCard = ({
   id,
   placeholder,
   title,
@@ -56,9 +56,7 @@ export const CreateMissionCard = ({
   locationProps
 }: CreateMissionCardProps) => {
   return (
-    <Card
-      className={cn("flex h-full max-h-36 min-h-0 flex-1 flex-col", className)}
-    >
+    <Card className={cn("flex h-full min-h-0 flex-1 flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
         <div
           className={cn(
@@ -119,11 +117,11 @@ export const CreateMissionCard = ({
           />
         )}
 
-        {variant === "location" && (
+        {variant === "location" && locationProps?.handleClick && (
           <AddressAutocomplete
             missionlocation
             errorMessage={locationProps?.errorMessage}
-            handleClick={locationProps?.handleClick}
+            handleClick={locationProps.handleClick}
             value={locationProps?.value || undefined}
             inputclassName="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
           />

@@ -90,7 +90,7 @@ export type TeamCount = {
 
 export type CreateMissionFormValues = {
   missionName: string;
-  missionDescription: string;
+  missionDescription?: string;
   missionStartDate: string;
   missionEndDate: string;
   additionalInfo?: string;
@@ -98,3 +98,92 @@ export type CreateMissionFormValues = {
   extraJobOptions: EnumMissionJob[];
   teamCounts: TeamCount;
 };
+
+export enum AllowedFields {
+  // Champs de base de Mission
+  ID = "id",
+  NAME = "name",
+  DESCRIPTION = "description",
+  MISSION_START_DATE = "mission_start_date",
+  MISSION_END_DATE = "mission_end_date",
+  ADDITIONAL_INFO = "additionalInfo",
+
+  // Champs de MissionLocation
+  LOCATION_FULL_NAME = "missionLocation.fullName",
+  LOCATION_LAT = "missionLocation.lat",
+  LOCATION_LON = "missionLocation.lon",
+
+  // Champs de Creator (Company)
+  CREATOR_COMPANY_NAME = "creator.company_name",
+
+  // Champs pour UserMission (côté extra)
+  START_DATE = "start_date",
+  DURATION = "duration"
+}
+
+export enum EnumMissionSelector {
+  ALL = "all",
+  INCOMING = "incoming",
+  PAST = "past"
+}
+
+export interface MissionLocation {
+  id: string;
+  lat: number;
+  lon: number;
+  fullName: string;
+  nominatimId: number | null;
+}
+
+export interface RequiredPosition {
+  id: string;
+  missionId: string;
+  jobType: EnumMissionJob;
+  quantity: number;
+}
+
+export interface UserMission {
+  id: string;
+  userId: string;
+  missionId: string;
+  start_date: string;
+  missionJob: EnumMissionJob;
+  duration: number;
+  hourly_rate: number;
+  created_at: string;
+  status: "pending" | "accepted" | "refused";
+  updated_at: string;
+  user: MissionDetailResponseExtra;
+}
+
+interface MissionDetailResponseExtra {
+  extra: {
+    first_name: string;
+    last_name: string;
+  };
+}
+
+export interface MissionDetailResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  additionalInfo: string | null;
+  mission_start_date: string;
+  mission_end_date: string;
+  creatorId: string;
+  missionLocationId: string | null;
+  missionLocation: MissionLocation | null;
+  requiredPositions: RequiredPosition[];
+  employees: UserMission[];
+}
+
+export interface ApiErrorResponse {
+  message: string;
+}
+
+export type MissionDetailApiResponse = MissionDetailResponse;
+
+export type TransactionResult =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | { success: true; data: any }
+  | { success: false; error: string; status: number };

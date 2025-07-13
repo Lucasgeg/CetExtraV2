@@ -11,10 +11,9 @@ export const CompanyHome = () => {
 
   if (loading) return <Loader size={20} />;
   if (!data?.companyId) return null;
-
   return (
     <>
-      <div className="sm:col-span-4 lg:col-span-3">
+      <div className="h-full max-h-[30vh] sm:col-span-4 lg:col-span-3 lg:max-h-max">
         <NextMissionCard id={data.companyId} />
       </div>
 
@@ -23,9 +22,9 @@ export const CompanyHome = () => {
         fullWidth
         rounded="2xl"
         theme="company"
-        className="h-full text-lg lg:col-span-2 lg:col-start-3 lg:row-start-2 lg:text-base"
+        className="h-full text-lg lg:col-span-3 lg:col-start-1 lg:row-start-2 lg:text-base"
       >
-        <Link href="/missions">Toutes les missions</Link>
+        <Link href="/company/missions">Toutes les missions</Link>
       </Button>
 
       <Button
@@ -53,7 +52,7 @@ export const CompanyHome = () => {
         fullWidth
         rounded="2xl"
         theme="company"
-        className="h-full text-lg lg:col-span-2 lg:col-start-1 lg:row-start-2 lg:text-base"
+        className="h-full text-lg lg:col-span-1 lg:col-start-4 lg:row-start-2 lg:text-base"
         variant="disabled"
       >
         Statistiques (A venir)

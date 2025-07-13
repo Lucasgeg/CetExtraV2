@@ -1,31 +1,78 @@
 .loader {
   animation: spinningColor 1.5s ease-in-out infinite;
-  margin: 50% auto;
-  border: 5px double #f0eff5;
+  border: 3px solid #f0eff5;
   border-radius: 50%;
   aspect-ratio: 1/1;
+  border-top: 3px solid #32325d;
+  border-right: 3px solid #fbbd41;
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: linear-gradient(45deg, #32325d, #fbbd41);
+  border: none;
+}
+
+.dots {
+  position: relative;
+  background: transparent;
+  border: none;
+}
+
+.dots::before,
+.dots::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  animation: dots 1.5s ease-in-out infinite;
+}
+
+.dots::before {
+  top: 0;
+  left: 0;
+  background: #32325d;
+  width: 30%;
+  height: 30%;
+}
+
+.dots::after {
+  bottom: 0;
+  right: 0;
+  background: #fbbd41;
+  width: 30%;
+  height: 30%;
+  animation-delay: 0.75s;
 }
 
 @keyframes spinningColor {
   0% {
-    transform: rotate(360deg);
-    border-top: 5px dashed #32325d;
-    border-bottom: 5px dashed #fbbd41;
-  }
-  25% {
-    border-top: 5px dashed #fbbd41;
-    border-bottom: 5px dashed #32325d;
-  }
-  50% {
-    border-top: 5px dashed #32325d;
-    border-bottom: 5px dashed #fbbd41;
-  }
-  75% {
-    border-top: 5px dashed #fbbd41;
-    border-bottom: 5px dashed #32325d;
+    transform: rotate(0deg);
   }
   100% {
-    border-top: 5px dashed #32325d;
-    border-bottom: 5px dashed #fbbd41;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes dots {
+  0%,
+  100% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.7;
   }
 }

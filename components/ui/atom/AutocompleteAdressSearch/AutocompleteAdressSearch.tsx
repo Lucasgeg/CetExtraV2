@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Popover, PopoverAnchor, PopoverContent } from "../../popover";
-import { getSuggestions } from "@/app/(public)/sign-up/[[...sign-up]]/actions";
 import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
@@ -12,7 +11,7 @@ type AdressAutocompleteProps = {
   popOverClassName?: string;
   errorMessage?: string;
   missionlocation?: boolean;
-  handleClick?: (suggestion: Suggestion | undefined) => void;
+  handleClick: (suggestion: Suggestion | undefined) => void;
   value?: Suggestion;
 };
 
@@ -26,32 +25,51 @@ export const AddressAutocomplete = ({
 }: AdressAutocompleteProps) => {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState<Suggestion | null>(
-    null
-  );
+  const [selectedAddress, setSelectedAddress] = useState<
+    Suggestion | undefined
+  >(value || undefined);
   const debouncedValue = useDebounce(query, 350);
 
   useEffect(() => {
     const searchQuery = async () => {
-      if (debouncedValue.length > 5) {
-        const results = await getSuggestions(debouncedValue, missionlocation);
-        setSuggestions(results);
+      if (debouncedValue.length > 4) {
+        try {
+          const params = new URLSearchParams({
+            query: debouncedValue,
+            missionLocation: missionlocation.toString()
+          });
+
+          const response = await fetch(`/api/address?${params}`);
+          if (response.ok) {
+            const results = await response.json();
+            setSuggestions(results);
+          } else {
+            console.error("Failed to fetch address suggestions");
+            setSuggestions([]);
+          }
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+          setSuggestions([]);
+        }
+      } else {
+        setSuggestions([]);
       }
     };
     searchQuery();
   }, [debouncedValue, missionlocation]);
 
   useEffect(() => {
-    // Synchronise selectedAddress avec la prop value RHF
-    if (value && value.place_id !== selectedAddress?.place_id) {
+    if (
+      value &&
+      (!selectedAddress || value.place_id !== selectedAddress.place_id)
+    ) {
       setSelectedAddress(value);
       setQuery("");
-    }
-    if (!value && selectedAddress) {
-      setSelectedAddress(null);
+    } else if (!value && selectedAddress) {
+      setSelectedAddress(undefined);
       setQuery("");
     }
-  }, [value, selectedAddress]);
+  }, [selectedAddress, value]);
 
   const handleSelectSuggestion = (suggestion: Suggestion) => {
     setSelectedAddress(suggestion);
@@ -81,25 +99,31 @@ export const AddressAutocomplete = ({
                 disabled={!!selectedAddress}
               />
               {selectedAddress && (
-                <button
-                  type="button"
-                  aria-label="Supprimer l'adresse sélectionnée"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-                  onClick={() => {
-                    setSelectedAddress(null);
-                    setQuery("");
-                    setSuggestions([]);
-                    if (handleClick) handleClick(undefined);
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <>
+                  <button
+                    type="button"
+                    aria-label="Supprimer l'adresse sélectionnée"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                    onClick={() => {
+                      setSelectedAddress(undefined);
+                      setQuery("");
+                      setSuggestions([]);
+                      handleClick(undefined);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
               )}
             </div>
           </PopoverAnchor>
         </div>
-        <PopoverContent className={popOverClassName}>
-          <ul className="mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
+        <PopoverContent
+          className={cn("w-full p-0", popOverClassName)}
+          align="start"
+          sideOffset={4}
+        >
+          <ul className="max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
             {suggestions.map((suggestion) => (
               <li
                 key={suggestion.place_id}

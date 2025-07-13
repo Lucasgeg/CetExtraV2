@@ -10,7 +10,7 @@ interface InputProps extends React.ComponentProps<"input"> {
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, errorMessage, register, ...props }, ref) => {
     return (
-      <div>
+      <>
         <input
           type={type}
           className={cn(
@@ -27,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {errorMessage}
           </div>
         )}
-      </div>
+      </>
     );
   }
 );

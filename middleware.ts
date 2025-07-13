@@ -10,6 +10,7 @@ const basePublicRoutes = [
   "/about(.*)", // À propos et sous-routes
   "/sign-in(.*)", // Connexion et sous-routes
   "/api/blog(.*)", // API du blog et sous-routes
+  "/api/address(.*)", // API du blog et sous-routes
   "/public(.*)", // Ressources publiques
   "/sitemap(.*)", // Sitemap
   "/robots.txt"
@@ -20,7 +21,11 @@ const devPublicRoutes = ["/sign-up(.*)", "/api/users/sign-up"];
 
 const protectedRoutes = [
   "/company(.*)", // Routes de l'entreprise
-  "/extra(.*)" // Routes de l'extra
+  "/extra(.*)", // Routes de l'extra
+  "/api/mission(.*)",
+  "/api/missions(.*)",
+  "/api/users(.*)",
+  "/api/blog/send-mail(.*)" // API pour envoyer des emails
 ];
 
 // Détection de l'environnement

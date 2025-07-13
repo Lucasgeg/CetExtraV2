@@ -48,7 +48,7 @@ export default function CustomTable<T>({
   return (
     <div
       className={classNames(
-        "relative h-full overflow-x-auto rounded-xl bg-white p-2 shadow-lg sm:p-4",
+        "relative h-full overflow-hidden overflow-x-auto rounded-xl bg-white p-2 shadow-lg sm:p-4",
         containerClassName
       )}
     >
@@ -60,58 +60,61 @@ export default function CustomTable<T>({
         </div>
       )}
 
-      <table className="min-w-full text-xs text-gray-800 sm:text-sm">
-        <thead className="sticky top-0 z-10 bg-gradient-to-r from-blue-100 to-purple-100">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header, idx) => (
-                <th
-                  key={header.id}
-                  className={classNames(
-                    "border-b border-gray-200 px-2 font-semibold uppercase tracking-wide sm:px-6 sm:py-3",
-                    "text-xs sm:text-xs",
-                    idx === 0 ? "text-left" : "text-right",
-                    "text-gray-700"
-                  )}
-                  style={{ width: header.getSize() }}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
+      <div className="flex h-full flex-col overflow-hidden">
+        <div className="flex-1 overflow-auto pb-5">
+          <table className="min-w-full text-xs text-gray-800 sm:text-sm">
+            <thead className="sticky top-0 z-10 bg-gradient-to-r from-blue-100 to-purple-100">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header, idx) => (
+                    <th
+                      key={header.id}
+                      className={classNames(
+                        "border-b border-gray-200 px-2 font-semibold uppercase tracking-wide sm:px-6 sm:py-3",
+                        "text-xs sm:text-xs",
+                        idx === 0 ? "text-left" : "text-right",
+                        "text-gray-700"
                       )}
-                </th>
+                      style={{ width: header.getSize() }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </thead>
-      </table>
-      <div className="max-h-[10vh] overflow-y-auto sm:max-h-none sm:overflow-visible">
-        <table className="min-w-full text-xs text-gray-800 sm:text-sm">
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className="transition-colors duration-150 even:bg-gray-50 hover:bg-blue-50"
-              >
-                {row.getVisibleCells().map((cell, idx) => (
-                  <td
-                    key={cell.id}
-                    className={classNames(
-                      "border-b border-gray-100 px-2 py-1 sm:px-6 sm:py-3",
-                      "text-xs sm:text-sm",
-                      idx === 0 ? "text-left" : "text-right"
-                    )}
-                    style={{ width: cell.column.getSize() }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="transition-colors duration-150 even:bg-gray-50 hover:bg-blue-50"
+                >
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <td
+                      key={cell.id}
+                      className={classNames(
+                        "border-b border-gray-100 px-2 py-1 sm:px-6 sm:py-5",
+                        "text-xs sm:text-sm",
+                        idx === 0 ? "text-left" : "text-right"
+                      )}
+                      style={{ width: cell.column.getSize() }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

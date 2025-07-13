@@ -19,7 +19,8 @@
       ]
     },
     "vercel-build": "prisma generate && prisma migrate deploy && next build && next-sitemap",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "email": "email dev --dir components/MailTemplate"
   },
   "dependencies": {
     "@clerk/elements": "^0.22.19",
@@ -31,9 +32,11 @@
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
     "@radix-ui/react-popover": "^1.1.6",
+    "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@react-email/components": "0.1.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-table": "^8.21.3",
     "@types/showdown": "^2.0.6",
@@ -43,6 +46,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "husky": "^9.1.7",
     "install": "^0.13.0",
     "leaflet": "^1.9.4",
@@ -78,6 +82,7 @@
     "postcss": "^8",
     "prettier": "^3.5.3",
     "prisma": "^6.3.1",
+    "react-email": "4.0.17",
     "studio": "prisma/studio",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.2",

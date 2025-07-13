@@ -10,10 +10,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="grid w-full gap-4 p-4">
-      <div className="grid gap-2 lg:grid-cols-6 lg:grid-rows-2 lg:gap-4">
-        <CompanyHome />
-      </div>
+    <div className="flex h-full w-full flex-1 flex-col gap-4 overflow-auto p-4 lg:grid lg:grid-cols-6 lg:grid-rows-2 lg:gap-4">
+      <CompanyHome />
     </div>
   );
 }
