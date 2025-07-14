@@ -23,7 +23,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {errorMessage && (
-          <div className="mt-1 max-w-52 text-justify text-sm text-red-500">
+          <div className="mt-1 max-w-52 text-justify text-sm text-red-500 lg:max-w-full">
             {errorMessage}
           </div>
         )}

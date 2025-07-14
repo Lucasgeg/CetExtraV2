@@ -192,27 +192,26 @@ export default function MissionDetailPage() {
               </Button>
             </DialogTrigger>
             <DialogContent>
+              <DialogDescription>Récapitulatif</DialogDescription>
               <DialogTitle>
                 Vos besoins en équipe pour cette mission
               </DialogTitle>
-              <DialogDescription>
-                <p>Vous avez indiqué que vous avez besoin de:</p>
-                <ul className="list-disc pl-5">
-                  {data.requiredPositions.map((position) => (
-                    <li key={position.jobType}>
-                      {capitalizeFirstLetter(
-                        getJobLabel(
-                          position.jobType.toUpperCase() as EnumMissionJob
-                        )
-                      )}{" "}
-                      - {position.quantity} poste(s)
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2">
-                  Vous pouvez modifier ces besoins en éditant la mission
-                </p>
-              </DialogDescription>
+              <p>Vous avez indiqué que vous avez besoin de:</p>
+              <ul className="list-disc pl-5">
+                {data.requiredPositions.map((position) => (
+                  <li key={position.jobType}>
+                    {capitalizeFirstLetter(
+                      getJobLabel(
+                        position.jobType.toUpperCase() as EnumMissionJob
+                      )
+                    )}{" "}
+                    - {position.quantity} poste(s)
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2">
+                Vous pouvez modifier ces besoins en éditant la mission
+              </p>
             </DialogContent>
           </Dialog>
           <div className="flex flex-1 flex-col gap-1 overflow-auto rounded-lg bg-employer-background p-4 shadow-md">
