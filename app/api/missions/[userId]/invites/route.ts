@@ -47,7 +47,7 @@ export async function GET(
           }
         },
         missionJob: true,
-        hourly_rate: true
+        hourlyRate: true
       },
       take: take ? parseInt(take) : undefined,
       orderBy: {

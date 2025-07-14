@@ -356,7 +356,7 @@ const createUserMissionFromDb = async (
       missionStartDate: new Date(body.missionStartDate),
       missionJob: body.missionJob.toLowerCase() as MissionJob,
       missionEndDate: new Date(body.missionEndDate),
-      hourly_rate: 0,
+      hourlyRate: 0,
       status: "pending"
     }
   });
