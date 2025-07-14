@@ -78,11 +78,6 @@ export default async function BlogPostPage(props: {
   });
   if (!post) return notFound();
 
-  const comments = await prisma.blogComment.findMany({
-    where: { postId: post.id },
-    orderBy: { createdAt: "desc" }
-  });
-
   const MarkdownComponents: Components = {
     img: ({ src, alt }) => {
       // Extraction de l'ID public Cloudinary depuis l'URL
@@ -156,11 +151,9 @@ export default async function BlogPostPage(props: {
       </article>
       <section className="mt-8 w-full max-w-4xl rounded-2xl border-2 border-[#22345E] bg-white/90 p-6 shadow-lg">
         <h2 className="mb-4 text-2xl font-bold text-[#22345E]">Commentaires</h2>
-        {comments.length === 0 ? (
-          <p className="text-gray-500">Aucun commentaire pour le moment.</p>
-        ) : (
-          <CommentsList postId={post.id} />
-        )}
+
+        <CommentsList postId={post.id} />
+
         <AddCommentForm postId={post.id} />
       </section>
     </div>

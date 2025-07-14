@@ -7,10 +7,21 @@ import useSWR from "swr";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function CommentsList({ postId }: { postId: string }) {
-  const { data: comments, isValidating } = useSWR<GetCommentByPostIdType[]>(
-    `/api/blog/${postId}/comments`,
-    fetcher
-  );
+  const {
+    data: comments,
+    isValidating,
+    isLoading
+  } = useSWR<GetCommentByPostIdType[]>(`/api/blog/${postId}/comments`, fetcher);
+
+  if (isLoading) {
+    return <div className="text-gray-400">Chargement des commentaires...</div>;
+  }
+
+  if (!comments || comments.length === 0) {
+    return (
+      <div className="text-gray-500">Aucun commentaire pour le moment.</div>
+    );
+  }
 
   return (
     <>
