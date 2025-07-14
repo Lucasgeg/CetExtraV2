@@ -357,7 +357,7 @@ function Calendar({
                 <SelectTrigger className="w-fit gap-1 border-none p-0 focus:bg-accent focus:text-accent-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[1060]">
                   {MONTHS.map((month) => (
                     <SelectItem
                       key={month.value}
@@ -379,7 +379,7 @@ function Calendar({
                 <SelectTrigger className="w-fit gap-1 border-none p-0 focus:bg-accent focus:text-accent-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[1080]">
                   {YEARS.map((year) => (
                     <SelectItem key={year.value} value={year.value.toString()}>
                       {year.label}
@@ -602,7 +602,10 @@ interface TimePickerRef {
 }
 
 const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
-  ({ date, onChange, hourCycle = 24, granularity = "second", disabled }) => {
+  (
+    { date, onChange, hourCycle = 24, granularity = "second", disabled },
+    ref
+  ) => {
     const [period, setPeriod] = React.useState<Period>(
       date && date.getHours() >= 12 ? "PM" : "AM"
     );
@@ -617,10 +620,20 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
       date ? date.getMinutes() : 0
     );
 
+    const minuteRef = React.useRef<HTMLInputElement>(null);
+    const hourRef = React.useRef<HTMLInputElement>(null);
+    const secondRef = React.useRef<HTMLInputElement>(null);
+
     const hourScrollRef = React.useRef<HTMLDivElement>(null);
     const minuteScrollRef = React.useRef<HTMLDivElement>(null);
     const secondScrollRef = React.useRef<HTMLDivElement>(null);
 
+    // Exposer les refs via useImperativeHandle
+    React.useImperativeHandle(ref, () => ({
+      minuteRef: minuteRef.current,
+      hourRef: hourRef.current,
+      secondRef: secondRef.current
+    }));
     const isHourDisabled = React.useCallback(
       (hour: number) => {
         if (!disabled || typeof disabled === "boolean") return false;
