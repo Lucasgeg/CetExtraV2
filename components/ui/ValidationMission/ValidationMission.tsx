@@ -35,7 +35,7 @@ export default function ValidationMission({
 
   const points: MissionPoint[] = [
     {
-      id: formData.location.place_id.toString(),
+      id: formData.location.lat.toString() + formData.location.lon.toString(),
       position: center,
       label: formData.location.display_name,
       variant: "mission"

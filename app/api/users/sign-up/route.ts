@@ -1,8 +1,10 @@
 "use server";
 import prisma from "@/app/lib/prisma";
 import { EnumRole, UserSignUpSchema } from "@/store/types";
+import { TransactionResult } from "@/types/api";
+import { ApiError } from "@/types/ApiError";
 import { createClerkClient } from "@clerk/nextjs/server";
-import { MissionJob } from "@prisma/client";
+import { MissionJob, UserMissionStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const clerkClient = createClerkClient({
@@ -12,6 +14,7 @@ const clerkClient = createClerkClient({
 export async function POST(req: Request) {
   try {
     const data: UserSignUpSchema = await req.json();
+
     if (data.role === EnumRole.EXTRA) {
       return await createExtra(data);
     }
@@ -27,43 +30,147 @@ export async function POST(req: Request) {
 }
 
 const createExtra = async (data: UserSignUpSchema) => {
-  if (!data.extra || !data.location || !data.extra.birthdate) {
-    return;
-  }
-
   try {
-    await prisma.user.create({
-      data: {
-        email: data.email,
-        role: data.role,
-        clerkId: data.clerkId,
-        extra: {
-          create: {
-            first_name: data.extra.first_name,
-            last_name: data.extra.last_name,
-            birthdate: data.extra.birthdate,
-            missionJobs: data.extra.missionJob.map(
-              (job) => job.toLowerCase() as MissionJob
-            ),
-            max_travel_distance: data.extra.max_travel_distance,
-            phone: data.extra.phone
+    const response: TransactionResult = await prisma.$transaction(
+      async (tx) => {
+        if (!data.extra || !data.location || !data.extra.birthdate) {
+          return {
+            success: false,
+            error: "Missing required fields for extra user",
+            status: 400
+          };
+        }
+        let user;
+        try {
+          user = await tx.user.create({
+            data: {
+              email: data.email,
+              role: data.role,
+              clerkId: data.clerkId,
+              extra: {
+                create: {
+                  first_name: data.extra.first_name,
+                  last_name: data.extra.last_name,
+                  birthdate: data.extra.birthdate,
+                  missionJobs: data.extra.missionJob.map(
+                    (job) => job.toLowerCase() as MissionJob
+                  ),
+                  max_travel_distance: data.extra.max_travel_distance,
+                  phone: data.extra.phone
+                }
+              },
+              userLocation: {
+                create: {
+                  fullName: data.location.display_name,
+                  lat: data.location.lat,
+                  lon: data.location.lon
+                }
+              }
+            }
+          });
+        } catch (error) {
+          if (error instanceof Error && error.message) {
+            return {
+              success: false,
+              error: error.message,
+              status: 409
+            };
           }
-        },
-        userLocation: {
-          create: {
-            fullName: data.location.display_name,
-            lat: data.location.lat,
-            lon: data.location.lon,
-            nominatimId: data.location.place_id
+          console.error("Error creating user:", error);
+          return {
+            success: false,
+            error: "Failed to create user",
+            status: 500
+          };
+        }
+
+        if (!user) {
+          return {
+            success: false,
+            error: "User creation failed",
+            status: 500
+          };
+        }
+
+        // Check if the user have pending invitations
+        const pendingInvitations = await tx.invitation.findMany({
+          where: {
+            email: data.email
+          }
+        });
+        // Transfer invitation to userMission if any
+        if (pendingInvitations.length > 0) {
+          const userMissions = pendingInvitations.map((invitation) => ({
+            userId: user.id,
+            missionId: invitation.missionId,
+            missionStartDate: invitation.missionStartDate,
+            missionEndDate: invitation.missionEndDate,
+            missionJob: invitation.missionJob,
+            hourlyRate: invitation.hourlyRate,
+            status: UserMissionStatus.pending
+          }));
+          try {
+            await tx.userMission.createMany({
+              data: userMissions
+            });
+          } catch (error) {
+            if (error instanceof Error && error.message) {
+              return {
+                success: false,
+                error: error.message,
+                status: 409
+              };
+            }
+          }
+
+          // Delete the invitations after transferring
+          try {
+            await tx.invitation.deleteMany({
+              where: {
+                email: data.email
+              }
+            });
+          } catch (error) {
+            if (error instanceof Error && error.stack) {
+              console.error("Error deleting invitations:", error.stack);
+            }
+            if (error instanceof Error && error.message) {
+              return {
+                success: false,
+                error: error.message,
+                status: 409
+              };
+            }
           }
         }
+
+        return { success: true, data: user };
       }
-    });
-    await clerkClient.users.updateUserMetadata(data.clerkId, {
-      publicMetadata: {
-        role: data.role
-      }
-    });
+    );
+
+    if (!response.success) {
+      throw new ApiError(
+        response.error || "Failed to create user",
+        response.status || 500
+      );
+    }
+
+    try {
+      await clerkClient.users.updateUserMetadata(data.clerkId, {
+        publicMetadata: {
+          role: data.role
+        }
+      });
+    } catch (clerkError) {
+      console.error("Failed to update Clerk user metadata:", clerkError);
+
+      await prisma.user.delete({
+        where: { clerkId: data.clerkId }
+      });
+      await clerkClient.users.deleteUser(data.clerkId);
+      throw new ApiError("Failed to update user metadata", 500);
+    }
+
     return NextResponse.json({ message: "User created" });
   } catch (error) {
     console.error("Error during the process:", error);
@@ -97,8 +204,7 @@ const createCompany = async (data: UserSignUpSchema) => {
           create: {
             fullName: data.location.display_name,
             lat: data.location.lat,
-            lon: data.location.lon,
-            nominatimId: data.location.place_id
+            lon: data.location.lon
           }
         }
       }

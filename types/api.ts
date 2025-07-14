@@ -63,7 +63,6 @@ export interface Suggestion {
   display_name: string;
   lat: number;
   lon: number;
-  place_id: number;
 }
 
 type Address = {
@@ -132,7 +131,6 @@ export interface MissionLocation {
   lat: number;
   lon: number;
   fullName: string;
-  nominatimId: number | null;
 }
 
 export interface RequiredPosition {
