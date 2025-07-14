@@ -34,7 +34,7 @@ model Extra {
   phone               String?
   missionJobs         MissionJob[] @default([])
   max_travel_distance Int
-  user                User         @relation(fields: [userId], references: [id])
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Company {
@@ -45,7 +45,7 @@ model Company {
   contactFirstName String
   contactLastName  String
   logoId           String?
-  user             User      @relation(fields: [userId], references: [id])
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdMissions  Mission[]
 }
 
@@ -79,23 +79,22 @@ model Mission {
 }
 
 model UserLocation {
-  lat            Float
-  lon            Float
-  fullName       String
-  userId         String? @unique
-  userLocationId String? @unique
-  id             String  @id @default(uuid())
-  nominatimId    Int?    @unique
-  user           User?   @relation(fields: [userLocationId], references: [id], onDelete: Cascade)
+  lat      Float
+  lon      Float
+  fullName String
+  userId   String? @unique
+  id       String  @id @default(uuid())
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MissionLocation {
-  lat         Float
-  lon         Float
-  fullName    String
-  id          String    @id @default(uuid())
-  nominatimId Int?      @unique
-  mission     Mission[]
+  lat      Float
+  lon      Float
+  fullName String
+  id       String    @id @default(uuid())
+  mission  Mission[]
+
+  @@unique([lat, lon])
 }
 
 model UserMission {
@@ -110,7 +109,7 @@ model UserMission {
   status           UserMissionStatus
   updatedAt        DateTime          @updatedAt
   mission          Mission           @relation(fields: [missionId], references: [id])
-  user             User              @relation(fields: [userId], references: [id])
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, missionId])
 }
