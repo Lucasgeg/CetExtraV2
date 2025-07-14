@@ -61,7 +61,9 @@ export const AddressAutocomplete = ({
   useEffect(() => {
     if (
       value &&
-      (!selectedAddress || value.place_id !== selectedAddress.place_id)
+      (!selectedAddress ||
+        (value.lat !== selectedAddress.lat &&
+          value.lon !== selectedAddress.lon))
     ) {
       setSelectedAddress(value);
       setQuery("");
@@ -126,7 +128,7 @@ export const AddressAutocomplete = ({
           <ul className="max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
             {suggestions.map((suggestion) => (
               <li
-                key={suggestion.place_id}
+                key={suggestion.lat.toString() + suggestion.lon.toString()}
                 onClick={() => handleSelectSuggestion(suggestion)}
                 className="cursor-pointer p-2 hover:bg-gray-100"
               >

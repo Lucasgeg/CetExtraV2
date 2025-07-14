@@ -60,11 +60,13 @@ export async function POST(req: NextRequest) {
   try {
     const missionLocation = await prisma.missionLocation.upsert({
       where: {
-        nominatimId: location.place_id
+        lat_lon: {
+          lat: location.lat,
+          lon: location.lon
+        }
       },
       update: {},
       create: {
-        nominatimId: location.place_id,
         fullName: location.display_name,
         lat: location.lat,
         lon: location.lon
