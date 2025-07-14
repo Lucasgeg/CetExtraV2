@@ -38,9 +38,12 @@ const isPublicRoute = createRouteMatcher(
 const isProtectedRoute = createRouteMatcher(protectedRoutes);
 
 const isAdminRoute = createRouteMatcher(["/blog/admin(.*)"]);
+const isCompanyRoute = createRouteMatcher(["/company(.*)"]);
+const isExtraRoute = createRouteMatcher(["/extra(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   const { userId, sessionClaims } = await auth();
+  const userRole = sessionClaims?.publicMetadata?.role as string;
   if (isAdminRoute(request)) {
     await auth.protect();
 
@@ -56,6 +59,17 @@ export default clerkMiddleware(async (auth, request) => {
     if (isProtectedRoute(request)) {
       await auth.protect(); // Redirige vers /sign-in si non connecté
     }
+    if (userId && userRole) {
+      if (isCompanyRoute(request) && userRole === "extra") {
+        // Utilisateur avec rôle "extra" essaie d'accéder aux routes company
+        return NextResponse.redirect(new URL("/extra", request.url));
+      }
+
+      if (isExtraRoute(request) && userRole === "company") {
+        // Utilisateur avec rôle "company" essaie d'accéder aux routes extra
+        return NextResponse.redirect(new URL("/company", request.url));
+      }
+    }
     const { pathname } = request.nextUrl;
     if (userId && pathname === "/") {
       const isFromAuth =
@@ -63,10 +77,10 @@ export default clerkMiddleware(async (auth, request) => {
         request.headers.get("referer")?.includes("/sign-up");
 
       if (isFromAuth) {
-        if (sessionClaims?.publicMetadata.role === "company") {
+        if (userRole === "company") {
           return NextResponse.redirect(new URL("/company", request.url));
         }
-        if (sessionClaims?.publicMetadata.role === "extra") {
+        if (userRole === "extra") {
           return NextResponse.redirect(new URL("/extra", request.url));
         }
       }
