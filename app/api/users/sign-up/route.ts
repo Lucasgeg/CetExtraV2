@@ -4,7 +4,7 @@ import { EnumRole, UserSignUpSchema } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
 import { createClerkClient } from "@clerk/nextjs/server";
-import { MissionJob, UserMissionStatus } from "@prisma/client";
+import { MissionJob, Prisma, UserMissionStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const clerkClient = createClerkClient({
@@ -68,26 +68,21 @@ const createExtra = async (data: UserSignUpSchema) => {
               }
             }
           });
-        } catch (error) {
-          if (error instanceof Error && error.message) {
+        } catch (error: unknown) {
+          if (
+            error instanceof Prisma.PrismaClientKnownRequestError &&
+            error.code === "P2002"
+          ) {
+            console.error("Prisma error:", error);
             return {
               success: false,
-              error: error.message,
+              error: "Cette adresse email est déjà utilisée",
               status: 409
             };
           }
-          console.error("Error creating user:", error);
           return {
             success: false,
-            error: "Failed to create user",
-            status: 500
-          };
-        }
-
-        if (!user) {
-          return {
-            success: false,
-            error: "User creation failed",
+            error: "Erreur lors de la création du compte",
             status: 500
           };
         }
@@ -150,7 +145,7 @@ const createExtra = async (data: UserSignUpSchema) => {
 
     if (!response.success) {
       throw new ApiError(
-        response.error || "Failed to create user",
+        response.error || "Échec de la création du compte",
         response.status || 500
       );
     }
@@ -174,10 +169,20 @@ const createExtra = async (data: UserSignUpSchema) => {
     return NextResponse.json({ message: "User created" });
   } catch (error) {
     console.error("Error during the process:", error);
-    await clerkClient.users.deleteUser(data.clerkId);
+    try {
+      await clerkClient.users.deleteUser(data.clerkId);
+    } catch (clerkError) {
+      console.error("Error cleaning up Clerk user:", clerkError);
+    }
+
     return NextResponse.json(
-      { message: "Error deleting user", stackTrace: error },
-      { status: 500 }
+      {
+        message:
+          error instanceof ApiError
+            ? error.message
+            : "Erreur lors de la création du compte"
+      },
+      { status: error instanceof ApiError ? error.status : 500 }
     );
   }
 };

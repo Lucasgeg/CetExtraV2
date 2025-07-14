@@ -40,4 +40,7 @@ export type SignupErrorMessages = {
   extra?: ExtraErrorMessages;
   company?: CompanyErrorMessages;
   global?: GlobalErrorMessages;
+  clerk?: string;
+  api?: string;
+  verification?: string;
 };
