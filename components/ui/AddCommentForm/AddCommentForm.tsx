@@ -14,17 +14,24 @@ export default function AddCommentForm({ postId }: { postId: string }) {
     e.preventDefault();
     setLoading(true);
     setSuccess(false);
-    const res = await fetch("/api/blog/comments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId, author, content })
-    });
-    setLoading(false);
-    if (res.ok) {
-      mutate(`/api/blog/${postId}/comments`);
-      setSuccess(true);
-      setAuthor("");
-      setContent("");
+
+    try {
+      const res = await fetch("/api/blog/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, author, content })
+      });
+
+      if (res.ok) {
+        setSuccess(true);
+        setAuthor("");
+        setContent("");
+        mutate(`/api/blog/${postId}/comments`);
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du commentaire:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
