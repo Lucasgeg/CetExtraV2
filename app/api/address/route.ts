@@ -81,8 +81,7 @@ const getLocationFromDb = async (q: string): Promise<Suggestion[]> => {
         fullName: true,
         lat: true,
         lon: true,
-        id: true,
-        nominatimId: true
+        id: true
       }
     });
     console.info("results from db:", locations);
@@ -91,8 +90,7 @@ const getLocationFromDb = async (q: string): Promise<Suggestion[]> => {
       suggestions.push({
         display_name: location.fullName,
         lat: location.lat,
-        lon: location.lon,
-        place_id: Number(location.nominatimId)
+        lon: location.lon
       });
     });
     if (locations.length < 5) {
