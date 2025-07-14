@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "UserMission" ALTER COLUMN "hourlyRate" DROP DEFAULT,
+ALTER COLUMN "updatedAt" DROP DEFAULT;

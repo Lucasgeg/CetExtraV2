@@ -105,10 +105,10 @@ model UserMission {
   missionStartDate DateTime
   missionEndDate   DateTime
   missionJob       MissionJob
-  hourly_rate      Float
-  created_at       DateTime          @default(now())
+  hourlyRate       Float
+  createdAt        DateTime          @default(now())
   status           UserMissionStatus
-  updated_at       DateTime          @updatedAt
+  updatedAt        DateTime          @updatedAt
   mission          Mission           @relation(fields: [missionId], references: [id])
   user             User              @relation(fields: [userId], references: [id])
 
