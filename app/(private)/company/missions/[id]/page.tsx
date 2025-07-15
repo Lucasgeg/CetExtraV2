@@ -2,6 +2,7 @@
 
 import { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
 import MapContainerComponent from "@/components/MapContainerComponent/MapContainerComponent";
+import { MapWithUserFilter } from "@/components/MapWithUserFilter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -19,19 +20,45 @@ import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGes
 import useFetch from "@/hooks/useFetch";
 import { EnumMissionJob } from "@/store/types";
 import { MissionDetailApiResponse } from "@/types/api";
+import { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { formatDateTimeLocal } from "@/utils/date";
 import { getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { Dialog } from "@radix-ui/react-dialog";
 import { LatLngExpression } from "leaflet";
 import { useParams } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
     `/api/mission/${id}`
   );
+  const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_filteredUsers, setFilteredUsers] = useState<UserWithLocation[]>([]);
 
+  // Stabiliser la fonction callback
+  const handleUsersFiltered = useCallback((users: UserWithLocation[]) => {
+    setFilteredUsers(users);
+  }, []);
+
+  const missionLocation = useMemo(
+    () => ({
+      lat: data?.missionLocation?.lat || 0,
+      lon: data?.missionLocation?.lon || 0
+    }),
+    [data?.missionLocation?.lat, data?.missionLocation?.lon]
+  );
+
+  // Stabiliser center
+  const center = useMemo(
+    (): LatLngExpression => [
+      data?.missionLocation?.lat || 0,
+      data?.missionLocation?.lon || 0
+    ],
+    [data?.missionLocation?.lat, data?.missionLocation?.lon]
+  );
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -116,11 +143,6 @@ export default function MissionDetailPage() {
     }
   ];
 
-  const center: LatLngExpression = [
-    data.missionLocation?.lat || 0,
-    data.missionLocation?.lon || 0
-  ];
-
   const points: MissionPoint[] = [
     {
       id: data.missionLocation?.fullName || "unknown-location",
@@ -176,13 +198,44 @@ export default function MissionDetailPage() {
               {data.additionalInfo || "Aucune description fournie."}
             </CardContent>
           </Card>
-          <Button
-            theme="company"
-            fullWidth
-            className="hidden h-full max-h-24 font-bold lg:block"
-          >
-            Voir les extras disponibles sur la carte
-          </Button>
+          <Dialog open={fullScreenMapOpen} onOpenChange={setFullScreenMapOpen}>
+            <DialogTrigger asChild>
+              <Button
+                theme="company"
+                fullWidth
+                className="hidden h-full max-h-24 font-bold lg:block"
+              >
+                Voir les extras disponibles sur la carte
+              </Button>
+            </DialogTrigger>
+            <DialogContent
+              className="flex h-[80vh] w-[80vw] flex-col"
+              forceFullWidth
+              aria-describedby="dialog-description"
+            >
+              <DialogTitle>Carte de recherche d'extra</DialogTitle>
+              <DialogDescription id="dialog-description">
+                Utilisez la carte pour rechercher et filtrer les extras
+                disponibles autour du lieu de la mission.
+              </DialogDescription>
+              <MapWithUserFilter
+                center={center}
+                missionLocation={missionLocation}
+                onUsersFiltered={handleUsersFiltered}
+                showInfo={true}
+                autoFetch={true}
+                initialRadius={2.5}
+                preservePrivacy={true}
+              />
+              <Button
+                theme="company"
+                className="absolute right-4 top-4 z-[1050]"
+                onClick={() => setFullScreenMapOpen(false)}
+              >
+                Fermer la carte
+              </Button>
+            </DialogContent>
+          </Dialog>
         </div>
         <div className="flex h-full w-full flex-col gap-5 overflow-auto">
           <Dialog>

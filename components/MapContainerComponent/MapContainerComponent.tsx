@@ -10,6 +10,7 @@ type MapContainerComponentProps = {
   height?: string;
   maxHeight?: string;
   className?: string;
+  width?: string;
 };
 
 type BasePoint = {
@@ -37,7 +38,8 @@ export default function MapContainerComponent({
   zoom = 17,
   height,
   maxHeight,
-  className
+  className,
+  width = "100%"
 }: MapContainerComponentProps) {
   const DynamicMapWithHeight = dynamic(() => import("./DynamicMapContent"), {
     ssr: false,
@@ -46,7 +48,7 @@ export default function MapContainerComponent({
         style={{
           height,
           maxHeight,
-          width: "100%",
+          width,
           borderRadius: "1.25em",
           backgroundColor: "#f3f4f6",
           display: "flex",
@@ -67,6 +69,7 @@ export default function MapContainerComponent({
       zoom={zoom}
       height={height}
       maxHeight=""
+      width={width}
     />
   );
 }

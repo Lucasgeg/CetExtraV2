@@ -31,6 +31,7 @@ type DynamicMapContentProps = {
   height?: string;
   maxHeight?: string;
   className?: string;
+  width?: string;
 };
 
 const missionIcon = divIcon({
@@ -51,14 +52,15 @@ export default function DynamicMapContent({
   zoom = 17,
   height,
   maxHeight,
-  className
+  className,
+  width = "100%"
 }: DynamicMapContentProps) {
   return (
     <MapContainer
       style={{
         height: height,
         minHeight: "300px",
-        width: "100%",
+        width,
         borderRadius: "1.25em",
         maxHeight
       }}
