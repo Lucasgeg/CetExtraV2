@@ -177,6 +177,7 @@ export default function MissionDetailPage() {
             theme="company"
             fullWidth
             className="h-full max-h-24 font-bold lg:hidden"
+            onClick={() => setFullScreenMapOpen(true)}
           >
             Voir les extras disponibles sur la carte
           </Button>
@@ -209,7 +210,7 @@ export default function MissionDetailPage() {
               </Button>
             </DialogTrigger>
             <DialogContent
-              className="flex h-[80vh] w-[80vw] flex-col"
+              className="flex h-screen w-screen flex-col lg:h-[80vh] lg:w-[80vw]"
               forceFullWidth
               aria-describedby="dialog-description"
             >
