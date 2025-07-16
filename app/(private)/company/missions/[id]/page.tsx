@@ -13,7 +13,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  Dialog
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
@@ -24,7 +25,6 @@ import { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { formatDateTimeLocal } from "@/utils/date";
 import { getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
-import { Dialog } from "@radix-ui/react-dialog";
 import { LatLngExpression } from "leaflet";
 import { useParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
@@ -153,36 +153,38 @@ export default function MissionDetailPage() {
   ];
 
   return (
-    <div className="relative h-auto pb-6 lg:h-full">
+    <div className="relative flex h-auto flex-col lg:h-full">
       <h1 className="text-center text-2xl font-bold text-employer-secondary">
         Détails de la mission {data.name}
       </h1>
-      <div className="grid h-full gap-3 py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
-        <div className="flex h-full w-full flex-col gap-4 overflow-auto rounded-lg bg-employer-background p-4 shadow-md">
-          <h2 className="text-lg font-bold text-employer-primary">
-            Détails de la mission
-          </h2>
-          <DetailsList items={items} />
-          <div className="flex flex-1 flex-col">
-            <MapContainerComponent
-              center={center}
-              points={points}
-              height="100%"
-            />
-            <span className="text-lg font-bold italic text-employer-primary">
-              {data.missionLocation?.fullName}
-            </span>
+      <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
+        <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
+          <div className="flex flex-1 flex-col p-4">
+            <h2 className="text-lg font-bold text-employer-primary">
+              Détails de la mission
+            </h2>
+            <DetailsList items={items} />
+            <div className="flex flex-1 flex-col">
+              <MapContainerComponent
+                center={center}
+                points={points}
+                height="100%"
+              />
+              <span className="text-lg font-bold italic text-employer-primary">
+                {data.missionLocation?.fullName}
+              </span>
+            </div>
+            <Button
+              theme="company"
+              fullWidth
+              className="h-full max-h-24 font-bold lg:hidden"
+              onClick={() => setFullScreenMapOpen(true)}
+            >
+              Voir les extras disponibles sur la carte
+            </Button>
           </div>
-          <Button
-            theme="company"
-            fullWidth
-            className="h-full max-h-24 font-bold lg:hidden"
-            onClick={() => setFullScreenMapOpen(true)}
-          >
-            Voir les extras disponibles sur la carte
-          </Button>
         </div>
-        <div className="flex flex-col items-center justify-between gap-5 rounded-lg bg-employer-background p-4 shadow-md">
+        <div className="flex flex-1 flex-col items-center justify-between gap-5 rounded-lg bg-employer-background p-4 shadow-md">
           <Card className="h-full w-full">
             <CardTitle className="text-lg font-bold text-employer-primary">
               Description de la mission
@@ -230,7 +232,7 @@ export default function MissionDetailPage() {
               />
               <Button
                 theme="company"
-                className="absolute right-4 top-4 z-[1050]"
+                className="fixed bottom-6 right-6 z-[1050] lg:absolute lg:right-4 lg:top-4"
                 onClick={() => setFullScreenMapOpen(false)}
               >
                 Fermer la carte
@@ -238,7 +240,7 @@ export default function MissionDetailPage() {
             </DialogContent>
           </Dialog>
         </div>
-        <div className="flex h-full w-full flex-col gap-5 overflow-auto">
+        <div className="flex w-full flex-1 flex-col gap-5 overflow-auto">
           <Dialog>
             <DialogTrigger asChild>
               <Button theme="company" className="font-bold" fullWidth>
@@ -268,7 +270,7 @@ export default function MissionDetailPage() {
               </p>
             </DialogContent>
           </Dialog>
-          <div className="flex flex-1 flex-col gap-1 overflow-auto rounded-lg bg-employer-background p-4 shadow-md">
+          <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {
               return (
                 <TeamGestionnaryItem
