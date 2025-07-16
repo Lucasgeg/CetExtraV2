@@ -33,7 +33,7 @@ export const DetailsList = ({
           </dt>
           <dd
             className={cn(
-              "text-sm",
+              "text-right text-sm",
               theme === "company"
                 ? "text-employer-secondary"
                 : "text-extra-secondary"
