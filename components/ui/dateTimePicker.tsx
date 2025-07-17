@@ -27,6 +27,7 @@ import {
 import { DayPicker, DayPickerProps } from "react-day-picker";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { ScrollArea } from "./scroll-area";
+import { Modal } from "./Modal/Modal";
 
 // ---------- utils start ----------
 /**
@@ -293,6 +294,22 @@ function Calendar({
     return false;
   };
 
+  const handlePreviousMonth = () => {
+    if (props.month && !disableLeftNavigation()) {
+      const newDate = new Date(props.month);
+      newDate.setMonth(newDate.getMonth() - 1);
+      props.onMonthChange?.(newDate);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (props.month && !disableRightNavigation()) {
+      const newDate = new Date(props.month);
+      newDate.setMonth(newDate.getMonth() + 1);
+      props.onMonthChange?.(newDate);
+    }
+  };
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -304,16 +321,8 @@ function Calendar({
         month_caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
         nav: "space-x-1 flex items-center ",
-        button_previous: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute left-5 top-5",
-          disableLeftNavigation() && "pointer-events-none"
-        ),
-        button_next: cn(
-          buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute right-5 top-5",
-          disableRightNavigation() && "pointer-events-none"
-        ),
+        button_previous: "hidden",
+        button_next: "hidden",
         month_grid: "w-full border-collapse space-y-1",
         weekdays: cn("flex", props.showWeekNumber && "justify-end"),
         weekday:
@@ -337,15 +346,21 @@ function Calendar({
         ...classNames
       }}
       components={{
-        Chevron: ({ ...props }) =>
-          props.orientation === "left" ? (
-            <ChevronLeft className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          ),
         MonthCaption: ({ calendarMonth }) => {
           return (
             <div className="inline-flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  disableLeftNavigation() && "pointer-events-none opacity-25"
+                )}
+                onClick={handlePreviousMonth}
+                disabled={disableLeftNavigation()}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
               <Select
                 defaultValue={calendarMonth.date.getMonth().toString()}
                 onValueChange={(value) => {
@@ -387,6 +402,18 @@ function Calendar({
                   ))}
                 </SelectContent>
               </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  disableRightNavigation() && "pointer-events-none opacity-25"
+                )}
+                onClick={handleNextMonth}
+                disabled={disableRightNavigation()}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           );
         }
@@ -1203,7 +1230,7 @@ const DateTimePicker = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="z-[1050] w-auto p-0">
+        <Modal show={isOpen} onClose={() => handleOpenChange(false)}>
           <div
             ref={popoverContentRef}
             className="rounded-lg border bg-white p-4 shadow-lg"
@@ -1265,7 +1292,8 @@ const DateTimePicker = React.forwardRef<
               </Button>
             </div>
           </div>
-        </PopoverContent>
+        </Modal>
+        {/* <PopoverContent className="z-[1050] w-auto p-0"></PopoverContent> */}
       </Popover>
     );
   }

@@ -490,6 +490,7 @@ export const TeamGestionnaryItem = ({
                           className="flex-1"
                           onClick={() => setIsInviteWithDetailDialogOpen(false)}
                           disabled={isSubmitting}
+                          type="button"
                         >
                           Annuler
                         </Button>
