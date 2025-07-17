@@ -1,6 +1,7 @@
 type ModalProps = {
   show: boolean;
   onClose: () => void;
+  /** Contenu du modal */
   children: React.ReactNode;
 };
 
