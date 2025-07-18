@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(uuid())
-  role             Role
-  created_at       DateTime      @default(now())
-  updated_at       DateTime      @updatedAt
-  email            String        @unique
-  active           Boolean       @default(true)
-  clerkId          String        @unique
-  company          Company?
-  extra            Extra?
-  userLocation     UserLocation?
-  assignedMissions UserMission[]
+  id                String        @id @default(uuid())
+  role              Role
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+  email             String        @unique
+  active            Boolean       @default(true)
+  clerkId           String        @unique
+  profilePictureUrl String?
+  company           Company?
+  extra             Extra?
+  userLocation      UserLocation?
+  assignedMissions  UserMission[]
 
   @@index([email])
   @@index([clerkId])
@@ -72,6 +73,7 @@ model Mission {
   missionLocation    MissionLocation?   @relation(fields: [missionLocationId], references: [id])
   requiredPositions  RequiredPosition[]
   employees          UserMission[]
+  status             MissionStatus      @default(pending)
 
   Invitation Invitation[]
 
@@ -177,5 +179,12 @@ enum UserMissionStatus {
   pending
   accepted
   refused
+  cancelled
+}
+
+enum MissionStatus {
+  pending
+  active
+  completed
   cancelled
 }
