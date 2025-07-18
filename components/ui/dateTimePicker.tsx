@@ -1,10 +1,6 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { add, format } from "date-fns";
 import { type Locale, enUS } from "date-fns/locale";
@@ -348,8 +344,9 @@ function Calendar({
       components={{
         MonthCaption: ({ calendarMonth }) => {
           return (
-            <div className="inline-flex gap-2">
+            <div className="flex items-center gap-2">
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 className={cn(
@@ -403,6 +400,7 @@ function Calendar({
                 </SelectContent>
               </Select>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 className={cn(
@@ -594,6 +592,7 @@ const TimePickerInput = React.forwardRef<
         value={value || calculatedValue}
         onChange={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           onChange?.(e);
         }}
         type={type}
@@ -917,7 +916,11 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
               isDisabled && "cursor-not-allowed opacity-50",
               className
             )}
-            onClick={() => !isDisabled && onSelect(option.value)}
+            onClick={(e) => {
+              e.preventDefault(); // ✅ Ajouter ceci
+              e.stopPropagation(); // ✅ Ajouter ceci
+              if (!isDisabled) onSelect(option.value);
+            }}
           >
             <div className="w-4">
               {selected && <CheckIcon className="my-auto size-4" />}
@@ -1202,6 +1205,7 @@ const DateTimePicker = React.forwardRef<
       <Popover open={isOpen} onOpenChange={handleOpenChange} modal>
         <PopoverTrigger asChild>
           <Button
+            type="button"
             variant="outline"
             theme={theme}
             className={cn(
@@ -1210,7 +1214,8 @@ const DateTimePicker = React.forwardRef<
               className
             )}
             ref={buttonRef}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               onTriggerClick?.();
             }}
           >
@@ -1230,10 +1235,14 @@ const DateTimePicker = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <Modal show={isOpen} onClose={() => handleOpenChange(false)}>
+        <Modal isOpen={isOpen} onClose={() => handleOpenChange(false)}>
           <div
             ref={popoverContentRef}
             className="rounded-lg border bg-white p-4 shadow-lg"
+            onSubmit={(e) => {
+              e.preventDefault(); // ✅ Empêcher toute soumission
+              e.stopPropagation();
+            }}
           >
             <Calendar
               mode="single"
@@ -1276,7 +1285,11 @@ const DateTimePicker = React.forwardRef<
 
             <div className="flex gap-2 border-t p-3">
               <Button
-                onClick={() => handleOpenChange(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleOpenChange(false);
+                }}
                 variant="outline"
                 className="flex-1"
                 size="sm"
@@ -1284,7 +1297,11 @@ const DateTimePicker = React.forwardRef<
                 Annuler
               </Button>
               <Button
-                onClick={() => handleOpenChange(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleOpenChange(false);
+                }}
                 className="flex-1"
                 size="sm"
               >

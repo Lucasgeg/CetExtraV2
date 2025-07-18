@@ -70,7 +70,7 @@ export default function BlogEditPage() {
           initialShortDesc={post.shortDesc}
         />
       </div>
-      <Modal onClose={() => setShowDialog(false)} show={showDialog}>
+      <Modal onClose={() => setShowDialog(false)} isOpen={showDialog}>
         <div className="flex flex-col items-center justify-center">
           <h2 className="text-lg font-semibold">Article édité avec succès !</h2>
           <p className="mt-2 text-sm text-gray-500">
