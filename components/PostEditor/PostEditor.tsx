@@ -191,7 +191,7 @@ export default function PostEditor({
           </Button>
         </div>
       </form>
-      <Modal show={isAltModalOpen} onClose={() => setIsAltModalOpen(false)}>
+      <Modal isOpen={isAltModalOpen} onClose={() => setIsAltModalOpen(false)}>
         <div>
           <h2 className="mb-2 font-semibold">Texte alternatif de l’image</h2>
           <Input
