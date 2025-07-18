@@ -212,7 +212,7 @@ export default function MissionDetailPage() {
               </Button>
             </DialogTrigger>
             <DialogContent
-              className="flex h-screen w-screen flex-col lg:h-[80vh] lg:w-[80vw]"
+              className="flex h-[90vh] w-[90vw] flex-col"
               forceFullWidth
               aria-describedby="dialog-description"
             >

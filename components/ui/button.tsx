@@ -103,6 +103,8 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   theme?: "company" | "extra";
+  beforeContent?: React.ReactNode;
+  afterContent?: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -115,6 +117,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth = false,
       rounded,
       theme,
+      beforeContent,
+      afterContent,
+      children,
       ...props
     },
     ref
@@ -122,6 +127,24 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     const themeClasses = getThemeClasses(theme, variant || "default");
 
+    // Si asChild est true, ne pas ajouter beforeContent et afterContent
+    if (asChild) {
+      return (
+        <Comp
+          className={cn(
+            buttonVariants({ variant, size, className, fullWidth, rounded }),
+            themeClasses
+          )}
+          ref={ref}
+          disabled={variant === "disabled"}
+          {...props}
+        >
+          {children}
+        </Comp>
+      );
+    }
+
+    // Sinon, rendre le bouton normal avec tous les contenus
     return (
       <Comp
         className={cn(
@@ -131,7 +154,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={variant === "disabled"}
         {...props}
-      />
+      >
+        {beforeContent}
+        {children}
+        {afterContent}
+      </Comp>
     );
   }
 );

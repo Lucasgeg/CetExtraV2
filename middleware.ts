@@ -13,7 +13,8 @@ const basePublicRoutes = [
   "/api/address(.*)", // API du blog et sous-routes
   "/public(.*)", // Ressources publiques
   "/sitemap(.*)", // Sitemap
-  "/robots.txt"
+  "/robots.txt",
+  "/api/private/webhooks(.*)" // Webhooks privés
 ];
 
 // Les routes publiques additionnelles pour dev/rec

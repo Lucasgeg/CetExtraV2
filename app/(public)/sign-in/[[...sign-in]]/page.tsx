@@ -10,19 +10,39 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { getMainUserData } from "./actions";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
+import { Button } from "@/components/ui/button";
+import { Loader } from "@/components/ui/Loader/Loader";
 
 export default function Page() {
   const { setUser } = useCurrentUserStore();
   const { isLoaded, signIn, setActive } = useSignIn();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleChange = (
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      if (error) {
+        setError(null); // Clear error when user starts typing
+      }
+    };
+  };
 
   // Handle the submission of the sign-in form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isLoaded) return;
+    if (!email || !password) {
+      setError("Veuillez remplir tous les champs");
+      return;
+    }
+    setIsSubmitting(true);
 
     // Start the sign-in process using the email and password provided
     try {
@@ -39,14 +59,14 @@ export default function Page() {
         setUser(data);
         router.push("/");
       } else {
-        // If the status is not complete, check why. User may need to
-        // complete further steps.
-        console.error(JSON.stringify(signInAttempt, null, 2));
+        // If the sign-in process is not complete, set the error message
+        setError("Email ou mot de passe incorrect");
       }
     } catch (err: unknown) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.error(JSON.stringify(err, null, 2));
+      setError("Email ou mot de passe incorrect");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   return (
@@ -78,7 +98,7 @@ export default function Page() {
                   name="email"
                   placeholder="Email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleChange(setEmail)}
                 />
               </div>
               <div className="flex w-full flex-col gap-1">
@@ -89,18 +109,28 @@ export default function Page() {
                   name="password"
                   placeholder="Mot de passe"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handleChange(setPassword)}
                 />
               </div>
               {/* CAPTCHA Widget */}
               <div id="clerk-captcha" />
               <div className="xs:flex-row flex w-full flex-col items-center">
-                <button
+                {error && (
+                  <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+                <Button
                   type="submit"
                   className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                  disabled={isSubmitting}
                 >
-                  Connexion
-                </button>
+                  {isSubmitting ? (
+                    <Loader size="sm" variant="spinner" />
+                  ) : (
+                    "Se connecter"
+                  )}
+                </Button>
 
                 {/* 
                 //TODO: Implement OAuth 
