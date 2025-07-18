@@ -3,12 +3,8 @@ import {
   calculateDistance,
   randomizeCoordinatesAdvanced
 } from "@/utils/distance.utils";
-import { auth, createClerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-
-const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY
-});
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,6 +19,9 @@ export async function GET(request: NextRequest) {
     const lon = parseFloat(searchParams.get("lon") || "0");
     const radius = parseFloat(searchParams.get("radius") || "50");
     const preservePrivacy = searchParams.get("privacy") !== "false"; // Par défaut true
+    const limit = parseInt(searchParams.get("limit") || "100"); // Limite de résultats
+    const page = parseInt(searchParams.get("page") || "1"); // Page pour pagination
+    const skip = (page - 1) * limit;
 
     if (!lat || !lon) {
       return NextResponse.json(
@@ -31,7 +30,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Récupérer les utilisateurs extras avec les infos de base
+    // Récupérer les utilisateurs avec filtrage optimisé
     const users = await prisma.user.findMany({
       where: {
         role: "extra",
@@ -41,8 +40,6 @@ export async function GET(request: NextRequest) {
       },
       select: {
         id: true,
-        email: true,
-        clerkId: true,
         userLocation: {
           select: {
             lat: true,
@@ -55,38 +52,32 @@ export async function GET(request: NextRequest) {
             first_name: true,
             last_name: true
           }
-        }
-      }
+        },
+        profilePictureUrl: true
+      },
+      take: limit,
+      skip: skip
     });
 
+    // Filtre et traitement des utilisateurs
     const nearbyUsers = users
       .filter((user) => {
         if (!user.userLocation) return false;
-
-        // Utiliser les coordonnées originales pour le filtrage
         const distance = calculateDistance(
           lat,
           lon,
           user.userLocation.lat,
           user.userLocation.lon
         );
-
         return distance <= radius;
       })
-      .map(async (user) => {
-        // Récupérer les informations Clerk de l'utilisateur
-        let clerkUser;
-        let profileImageUrl = null;
-
-        try {
-          clerkUser = await clerkClient.users.getUser(user.clerkId);
-          profileImageUrl = clerkUser.hasImage ? clerkUser.imageUrl : null;
-        } catch (error) {
-          console.warn(
-            `Impossible de récupérer l'utilisateur Clerk ${user.id}:`,
-            error
-          );
-        }
+      .map((user) => {
+        const distance = calculateDistance(
+          lat,
+          lon,
+          user.userLocation!.lat,
+          user.userLocation!.lon
+        );
 
         const displayCoordinates = preservePrivacy
           ? randomizeCoordinatesAdvanced(
@@ -107,24 +98,21 @@ export async function GET(request: NextRequest) {
           lastName: user.extra?.last_name || "",
           lat: displayCoordinates.lat,
           lon: displayCoordinates.lon,
-          distance: calculateDistance(
-            lat,
-            lon,
-            user.userLocation!.lat,
-            user.userLocation!.lon
-          ),
+          distance,
           job: Array.isArray(user.extra?.missionJobs)
             ? user.extra.missionJobs.join(", ")
             : user.extra?.missionJobs || "Non spécifié",
           isPrivacyProtected: preservePrivacy,
-          profileImageUrl
+          profileImageUrl: user.profilePictureUrl || null
         };
       });
-    const resolvedUsers = await Promise.all(nearbyUsers);
 
+    // Trier par distance et renvoyer
     return NextResponse.json({
-      users: resolvedUsers.sort((a, b) => a.distance - b.distance),
-      total: resolvedUsers.length,
+      users: nearbyUsers.sort((a, b) => a.distance - b.distance),
+      total: nearbyUsers.length,
+      page,
+      limit,
       radius,
       center: { lat, lon },
       privacyProtected: preservePrivacy
