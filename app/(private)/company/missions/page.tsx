@@ -17,6 +17,10 @@ import {
   PaginationPrevious
 } from "@/components/ui/pagination";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/Modal/Modal";
+import { ModalBody } from "@/components/ui/Modal/ModalBody";
+import { Input } from "@/components/ui/input";
 
 const MISSIONS_PER_PAGE = 10;
 
@@ -30,6 +34,8 @@ export default function CompanyMissionsPage() {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalMissions, setTotalMissions] = useState(0);
+  const [missionToCancel, setMissionToCancel] = useState<string | null>(null);
+  const [cancelMessage, setCancelMessage] = useState<string | null>(null);
 
   const totalPages = Math.ceil(totalMissions / MISSIONS_PER_PAGE);
 
@@ -98,6 +104,8 @@ export default function CompanyMissionsPage() {
             <button
               className="rounded p-1 text-red-600 hover:bg-red-100"
               title="Supprimer"
+              type="button"
+              onClick={() => setMissionToCancel(row.original.id)}
             >
               <TrashIcon className="h-4 w-4" />
             </button>
@@ -114,7 +122,6 @@ export default function CompanyMissionsPage() {
         setLoading(true);
         const skip = (page - 1) * MISSIONS_PER_PAGE;
         const params = new URLSearchParams({
-          isCompany: "true",
           missionSelector,
           fields:
             "id,name,mission_start_date,mission_end_date,missionLocation.fullName",
@@ -122,7 +129,9 @@ export default function CompanyMissionsPage() {
           skip: skip.toString()
         });
 
-        const response = await fetch(`/api/missions/${companyId}?${params}`);
+        const response = await fetch(
+          `/api/companies/${companyId}/missions?${params}`
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -149,6 +158,8 @@ export default function CompanyMissionsPage() {
         setMissions([]);
         setTotalMissions(0);
       } finally {
+        console.log("end");
+
         setLoading(false);
       }
     },
@@ -157,12 +168,11 @@ export default function CompanyMissionsPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-    fetchMissions(1);
-  }, [companyId, missionSelector, fetchMissions]);
+  }, [companyId, missionSelector]);
 
   useEffect(() => {
     fetchMissions(currentPage);
-  }, [currentPage, fetchMissions]);
+  }, [currentPage, companyId, missionSelector, fetchMissions]);
 
   if (loading) {
     return (
@@ -176,6 +186,34 @@ export default function CompanyMissionsPage() {
       </div>
     );
   }
+
+  const handleCancelMission = async (missionId: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/missions/${missionId}/cancel`, {
+        method: "PATCH",
+        body: JSON.stringify({ message: cancelMessage })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Erreur lors de l'annulation de la mission"
+        );
+      }
+
+      // Recharger les missions après annulation
+      fetchMissions(currentPage);
+    } catch (error) {
+      console.error("Erreur annulation mission:", error);
+      setError(
+        error instanceof Error ? error.message : "Une erreur est survenue"
+      );
+    } finally {
+      setLoading(false);
+      setMissionToCancel(null);
+    }
+  };
 
   const handleSelectorChange = () => {
     setMissionSelector((prev) => {
@@ -195,6 +233,43 @@ export default function CompanyMissionsPage() {
 
   return (
     <div className="relative h-auto pb-6 lg:h-full">
+      <Modal
+        isOpen={!!missionToCancel}
+        onClose={() => setMissionToCancel(null)}
+      >
+        <ModalBody>
+          <p>
+            Êtes-vous sûr de vouloir annuler cette mission ? Cette action est
+            irréversible.
+          </p>
+          <Input
+            placeholder="Motif de l'annulation (optionnel)"
+            value={cancelMessage || ""}
+            onChange={(e) => setCancelMessage(e.target.value)}
+          />
+          <div className="mt-4 flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={() => setMissionToCancel(null)}
+              disabled={loading}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (missionToCancel) {
+                  handleCancelMission(missionToCancel);
+                }
+                setMissionToCancel(null);
+              }}
+              disabled={loading}
+            >
+              Confirmer l'annulation
+            </Button>
+          </div>
+        </ModalBody>
+      </Modal>
       <h1 className="text-center text-2xl font-bold text-employer-secondary">
         Mes Missions
       </h1>
