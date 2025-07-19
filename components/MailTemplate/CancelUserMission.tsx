@@ -18,10 +18,12 @@ export type CancelUserMisionProps = {
   companyName: string;
   missionName: string;
   missionLocation: string;
-  missionJob: string;
-  duration: string; // formated
+  missionJob?: string;
+  duration?: string; // formated
   missionDate: string;
   refusalReason?: string; // Motif du refus, optionnel
+  firstName?: string; // Prénom de l'utilisateur, optionnel
+  lastName?: string; // Nom de famille de l'utilisateur, optionnel
 };
 
 export const CancelUserMision = ({
@@ -31,7 +33,9 @@ export const CancelUserMision = ({
   missionJob,
   duration,
   missionDate,
-  refusalReason
+  refusalReason,
+  firstName,
+  lastName
 }: CancelUserMisionProps) => {
   return (
     <Html lang="fr">
@@ -60,6 +64,11 @@ export const CancelUserMision = ({
                   >
                     {missionName}
                   </Heading>
+                  {firstName && lastName && (
+                    <Text className="mb-4 text-center text-base text-[#232336]">
+                      Bonjour {firstName} {lastName},
+                    </Text>
+                  )}
                   <Text className="mb-2 text-center text-base text-[#232336]">
                     Nous tenions à t’informer que ta participation à la mission
                     suivante a été annulée par l’employeur :
@@ -71,12 +80,16 @@ export const CancelUserMision = ({
                     <li>
                       <strong>Lieu :</strong> {missionLocation}
                     </li>
-                    <li>
-                      <strong>Poste :</strong> {missionJob}
-                    </li>
-                    <li>
-                      <strong>Durée :</strong> {duration}
-                    </li>
+                    {missionJob && (
+                      <li>
+                        <strong>Poste :</strong> {missionJob}
+                      </li>
+                    )}
+                    {duration && (
+                      <li>
+                        <strong>Durée :</strong> {duration}
+                      </li>
+                    )}
                   </ul>
                   {refusalReason && (
                     <Text className="mb-4 text-center text-base text-[#F15A29]">

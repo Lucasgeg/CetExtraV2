@@ -11,7 +11,7 @@ export const NextMissionCard = ({ id }: { id: string }) => {
     missions: GetCompanyMission[];
     total: number;
   }>(
-    `/api/missions/${id}?missionSelector=incoming&isCompany=true&take=5&fields=id,name,mission_start_date,missionLocation.fullName`
+    `/api/companies/${id}/missions?missionSelector=incoming&take=5&fields=id,name,mission_start_date,missionLocation.fullName`
   );
 
   const columns: ColumnDef<GetCompanyMission>[] = [
