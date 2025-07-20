@@ -19,7 +19,7 @@ export const DetailsList = ({
       {items.map((item, index) => (
         <dl
           key={index}
-          className="flex items-center justify-between border-b border-gray-200 p-2"
+          className="flex items-center justify-between gap-8 border-b border-gray-200 p-2"
         >
           <dt
             className={cn(

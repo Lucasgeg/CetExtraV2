@@ -8,6 +8,24 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * Handles the PATCH request to cancel a mission.
+ *
+ * This endpoint performs the following actions:
+ * 1. Authenticates the user using Clerk.
+ * 2. Validates the mission ID and user authorization.
+ * 3. Updates the mission and related userMission statuses to 'cancelled' in the database.
+ * 4. Notifies all accepted employees of the mission cancellation via email.
+ *
+ * @param request - The Next.js request object containing the cancellation message in the body.
+ * @param props - An object containing the route parameters, specifically the missionId.
+ * @returns A NextResponse indicating the result of the cancellation operation:
+ *   - 200: Mission cancelled and notifications sent.
+ *   - 400: Bad request (e.g., missing mission ID, already cancelled).
+ *   - 401: Unauthorized (user is not the mission creator).
+ *   - 404: Mission not found.
+ *   - 500: Internal server error (database or email failure).
+ */
 export async function PATCH(
   request: NextRequest,
   props: { params: Promise<{ missionId: string }> }
@@ -148,5 +166,5 @@ export async function PATCH(
     });
   }
   // Here you can handle the cancellation logic, e.g., updating the database
-  return new NextResponse("Mission cancelled", { status: 200 });
+  return NextResponse.json({ message: "Mission cancelled" }, { status: 200 });
 }

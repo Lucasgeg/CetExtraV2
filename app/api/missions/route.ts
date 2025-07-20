@@ -5,6 +5,36 @@ import { auth } from "@clerk/nextjs/server";
 import { MissionJob } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Handles the creation of a new mission.
+ *
+ * This POST endpoint expects a JSON body matching the `CreateMissionFormValues` type,
+ * validates the user's authentication and role, checks required fields, and creates
+ * a new mission in the database. It also ensures the mission location exists or creates it,
+ * associates the mission with the creator's company, and sets up required team positions.
+ *
+ * Authorization:
+ * - Only users with the "company" role (as determined by Clerk session claims) are allowed.
+ *
+ * Request Body:
+ * - `location`: Object containing latitude, longitude, and display name.
+ * - `missionDescription`: (optional) Description of the mission.
+ * - `missionEndDate`: End date of the mission (string or date).
+ * - `missionName`: Name of the mission.
+ * - `missionStartDate`: Start date of the mission (string or date).
+ * - `teamCounts`: Object mapping job types to required quantities.
+ * - `additionalInfo`: (optional) Additional information about the mission.
+ *
+ * Responses:
+ * - 201: Mission created successfully. Returns the created mission object.
+ * - 400: Missing required fields.
+ * - 401: Unauthorized (missing or invalid session/role).
+ * - 404: Creator (company) not found.
+ * - 500: Error creating mission (with error message).
+ *
+ * @param req - The Next.js request object containing the mission data.
+ * @returns A Next.js Response or NextResponse with the result of the operation.
+ */
 export async function POST(req: NextRequest) {
   const { sessionClaims, userId } = await auth();
 
@@ -76,8 +106,8 @@ export async function POST(req: NextRequest) {
     const mission = await prisma.mission.create({
       data: {
         name: missionName,
-        mission_end_date: new Date(missionEndDate),
-        mission_start_date: new Date(missionStartDate),
+        missionEndDate: new Date(missionEndDate),
+        missionStartDate: new Date(missionStartDate),
         description: missionDescription,
         missionLocationId: missionLocation.id,
         additionalInfo,

@@ -29,7 +29,7 @@ type TeamGestionnaryItemProps = {
   value: string;
   isOccupied?: boolean;
   modalInfo?: ModalInfo;
-  minDateSart: string;
+  minDateStart: string;
   maxDateEnd: string;
   missionId?: string;
   missionJob: EnumMissionJob;
@@ -48,7 +48,7 @@ export const TeamGestionnaryItem = ({
   isOccupied = false,
   modalInfo,
   maxDateEnd,
-  minDateSart,
+  minDateStart,
   missionId,
   missionJob,
   userId,
@@ -74,7 +74,7 @@ export const TeamGestionnaryItem = ({
       receiverEmail: "",
       missionJob,
       missionEndDate: maxDateEnd,
-      missionStartDate: minDateSart
+      missionStartDate: minDateStart
     }
   });
 
@@ -98,15 +98,18 @@ export const TeamGestionnaryItem = ({
     try {
       setApiError(null);
 
-      const response = await fetch(`/api/mission/${missionId}/user/${userId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          ...data
-        })
-      });
+      const response = await fetch(
+        `/api/missions/${missionId}/user/${userId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            ...data
+          })
+        }
+      );
 
       const result = await response.json();
 
@@ -140,7 +143,7 @@ export const TeamGestionnaryItem = ({
     try {
       setApiError(null);
 
-      const response = await fetch(`/api/mission/${missionId}/invite`, {
+      const response = await fetch(`/api/missions/${missionId}/invites`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -426,7 +429,7 @@ export const TeamGestionnaryItem = ({
                                 {...field}
                                 value={
                                   new Date(selectedStartTime) ||
-                                  new Date(minDateSart)
+                                  new Date(minDateStart)
                                 }
                                 onChange={(date) => {
                                   if (date) {
@@ -435,7 +438,7 @@ export const TeamGestionnaryItem = ({
                                 }}
                                 placeholder="Sélectionner une date et heure"
                                 disabled={{
-                                  before: new Date(minDateSart),
+                                  before: new Date(minDateStart),
                                   after: new Date(maxDateEnd)
                                 }}
                                 granularity="minute"
@@ -471,7 +474,7 @@ export const TeamGestionnaryItem = ({
                                 disabled={{
                                   before:
                                     new Date(selectedStartTime) ||
-                                    new Date(minDateSart),
+                                    new Date(minDateStart),
                                   after: new Date(maxDateEnd)
                                 }}
                                 granularity="minute"

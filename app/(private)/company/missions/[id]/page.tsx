@@ -3,6 +3,7 @@
 import { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
 import MapContainerComponent from "@/components/MapContainerComponent/MapContainerComponent";
 import { MapWithUserFilter } from "@/components/MapWithUserFilter";
+import { PendingInvitations } from "@/components/PendingInvitations/PendingInvitations";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -20,9 +21,9 @@ import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
 import useFetch from "@/hooks/useFetch";
 import { EnumMissionJob } from "@/store/types";
-import { MissionDetailApiResponse } from "@/types/api";
+import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { UserWithLocation } from "@/types/UserWithLocation.enum";
-import { formatDateTimeLocal } from "@/utils/date";
+import { formatDateTimeLocal, formatDuration } from "@/utils/date";
 import { getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { LatLngExpression } from "leaflet";
@@ -32,8 +33,9 @@ import { useCallback, useMemo, useState } from "react";
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
-    `/api/mission/${id}`
+    `/api/missions/${id}`
   );
+
   const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_filteredUsers, setFilteredUsers] = useState<UserWithLocation[]>([]);
@@ -135,11 +137,11 @@ export default function MissionDetailPage() {
     },
     {
       label: "Date de début",
-      value: formatDateTimeLocal(data.mission_start_date)
+      value: formatDateTimeLocal(data.missionStartDate)
     },
     {
       label: "Date de fin",
-      value: formatDateTimeLocal(data.mission_end_date)
+      value: formatDateTimeLocal(data.missionEndDate)
     }
   ];
 
@@ -241,35 +243,38 @@ export default function MissionDetailPage() {
           </Dialog>
         </div>
         <div className="flex w-full flex-1 flex-col gap-5 overflow-auto">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button theme="company" className="font-bold" fullWidth>
-                Vos besoins
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogDescription>Récapitulatif</DialogDescription>
-              <DialogTitle>
-                Vos besoins en équipe pour cette mission
-              </DialogTitle>
-              <p>Vous avez indiqué que vous avez besoin de:</p>
-              <ul className="list-disc pl-5">
-                {data.requiredPositions.map((position) => (
-                  <li key={position.jobType}>
-                    {capitalizeFirstLetter(
-                      getJobLabel(
-                        position.jobType.toUpperCase() as EnumMissionJob
-                      )
-                    )}{" "}
-                    - {position.quantity} poste(s)
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-2">
-                Vous pouvez modifier ces besoins en éditant la mission
-              </p>
-            </DialogContent>
-          </Dialog>
+          <div className="flex items-center gap-3">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button theme="company" className="font-bold" fullWidth>
+                  Vos besoins
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogDescription>Récapitulatif</DialogDescription>
+                <DialogTitle>
+                  Vos besoins en équipe pour cette mission
+                </DialogTitle>
+                <p>Vous avez indiqué que vous avez besoin de:</p>
+                <ul className="list-disc pl-5">
+                  {data.requiredPositions.map((position) => (
+                    <li key={position.jobType}>
+                      {capitalizeFirstLetter(
+                        getJobLabel(
+                          position.jobType.toUpperCase() as EnumMissionJob
+                        )
+                      )}{" "}
+                      - {position.quantity} poste(s)
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2">
+                  Vous pouvez modifier ces besoins en éditant la mission
+                </p>
+              </DialogContent>
+            </Dialog>
+            <PendingInvitations missionId={id} />
+          </div>
           <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {
               return (
@@ -278,19 +283,19 @@ export default function MissionDetailPage() {
                   tipNumber={index + 1}
                   value={
                     item.employee
-                      ? `${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} - ${item.employee.user.extra.first_name} ${item.employee.user.extra.last_name}`
+                      ? `${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} - ${item.employee.user.extra.firstName} ${item.employee.user.extra.lastName}`
                       : `Place de ${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} disponible`
                   }
                   isOccupied={item.isOccupied}
                   modalInfo={
-                    item.isOccupied
+                    item.isOccupied && item.employee
                       ? {
                           title: "Informations sur l'extra",
                           content: (
                             <div>
                               <p>
-                                Nom: {item.employee?.user.extra.first_name}{" "}
-                                {item.employee?.user.extra.last_name}
+                                Nom: {item.employee.user.extra.firstName}{" "}
+                                {item.employee.user.extra.lastName}
                               </p>
                               <p>
                                 Poste:{" "}
@@ -298,18 +303,20 @@ export default function MissionDetailPage() {
                                   item.job.toUpperCase() as EnumMissionJob
                                 )}
                               </p>
-                              <p>Date de début: {item.employee?.start_date}</p>
-                              <p>Durée: {item.employee?.duration} heures</p>
+                              <p>Date de début: {item.employee.startDate}</p>
+                              <p>
+                                Durée: {formatDuration(item.employee.duration)}
+                              </p>
                             </div>
                           )
                         }
                       : undefined
                   }
                   missionJob={item.job.toUpperCase() as EnumMissionJob}
-                  maxDateEnd={data.mission_end_date}
-                  minDateSart={data.mission_start_date}
+                  maxDateEnd={data.missionEndDate}
+                  minDateStart={data.missionStartDate}
                   missionId={id}
-                  userId={item.employee?.userId}
+                  userId={item.employee?.user.id}
                   onDeleteFetch={refetch}
                 />
               );

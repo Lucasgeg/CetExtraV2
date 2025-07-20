@@ -49,11 +49,11 @@ export default function CompanyMissionsPage() {
         )
       },
       {
-        accessorKey: "mission_start_date",
+        accessorKey: "missionStartDate",
         header: "Date de début",
         cell: ({ row }) => (
           <div className="text-gray-600">
-            {new Date(row.original.mission_start_date).toLocaleDateString(
+            {new Date(row.original.missionStartDate).toLocaleDateString(
               "fr-FR",
               {
                 day: "2-digit",
@@ -65,18 +65,15 @@ export default function CompanyMissionsPage() {
         )
       },
       {
-        accessorKey: "mission_end_date",
+        accessorKey: "missionEndDate",
         header: "Date de fin",
         cell: ({ row }) => (
           <div className="text-gray-600">
-            {new Date(row.original.mission_end_date).toLocaleDateString(
-              "fr-FR",
-              {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-              }
-            )}
+            {new Date(row.original.missionEndDate).toLocaleDateString("fr-FR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric"
+            })}
           </div>
         )
       },
@@ -124,7 +121,7 @@ export default function CompanyMissionsPage() {
         const params = new URLSearchParams({
           missionSelector,
           fields:
-            "id,name,mission_start_date,mission_end_date,missionLocation.fullName",
+            "id,name,missionStartDate,missionEndDate,missionLocation.fullName",
           take: MISSIONS_PER_PAGE.toString(),
           skip: skip.toString()
         });
@@ -158,8 +155,6 @@ export default function CompanyMissionsPage() {
         setMissions([]);
         setTotalMissions(0);
       } finally {
-        console.log("end");
-
         setLoading(false);
       }
     },
