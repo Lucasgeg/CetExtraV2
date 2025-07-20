@@ -11,7 +11,7 @@ export const NextMissionCard = ({ id }: { id: string }) => {
     missions: GetCompanyMission[];
     total: number;
   }>(
-    `/api/companies/${id}/missions?missionSelector=incoming&take=5&fields=id,name,mission_start_date,missionLocation.fullName`
+    `/api/companies/${id}/missions?missionSelector=incoming&take=5&fields=id,name,missionStartDate,missionLocation.fullName`
   );
 
   const columns: ColumnDef<GetCompanyMission>[] = [
@@ -21,9 +21,9 @@ export const NextMissionCard = ({ id }: { id: string }) => {
       header: "Nom"
     },
     {
-      accessorKey: "mission_start_date",
+      accessorKey: "missionStartDate",
       cell: ({ row }) =>
-        new Date(row.original.mission_start_date).toLocaleDateString("fr-FR"),
+        new Date(row.original.missionStartDate).toLocaleDateString("fr-FR"),
       header: "Date"
     }
   ];
