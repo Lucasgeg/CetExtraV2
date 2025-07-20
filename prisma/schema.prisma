@@ -61,23 +61,23 @@ model RequiredPosition {
 }
 
 model Mission {
-  id                 String             @id @default(uuid())
-  name               String
-  description        String?
-  additionalInfo     String?
-  mission_start_date DateTime
-  mission_end_date   DateTime
-  creatorId          String
-  missionLocationId  String?
-  creator            Company            @relation(fields: [creatorId], references: [id])
-  missionLocation    MissionLocation?   @relation(fields: [missionLocationId], references: [id])
-  requiredPositions  RequiredPosition[]
-  employees          UserMission[]
-  status             MissionStatus      @default(pending)
-
-  Invitation Invitation[]
+  id                String             @id @default(uuid())
+  name              String
+  description       String?
+  additionalInfo    String?
+  missionStartDate  DateTime
+  missionEndDate    DateTime
+  creatorId         String
+  missionLocationId String?
+  creator           Company            @relation(fields: [creatorId], references: [id])
+  missionLocation   MissionLocation?   @relation(fields: [missionLocationId], references: [id])
+  requiredPositions RequiredPosition[]
+  employees         UserMission[]
+  status            MissionStatus      @default(pending)
+  invitations       Invitation[]
 
   @@index([creatorId])
+  @@index([status])
 }
 
 model UserLocation {
