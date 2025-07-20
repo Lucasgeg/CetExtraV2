@@ -167,9 +167,14 @@ export function PendingInvitations({ missionId }: PendingInvitationsProps) {
     if (!invitesData) return null;
 
     return (
-      <DialogTrigger className="flex items-center justify-center gap-1 rounded-full border border-employer-border bg-employer-primary p-2 text-extra-primary shadow-md transition-colors hover:bg-employer-secondary">
-        <span>{invitesData.counts.total}</span>
-        <EnveloppeClock height={24} color="#f7b742" />
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center justify-center gap-1 rounded-full border border-employer-border bg-employer-primary p-2 text-extra-primary shadow-md transition-colors hover:bg-employer-secondary focus:outline-none focus:ring-0"
+        >
+          <span>{invitesData.counts.total}</span>
+          <EnveloppeClock height={24} color="#f7b742" />
+        </button>
       </DialogTrigger>
     );
   };
