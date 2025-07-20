@@ -58,8 +58,14 @@ export default clerkMiddleware(async (auth, request) => {
       return NextResponse.redirect(new URL("/", request.url));
     }
   } else {
+    // En dev/preview, vérifier d'abord si c'est une route publique
+    if (isPublicRoute(request)) {
+      return NextResponse.next();
+    }
+
+    // Ensuite seulement vérifier les routes protégées
     if (isProtectedRoute(request)) {
-      await auth.protect(); // Redirige vers /sign-in si non connecté
+      await auth.protect();
     }
     if (userId && userRole) {
       if (isCompanyRoute(request) && userRole === "extra") {
