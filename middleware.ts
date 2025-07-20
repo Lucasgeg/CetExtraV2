@@ -23,7 +23,6 @@ const devPublicRoutes = ["/sign-up(.*)", "/api/users/sign-up"];
 const protectedRoutes = [
   "/company(.*)", // Routes de l'entreprise
   "/extra(.*)", // Routes de l'extra
-  "/api/mission(.*)",
   "/api/missions(.*)",
   "/api/users/nearby(.*)", // API pour récupérer les utilisateurs
   "/api/blog/send-mail(.*)", // API pour envoyer des emails

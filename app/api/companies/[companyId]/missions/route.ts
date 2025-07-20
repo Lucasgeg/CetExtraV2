@@ -1,5 +1,6 @@
 import prisma from "@/app/lib/prisma";
 import { EnumMissionSelector } from "@/types/api";
+import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { auth } from "@clerk/nextjs/server";
 import { MissionStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -11,8 +12,8 @@ const buildSelectObject = (fields: string[] | null) => {
     return {
       id: true,
       name: true,
-      mission_start_date: true,
-      mission_end_date: true,
+      missionStartDate: true,
+      missionEndDate: true,
       status: true,
       missionLocation: {
         select: {
@@ -36,11 +37,11 @@ const buildSelectObject = (fields: string[] | null) => {
       case "description":
         selectObj.description = true;
         break;
-      case "mission_start_date":
-        selectObj.mission_start_date = true;
+      case "missionStartDate":
+        selectObj.missionStartDate = true;
         break;
-      case "mission_end_date":
-        selectObj.mission_end_date = true;
+      case "missionEndDate":
+        selectObj.missionEndDate = true;
         break;
       case "status":
         selectObj.status = true;
@@ -119,8 +120,20 @@ const buildSelectObject = (fields: string[] | null) => {
 };
 
 /**
- * GET /api/companies/[companyId]/missions
- * Récupère les missions associées à une entreprise spécifique
+ * Handles GET requests to retrieve missions for a specific company.
+ *
+ * - Authenticates the user using Clerk.
+ * - Validates the provided `companyId` parameter.
+ * - Checks if the authenticated user belongs to the requested company.
+ * - Supports pagination (`take`, `skip`), sorting (`sortOrder`), and field selection (`fields`).
+ * - Filters missions based on the `missionSelector` parameter (e.g., incoming or past missions).
+ * - Dynamically constructs the Prisma select object based on requested fields.
+ * - Returns a paginated list of missions, total count, and pagination metadata.
+ * - Handles and logs errors, returning appropriate HTTP status codes.
+ *
+ * @param req - The Next.js API request object.
+ * @param params - An object containing the route parameters, including `companyId`.
+ * @returns A JSON response containing the list of missions, total count, and pagination metadata.
  */
 export async function GET(
   req: NextRequest,
@@ -203,7 +216,7 @@ export async function GET(
       take,
       skip,
       orderBy: {
-        mission_start_date: sortOrder === "asc" ? "asc" : "desc"
+        missionStartDate: sortOrder === "asc" ? "asc" : "desc"
       }
     });
 
@@ -240,7 +253,9 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching company missions:", error);
+    const { message } = handlePrismaError(error, "GetCompanyMissions");
+    console.error("Error fetching company missions:", message);
+
     return NextResponse.json(
       { message: "Failed to fetch company missions" },
       { status: 500 }

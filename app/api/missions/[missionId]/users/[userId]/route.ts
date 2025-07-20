@@ -11,6 +11,46 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { Prisma } from "@prisma/client";
 
+/**
+ * Endpoint pour annuler la participation d'un utilisateur à une mission
+ *
+ * Cette route permet à une entreprise de retirer un extra d'une mission existante.
+ * Elle met à jour le statut de la relation UserMission à "cancelled" et envoie un email
+ * de notification à l'utilisateur concerné pour l'informer de l'annulation.
+ *
+ * @route PATCH /api/mission/[missionId]/user/[userId]
+ *
+ * @param {Request} request - Requête contenant le message d'annulation et le type de poste
+ * @param {Object} props - Propriétés de la route Next.js
+ * @param {Promise<{missionId: string, userId: string}>} props.params - Paramètres d'URL contenant l'ID de la mission et de l'utilisateur
+ *
+ * @body {Object} body - Corps de la requête
+ * @body {string} body.message - Message explicatif pour l'annulation (raison)
+ * @body {MissionJob} body.missionJob - Type de poste de la mission qui est annulé
+ *
+ * @returns {Promise<NextResponse>} Réponse HTTP avec les détails de l'opération
+ *
+ * @throws {ApiError} 401 - Si l'utilisateur n'est pas authentifié
+ * @throws {ApiError} 400 - Si des paramètres requis sont manquants
+ * @throws {ApiError} 403 - Si l'utilisateur n'est pas autorisé à modifier cette mission
+ * @throws {ApiError} 404 - Si la mission ou l'utilisateur n'existe pas
+ * @throws {ApiError} 500 - En cas d'erreur serveur ou d'échec de l'envoi d'email
+ *
+ * @security
+ * - Nécessite une authentification via Clerk
+ * - Seul le créateur de la mission peut effectuer cette action
+ *
+ * @example
+ * // Exemple de requête
+ * PATCH /api/mission/123e4567-e89b-12d3-a456-426614174000/user/098f6bcd-4621-3373-8ade-4e832627b4f6
+ * Content-Type: application/json
+ *
+ * {
+ *   "message": "La mission a été annulée suite à un changement de planning",
+ *   "missionJob": "CHEF_DE_RANG"
+ * }
+ */
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function PATCH(
@@ -109,7 +149,7 @@ export async function PATCH(
             });
 
             const missionDate = new Date(
-              mission.mission_start_date
+              mission.missionStartDate
             ).toLocaleString("fr-FR", {
               weekday: "long",
               year: "numeric",
@@ -120,8 +160,8 @@ export async function PATCH(
             });
 
             const duration = formatDuration(
-              new Date(mission.mission_end_date).getTime() -
-                new Date(mission.mission_start_date).getTime()
+              new Date(mission.missionEndDate).getTime() -
+                new Date(mission.missionStartDate).getTime()
             );
 
             const cancelUserMissionEmail = CancelUserMision({

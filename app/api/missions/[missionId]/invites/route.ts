@@ -3,17 +3,43 @@ import MissionInvitation from "@/components/MailTemplate/MissionInvitation";
 import { EnumRole } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
+import { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
 import { MissionInviteBody } from "@/types/MissionInvite";
 import { getMissionJobValue } from "@/utils/enum";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, Prisma } from "@prisma/client";
 import { render } from "@react-email/components";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * @function POST
+ * @async
+ * @description
+ * Endpoint permettant à une entreprise d'inviter un utilisateur à une mission.
+ * Gère la validation des données, la vérification des autorisations, la création de l'invitation
+ * (soit pour un utilisateur déjà inscrit, soit pour un nouvel utilisateur), et l'envoi d'un email d'invitation.
+ *
+ * - Vérifie que l'utilisateur authentifié est bien une entreprise et l'expéditeur de l'invitation.
+ * - Valide les champs obligatoires et le format des dates et de l'email.
+ * - Si l'utilisateur existe déjà, crée une entrée dans `userMission`, sinon crée une invitation.
+ * - Envoie un email d'invitation via Resend avec un template personnalisé.
+ * - Gère les erreurs courantes (utilisateur déjà invité, mission non trouvée, etc.).
+ *
+ * @param {Request} req - La requête HTTP contenant le corps de l'invitation.
+ * @param {Object} props - Les paramètres de la requête, incluant l'identifiant de la mission.
+ * @param {Promise<{ missionId: string }>} props.params - Paramètres contenant l'identifiant de la mission.
+ *
+ * @returns {Promise<Response>}
+ * Retourne une réponse HTTP avec le statut et un message indiquant le succès ou la raison de l'échec.
+ *
+ * @throws {ApiError} - En cas d'erreur métier ou de validation.
+ * @throws {Prisma.PrismaClientKnownRequestError} - En cas d'erreur lors de l'accès à la base de données.
+ * @throws {SyntaxError} - Si le corps de la requête n'est pas un JSON valide.
+ */
 export async function POST(
   req: Request,
   props: { params: Promise<{ missionId: string }> }
@@ -121,8 +147,8 @@ export async function POST(
                   select: {
                     name: true,
                     description: true,
-                    mission_start_date: true,
-                    mission_end_date: true,
+                    missionStartDate: true,
+                    missionEndDate: true,
                     missionLocation: {
                       select: {
                         fullName: true
@@ -258,7 +284,7 @@ export async function POST(
               companyName: user.company?.company_name,
               isAllreadyRegistered: false,
               duration: duration,
-              missionJob: missionJob,
+              missionJob: getMissionJobValue(missionJob),
               missionDate: new Date(missionStartDate).toISOString(),
               missionName: user.company.createdMissions[0].name,
               missionLocation:
@@ -316,7 +342,16 @@ export async function POST(
       status: 201
     });
   } catch (error) {
-    console.error("Error in mission invite API:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error(
+        "Prisma error in mission invite API:",
+        error.code,
+        error.message,
+        error.meta
+      );
+    } else {
+      console.error("Error in mission invite API:", error);
+    }
 
     if (error instanceof ApiError) {
       return new NextResponse(JSON.stringify({ message: error.message }), {
@@ -341,6 +376,131 @@ export async function POST(
       { status: 500 }
     );
   }
+}
+
+/**
+ * Handles GET requests to retrieve pending employee invites and invitations for a specific mission.
+ *
+ * @param request - The incoming Next.js request object.
+ * @param props - An object containing route parameters, specifically the missionId.
+ * @returns {Promise<NextResponse<GetMissionInvitesResponse | { message: string }>>}
+ *
+ * @remarks
+ * - Only users with the `COMPANY` role and a valid userId are authorized to access this endpoint.
+ * - Returns a 401 Unauthorized response if the user is not authorized.
+ * - Returns a 400 Bad Request response if the missionId parameter is invalid.
+ * - Returns a 404 Not Found response if the mission does not exist.
+ * - On success, returns a 200 OK response with counts and details of pending employees and invitations.
+ *
+ * @example
+ * {{baseUrl}}/api/missions/{missionId}/invites
+ */
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ missionId: string }> }
+): Promise<NextResponse<GetMissionInvitesResponse | { message: string }>> {
+  const { sessionClaims, userId } = await auth();
+
+  if (sessionClaims?.publicMetadata?.role !== EnumRole.COMPANY || !userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  const { missionId } = await props.params;
+
+  if (!missionId || typeof missionId !== "string") {
+    return NextResponse.json(
+      { message: "Invalid missionId parameter" },
+      { status: 400 }
+    );
+  }
+
+  const pendingInvites = await prisma.mission.findUnique({
+    where: { id: missionId },
+    select: {
+      employees: {
+        where: {
+          status: "pending"
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              extra: {
+                select: {
+                  first_name: true,
+                  last_name: true
+                }
+              },
+              profilePictureUrl: true
+            }
+          },
+          missionJob: true,
+          missionStartDate: true,
+          missionEndDate: true
+        }
+      },
+      invitations: {
+        where: {
+          status: "pending"
+        },
+        select: {
+          id: true,
+          email: true,
+          missionJob: true,
+          missionStartDate: true,
+          missionEndDate: true
+        }
+      },
+      _count: {
+        select: {
+          employees: {
+            where: {
+              missionId,
+              status: "pending"
+            }
+          },
+          invitations: {
+            where: {
+              missionId,
+              status: "pending"
+            }
+          }
+        }
+      }
+    }
+  });
+  if (!pendingInvites) {
+    return NextResponse.json({ message: "Mission not found" }, { status: 404 });
+  }
+  const response: GetMissionInvitesResponse = {
+    counts: {
+      employees: pendingInvites._count.employees,
+      invitations: pendingInvites._count.invitations,
+      total: pendingInvites._count.employees + pendingInvites._count.invitations
+    },
+    pendingEmployees: pendingInvites.employees.map((employee) => ({
+      id: employee.id,
+      missionEndDate: employee.missionEndDate.toISOString(),
+      missionStartDate: employee.missionStartDate.toISOString(),
+      missionJob: employee.missionJob,
+      user: {
+        id: employee.user.id,
+        email: employee.user.email,
+        firstName: employee.user.extra?.first_name || null,
+        lastName: employee.user.extra?.last_name || null,
+        profilePictureUrl: employee.user.profilePictureUrl || null
+      }
+    })),
+    invitations: pendingInvites.invitations.map((invite) => ({
+      id: invite.id,
+      email: invite.email,
+      missionJob: invite.missionJob,
+      missionStartDate: invite.missionStartDate.toISOString(),
+      missionEndDate: invite.missionEndDate.toISOString()
+    }))
+  };
+  return NextResponse.json(response, { status: 200 });
 }
 
 const createUserMissionFromDb = async (
