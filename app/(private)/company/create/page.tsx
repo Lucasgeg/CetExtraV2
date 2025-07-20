@@ -145,13 +145,13 @@ export default function CreateMissionPage() {
   };
 
   return (
-    <div className="h-auto pb-6 lg:h-full">
+    <div className="flex h-full flex-col pb-6">
       <h1 className="col-span-3 text-center text-2xl font-bold text-employer-secondary">
         {confirmView
           ? "Récapitulatif de la mission"
           : "Créer une nouvelle mission"}
       </h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="h-full w-full">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex-1">
         {formIsValid && confirmView ? (
           <ValidationMission
             formData={getValues()}
