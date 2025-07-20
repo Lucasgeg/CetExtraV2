@@ -232,13 +232,6 @@ export default function MissionDetailPage() {
                 initialRadius={2.5}
                 preservePrivacy={true}
               />
-              <Button
-                theme="company"
-                className="fixed bottom-6 right-6 z-[1050] lg:absolute lg:right-4 lg:top-4"
-                onClick={() => setFullScreenMapOpen(false)}
-              >
-                Fermer la carte
-              </Button>
             </DialogContent>
           </Dialog>
         </div>
