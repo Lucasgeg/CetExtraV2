@@ -11,11 +11,6 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover";
 import useFetch from "@/hooks/useFetch";
 import { EnumMissionJob } from "@/store/types";
 import {
@@ -28,8 +23,14 @@ import { getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { InformationCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "../ui/tooltip";
 
 type PendingInvitationsProps = {
   missionId: string;
@@ -52,6 +53,7 @@ function InvitationCard({
   profilePictureUrl,
   onCancel
 }: InvitationCardProps) {
+  const [openTooltip, setOpenTooltip] = useState(false);
   return (
     <div
       key={id}
@@ -72,14 +74,23 @@ function InvitationCard({
         </span>
       </div>
       <div className="flex space-x-2">
-        <Popover modal>
-          <PopoverTrigger asChild>
-            <InformationCircleIcon className="h-full w-6 cursor-pointer stroke-employer-primary" />
-          </PopoverTrigger>
-          <PopoverContent className="w-fit">
-            <DetailsList items={detailsItems} />
-          </PopoverContent>
-        </Popover>
+        <TooltipProvider>
+          <Tooltip
+            open={openTooltip}
+            onOpenChange={setOpenTooltip}
+            delayDuration={100}
+          >
+            <TooltipTrigger
+              asChild
+              onClick={() => setOpenTooltip(!openTooltip)}
+            >
+              <InformationCircleIcon className="h-full w-6 cursor-pointer stroke-employer-primary" />
+            </TooltipTrigger>
+            <TooltipContent className="w-fit">
+              <DetailsList items={detailsItems} />
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <Dialog>
           <DialogTrigger asChild>
             <TrashIcon className="h-full w-6 cursor-pointer stroke-employer-error" />
