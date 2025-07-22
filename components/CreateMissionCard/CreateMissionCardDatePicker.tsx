@@ -20,6 +20,7 @@ type CreateMissionCardDatePickerProps = {
     onChange?: (date?: Date) => void;
   };
   disabled?: boolean | DayPickerProps["disabled"];
+  disable?: boolean;
 };
 
 export const CreateMissionCardDatePicker = ({
@@ -28,7 +29,8 @@ export const CreateMissionCardDatePicker = ({
   iconContainerClassName,
   errorMessage,
   pickerProps,
-  disabled = false
+  disabled = false,
+  disable
 }: CreateMissionCardDatePickerProps) => {
   return (
     <Card className="flex h-full min-h-0 flex-1 flex-col">
@@ -55,6 +57,7 @@ export const CreateMissionCardDatePicker = ({
           onChange={pickerProps?.onChange}
           className="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
           disabled={disabled}
+          disable={disable}
           {...pickerProps}
         />
         {errorMessage && (

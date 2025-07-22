@@ -41,4 +41,7 @@ export interface MissionDetailApiResponse {
       };
     };
   }>;
+  invitations?: Array<{
+    id: string;
+  }>;
 }

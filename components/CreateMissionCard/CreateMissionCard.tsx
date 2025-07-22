@@ -37,6 +37,7 @@ type CreateMissionCardProps = {
     errorMessage?: string;
     handleClick: (suggestion: Suggestion | undefined) => void;
     value?: Suggestion;
+    disabled?: boolean;
   };
 };
 
@@ -124,6 +125,7 @@ export const MissionCard = ({
             handleClick={locationProps.handleClick}
             value={locationProps?.value || undefined}
             inputclassName="w-full border-employer-border bg-employer-background focus:border-employer-secondary focus:ring-employer-secondary"
+            disabled={locationProps?.disabled}
           />
         )}
       </CardContent>

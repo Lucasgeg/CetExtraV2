@@ -13,6 +13,7 @@ type AdressAutocompleteProps = {
   missionlocation?: boolean;
   handleClick: (suggestion: Suggestion | undefined) => void;
   value?: Suggestion;
+  disabled?: boolean;
 };
 
 export const AddressAutocomplete = ({
@@ -21,7 +22,8 @@ export const AddressAutocomplete = ({
   missionlocation = false,
   popOverClassName,
   handleClick,
-  value
+  value,
+  disabled
 }: AdressAutocompleteProps) => {
   const [query, setQuery] = useState<string>("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -98,7 +100,7 @@ export const AddressAutocomplete = ({
                 )}
                 placeholder="Rechercher une adresse"
                 errorMessage={errorMessage}
-                disabled={!!selectedAddress}
+                disabled={!!selectedAddress || disabled}
               />
               {selectedAddress && (
                 <>
@@ -112,6 +114,7 @@ export const AddressAutocomplete = ({
                       setSuggestions([]);
                       handleClick(undefined);
                     }}
+                    disabled={disabled}
                   >
                     <X className="h-4 w-4" />
                   </button>

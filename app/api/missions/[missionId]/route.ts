@@ -53,7 +53,7 @@ export async function GET(
         employees: {
           where: {
             status: {
-              in: ["accepted"]
+              in: ["accepted", "pending"]
             }
           },
           include: {
@@ -69,6 +69,14 @@ export async function GET(
                 }
               }
             }
+          }
+        },
+        invitations: {
+          where: {
+            status: "pending"
+          },
+          select: {
+            id: true
           }
         }
       }
@@ -122,7 +130,17 @@ export async function GET(
             lastName: employee.user.extra?.last_name || ""
           }
         }
-      }))
+      })),
+      invitations: [
+        ...mission.invitations?.map((invitation) => ({
+          id: invitation.id
+        })),
+        ...mission.employees
+          .filter((emp) => emp.status === "pending")
+          .map((pendEmp) => ({
+            id: pendEmp.id
+          }))
+      ]
     };
 
     return NextResponse.json(response, { status: 200 });
