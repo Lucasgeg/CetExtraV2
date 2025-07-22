@@ -3,6 +3,7 @@
 import { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
 import MapContainerComponent from "@/components/MapContainerComponent/MapContainerComponent";
 import { MapWithUserFilter } from "@/components/MapWithUserFilter";
+import MissionForm from "@/components/MissionForm/MissionForm";
 import { PendingInvitations } from "@/components/PendingInvitations/PendingInvitations";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -35,6 +36,7 @@ export default function MissionDetailPage() {
   const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
     `/api/missions/${id}`
   );
+  const [isEditing, setIsEditing] = useState(false);
 
   const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -61,6 +63,20 @@ export default function MissionDetailPage() {
     ],
     [data?.missionLocation?.lat, data?.missionLocation?.lon]
   );
+
+  const occupiedJobs = useMemo(() => {
+    return data?.employees
+      .filter((emp) => emp.status === "accepted")
+      .reduce<Record<EnumMissionJob, number>>(
+        (acc, emp) => {
+          const jobType = emp.missionJob.toUpperCase() as EnumMissionJob;
+          acc[jobType] = (acc[jobType] || 0) + 1;
+          return acc;
+        },
+        {} as Record<EnumMissionJob, number>
+      );
+  }, [data?.employees]);
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -154,10 +170,53 @@ export default function MissionDetailPage() {
     }
   ];
 
+  if (isEditing) {
+    return (
+      <MissionForm
+        initialValues={{
+          missionName: data.name,
+          missionDescription: data.description || "",
+          additionalInfo: data.additionalInfo || "",
+          missionStartDate: data.missionStartDate,
+          missionEndDate: data.missionEndDate,
+          extraJobOptions: data.requiredPositions.map(
+            (position) => position.jobType.toUpperCase() as EnumMissionJob
+          ),
+          teamCounts: data.requiredPositions.reduce<
+            Record<EnumMissionJob, number>
+          >(
+            (acc, pos) => {
+              // Convertir directement en enum
+              const jobEnum = pos.jobType.toUpperCase() as EnumMissionJob;
+              acc[jobEnum] = pos.quantity;
+              return acc;
+            },
+            {} as Record<EnumMissionJob, number>
+          ),
+          location: {
+            lat: data.missionLocation?.lat || 0,
+            lon: data.missionLocation?.lon || 0,
+            display_name: data.missionLocation?.fullName || "Lieu inconnu"
+          }
+        }}
+        onCancel={() => setIsEditing(false)}
+        occupiedJobs={occupiedJobs}
+        invitations={data.invitations}
+        title={
+          <>
+            <span className="text-extra-primary">Modification&nbsp;</span>
+            de la mission
+          </>
+        }
+      />
+    );
+  }
+
   return (
     <div className="relative flex h-auto flex-col lg:h-full">
       <h1 className="text-center text-2xl font-bold text-employer-secondary">
-        Détails de la mission {data.name}
+        <span className="text-extra-primary">Détails&nbsp;</span>de la mission
+        {data.name}
       </h1>
       <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
         <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
@@ -235,38 +294,50 @@ export default function MissionDetailPage() {
             </DialogContent>
           </Dialog>
         </div>
-        <div className="flex w-full flex-1 flex-col gap-5 overflow-auto">
-          <div className="flex items-center gap-3">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button theme="company" className="font-bold" fullWidth>
-                  Vos besoins
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogDescription>Récapitulatif</DialogDescription>
-                <DialogTitle>
-                  Vos besoins en équipe pour cette mission
-                </DialogTitle>
-                <p>Vous avez indiqué que vous avez besoin de:</p>
-                <ul className="list-disc pl-5">
-                  {data.requiredPositions.map((position) => (
-                    <li key={position.jobType}>
-                      {capitalizeFirstLetter(
-                        getJobLabel(
-                          position.jobType.toUpperCase() as EnumMissionJob
-                        )
-                      )}{" "}
-                      - {position.quantity} poste(s)
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2">
-                  Vous pouvez modifier ces besoins en éditant la mission
-                </p>
-              </DialogContent>
-            </Dialog>
-            <PendingInvitations missionId={id} />
+        <div className="flex w-full flex-1 flex-col gap-5 overflow-auto px-4">
+          <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-2">
+            <Button
+              theme="company"
+              className="font-bold"
+              fullWidth
+              onClick={() => setIsEditing(true)}
+            >
+              Editer
+            </Button>
+            <div className="flex items-center justify-between gap-3">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button theme="company" className="font-bold" fullWidth>
+                    Vos besoins
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogDescription>Récapitulatif</DialogDescription>
+                  <DialogTitle>
+                    Vos besoins en équipe pour cette mission
+                  </DialogTitle>
+                  <p>Vous avez indiqué que vous avez besoin de:</p>
+                  <ul className="list-disc pl-5">
+                    {data.requiredPositions.map((position) => (
+                      <li key={position.jobType}>
+                        {capitalizeFirstLetter(
+                          getJobLabel(
+                            position.jobType.toUpperCase() as EnumMissionJob
+                          )
+                        )}{" "}
+                        - {position.quantity} poste(s)
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2">
+                    Vous pouvez modifier ces besoins en éditant la mission
+                  </p>
+                </DialogContent>
+              </Dialog>
+              <div className="w-24">
+                <PendingInvitations missionId={id} />
+              </div>
+            </div>
           </div>
           <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {

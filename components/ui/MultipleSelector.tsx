@@ -19,6 +19,7 @@ export interface Option {
   value: string;
   label: string;
   disable?: boolean;
+  disabled?: boolean; // Pour désactiver spécifiquement le badge
   /** fixed option that can't be removed. */
   fixed?: boolean;
   /** Group the options by providing key. */
@@ -494,7 +495,7 @@ const MultipleSelector = React.forwardRef<
                     badgeClassName
                   )}
                   data-fixed={option.fixed}
-                  data-disabled={disabled || undefined}
+                  data-disabled={disabled || option.disabled || undefined}
                 >
                   {option.label}
                   <button
@@ -513,6 +514,7 @@ const MultipleSelector = React.forwardRef<
                       e.stopPropagation();
                     }}
                     onClick={() => handleUnselect(option)}
+                    disabled={disabled || option.disabled}
                   >
                     <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                   </button>
@@ -565,9 +567,12 @@ const MultipleSelector = React.forwardRef<
                 (hideClearAllButton ||
                   disabled ||
                   selected.length < 1 ||
-                  selected.filter((s) => s.fixed).length === selected.length) &&
+                  selected.filter((s) => s.fixed).length === selected.length ||
+                  selected.some((s) => s.disabled) ||
+                  disabled) &&
                   "hidden"
               )}
+              disabled={selected.some((s) => s.disabled) || disabled}
             >
               <X />
             </button>

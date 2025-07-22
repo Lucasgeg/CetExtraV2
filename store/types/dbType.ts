@@ -6,6 +6,11 @@ export enum EnumMissionJob {
   COOK = "Cuisinier"
 }
 
+export enum PrismaMissionJob {
+  waiter = "waiter",
+  cook = "cook"
+}
+
 export enum EnumRole {
   EXTRA = "extra",
   COMPANY = "company"
