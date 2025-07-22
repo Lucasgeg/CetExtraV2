@@ -1,6 +1,8 @@
 "use server";
 import prisma from "@/app/lib/prisma";
+import { EnumMissionJob } from "@/store/types";
 import { CreateMissionFormValues } from "@/types/api";
+import { convertToDbMissionJob } from "@/utils/enum";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -57,6 +59,7 @@ export async function POST(req: NextRequest) {
     teamCounts,
     additionalInfo
   } = (await req.json()) as CreateMissionFormValues;
+
   if (!missionName || !missionStartDate || !missionEndDate || !location) {
     return new Response(
       JSON.stringify({ message: "Missing required fields" }),
@@ -115,11 +118,16 @@ export async function POST(req: NextRequest) {
         requiredPositions: {
           create: Object.entries(teamCounts)
             .filter(([, quantity]) => !!quantity && quantity > 0)
-            .map(([jobType, quantity]) => ({
-              jobType:
-                MissionJob[jobType.toLowerCase() as keyof typeof MissionJob],
-              quantity
-            }))
+            .map(([jobType, quantity]) => {
+              // Conversion sécurisée du job type frontend vers le format BD
+              const frontendJobType = jobType as EnumMissionJob;
+              return {
+                jobType: convertToDbMissionJob(
+                  frontendJobType
+                ) as unknown as MissionJob,
+                quantity
+              };
+            })
         }
       }
     });

@@ -1030,9 +1030,10 @@ type DateTimePickerProps = {
   onChange?: (date: Date | undefined) => void;
   onMonthChange?: (date: Date | undefined) => void;
   /**
-   * Accepts a boolean (for disabling the input) or a DayPicker 'disabled' prop (for disabling dates)
+   * Accepts a DayPicker 'disabled' prop (for disabling dates)
    */
-  disabled?: boolean | DayPickerProps["disabled"];
+  disabled?: DayPickerProps["disabled"];
+  disable?: boolean;
   /** showing `AM/PM` or not. */
   hourCycle?: 12 | 24;
   placeholder?: string;
@@ -1096,6 +1097,7 @@ const DateTimePicker = React.forwardRef<
       open,
       onOpenChange,
       onTriggerClick,
+      disable = false,
       ...props
     },
     ref
@@ -1203,7 +1205,7 @@ const DateTimePicker = React.forwardRef<
 
     return (
       <Popover open={isOpen} onOpenChange={handleOpenChange} modal>
-        <PopoverTrigger asChild>
+        <PopoverTrigger asChild disabled={disable}>
           <Button
             type="button"
             variant="outline"
