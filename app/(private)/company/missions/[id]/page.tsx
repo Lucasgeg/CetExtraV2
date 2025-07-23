@@ -22,6 +22,7 @@ import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
 import useFetch from "@/hooks/useFetch";
 import { EnumMissionJob } from "@/store/types";
+import { Suggestion } from "@/types/api";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
@@ -47,13 +48,11 @@ export default function MissionDetailPage() {
     setFilteredUsers(users);
   }, []);
 
-  const missionLocation = useMemo(
-    () => ({
-      lat: data?.missionLocation?.lat || 0,
-      lon: data?.missionLocation?.lon || 0
-    }),
-    [data?.missionLocation?.lat, data?.missionLocation?.lon]
-  );
+  const missionLocation: Suggestion = {
+    lat: data?.missionLocation?.lat || 0,
+    lon: data?.missionLocation?.lon || 0,
+    display_name: data?.missionLocation?.fullName || "Lieu inconnu"
+  };
 
   // Stabiliser center
   const center = useMemo(
@@ -63,19 +62,6 @@ export default function MissionDetailPage() {
     ],
     [data?.missionLocation?.lat, data?.missionLocation?.lon]
   );
-
-  const occupiedJobs = useMemo(() => {
-    return data?.employees
-      .filter((emp) => emp.status === "accepted")
-      .reduce<Record<EnumMissionJob, number>>(
-        (acc, emp) => {
-          const jobType = emp.missionJob.toUpperCase() as EnumMissionJob;
-          acc[jobType] = (acc[jobType] || 0) + 1;
-          return acc;
-        },
-        {} as Record<EnumMissionJob, number>
-      );
-  }, [data?.employees]);
 
   if (loading) {
     return (
@@ -173,41 +159,15 @@ export default function MissionDetailPage() {
   if (isEditing) {
     return (
       <MissionForm
-        initialValues={{
-          missionName: data.name,
-          missionDescription: data.description || "",
-          additionalInfo: data.additionalInfo || "",
-          missionStartDate: data.missionStartDate,
-          missionEndDate: data.missionEndDate,
-          extraJobOptions: data.requiredPositions.map(
-            (position) => position.jobType.toUpperCase() as EnumMissionJob
-          ),
-          teamCounts: data.requiredPositions.reduce<
-            Record<EnumMissionJob, number>
-          >(
-            (acc, pos) => {
-              // Convertir directement en enum
-              const jobEnum = pos.jobType.toUpperCase() as EnumMissionJob;
-              acc[jobEnum] = pos.quantity;
-              return acc;
-            },
-            {} as Record<EnumMissionJob, number>
-          ),
-          location: {
-            lat: data.missionLocation?.lat || 0,
-            lon: data.missionLocation?.lon || 0,
-            display_name: data.missionLocation?.fullName || "Lieu inconnu"
-          }
-        }}
         onCancel={() => setIsEditing(false)}
-        occupiedJobs={occupiedJobs}
-        invitations={data.invitations}
         title={
           <>
             <span className="text-extra-primary">Modification&nbsp;</span>
             de la mission
           </>
         }
+        submitButtonText="Modifier"
+        isEditMode
       />
     );
   }
@@ -215,8 +175,8 @@ export default function MissionDetailPage() {
   return (
     <div className="relative flex h-auto flex-col lg:h-full">
       <h1 className="text-center text-2xl font-bold text-employer-secondary">
-        <span className="text-extra-primary">Détails&nbsp;</span>de la mission
-        {data.name}
+        <span className="text-extra-primary">Détails&nbsp;</span>de la
+        mission&nbsp;<span className="underline">{data.name}</span>
       </h1>
       <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
         <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
