@@ -4,11 +4,14 @@ import { EnumRole } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
 import { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
+import { InviteListDelete } from "@/types/InviteListDelete";
 import { MissionInviteBody } from "@/types/MissionInvite";
 import { getMissionJobValue } from "@/utils/enum";
+import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { render } from "@react-email/components";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -55,14 +58,6 @@ export async function POST(
       missionJob,
       missionStartDate
     } = (await req.json()) as MissionInviteBody;
-
-    console.info("Received data for mission invite:", {
-      expeditorUserId,
-      receiverEmail,
-      missionEndDate,
-      missionJob,
-      missionStartDate
-    });
 
     // Validation des données
     if (!missionId || !expeditorUserId || !receiverEmail || !missionJob) {
@@ -501,6 +496,140 @@ export async function GET(
     }))
   };
   return NextResponse.json(response, { status: 200 });
+}
+
+/**
+ * Handles the DELETE request for removing employees and/or invites from a mission.
+ *
+ * This endpoint is restricted to users with the COMPANY role and requires authentication.
+ * It expects a JSON body containing arrays of employee and invite IDs to be cancelled.
+ * The function performs authorization checks, validates input, and updates the status
+ * of the specified employees and invites to "cancelled" within a database transaction.
+ *
+ * @param request - The incoming Next.js request object.
+ * @param props - An object containing route parameters, specifically the missionId.
+ * @returns A NextResponse object with a JSON payload indicating the result of the operation.
+ *
+ * @throws {401} If the user is not authorized or not a company.
+ * @throws {400} If the missionId parameter or request body is invalid.
+ * @throws {404} If the creator's company is not found.
+ * @throws {500} For unexpected errors or database failures.
+ */
+export async function DELETE(
+  request: NextRequest,
+  props: { params: Promise<{ missionId: string }> }
+): Promise<NextResponse<{ message: string }>> {
+  const { sessionClaims, userId } = await auth();
+
+  if (sessionClaims?.publicMetadata?.role !== EnumRole.COMPANY || !userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  const { missionId } = await props.params;
+
+  if (!missionId || typeof missionId !== "string") {
+    return NextResponse.json(
+      { message: "Invalid missionId parameter" },
+      { status: 400 }
+    );
+  }
+
+  const body = (await request.json()) as InviteListDelete;
+  if (!body || !Array.isArray(body.employees) || !Array.isArray(body.invites)) {
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
+  if (body.employees.length === 0 && body.invites.length === 0) {
+    return NextResponse.json(
+      { message: "No employees or invites to delete" },
+      { status: 400 }
+    );
+  }
+
+  const creator = await prisma.user.findUnique({
+    where: {
+      clerkId: userId
+    },
+    select: {
+      company: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              clerkId: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  if (!creator?.company?.id) {
+    return new NextResponse(JSON.stringify({ message: "Creator not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
+  if (creator.company.user.clerkId !== userId) {
+    return NextResponse.json(
+      { message: "You are not authorized to delete invites for this mission" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const response = await prisma.$transaction(async (tx) => {
+      if (body.employees.length > 0) {
+        await tx.userMission.updateMany({
+          where: {
+            missionId,
+            id: {
+              in: body.employees
+            }
+          },
+          data: {
+            status: "cancelled"
+          }
+        });
+      }
+      if (body.invites.length > 0) {
+        await tx.invitation.updateMany({
+          where: {
+            missionId,
+            id: {
+              in: body.invites
+            }
+          },
+          data: {
+            status: "cancelled"
+          }
+        });
+      }
+      return { success: true };
+    });
+    return NextResponse.json(
+      {
+        message: response.success
+          ? "Invites deleted successfully"
+          : "Failed to delete invites"
+      },
+      { status: response.success ? 200 : 500 }
+    );
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const { message, status } = handlePrismaError(error, "DELETE invites");
+      console.error("Error deleting invites:", message, status);
+      return NextResponse.json({ message }, { status });
+    } else {
+      return NextResponse.json(
+        { message: error instanceof Error ? error.message : "Unknown error" },
+        { status: 500 }
+      );
+    }
+  }
 }
 
 const createUserMissionFromDb = async (
