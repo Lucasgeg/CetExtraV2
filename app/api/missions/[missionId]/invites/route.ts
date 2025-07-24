@@ -11,7 +11,6 @@ import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { render } from "@react-email/components";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -638,10 +637,23 @@ const createUserMissionFromDb = async (
   userId: string,
   tx: Prisma.TransactionClient
 ) => {
-  return await tx.userMission.create({
-    data: {
-      userId: userId,
-      missionId: missionId,
+  return await tx.userMission.upsert({
+    where: {
+      userId_missionId: {
+        userId,
+        missionId
+      }
+    },
+    create: {
+      userId,
+      missionId,
+      missionStartDate: new Date(body.missionStartDate),
+      missionJob: body.missionJob.toLowerCase() as MissionJob,
+      missionEndDate: new Date(body.missionEndDate),
+      hourlyRate: 0,
+      status: "pending"
+    },
+    update: {
       missionStartDate: new Date(body.missionStartDate),
       missionJob: body.missionJob.toLowerCase() as MissionJob,
       missionEndDate: new Date(body.missionEndDate),
@@ -656,14 +668,30 @@ const createUserInvitation = async (
   missionId: string,
   tx: Prisma.TransactionClient
 ) => {
-  return await tx.invitation.create({
-    data: {
+  return await tx.invitation.upsert({
+    where: {
+      email_missionId: {
+        email: body.receiverEmail,
+        missionId: missionId
+      }
+    },
+    create: {
       email: body.receiverEmail,
       missionId: missionId,
       missionEndDate: new Date(body.missionEndDate),
       missionJob: body.missionJob.toLowerCase() as MissionJob,
       missionStartDate: new Date(body.missionStartDate),
-      hourlyRate: 0
+      hourlyRate: 0,
+      status: "pending"
+    },
+    update: {
+      email: body.receiverEmail,
+      missionId: missionId,
+      missionEndDate: new Date(body.missionEndDate),
+      missionJob: body.missionJob.toLowerCase() as MissionJob,
+      missionStartDate: new Date(body.missionStartDate),
+      hourlyRate: 0,
+      status: "pending"
     }
   });
 };
