@@ -23,7 +23,7 @@ import { getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { InformationCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
   Tooltip,
@@ -34,6 +34,7 @@ import {
 
 type PendingInvitationsProps = {
   missionId: string;
+  refetchTrigger: number; // Pour forcer le rechargement si nécessaire
 };
 
 // Type commun pour les deux types d'invitations
@@ -111,7 +112,10 @@ function InvitationCard({
   );
 }
 
-export function PendingInvitations({ missionId }: PendingInvitationsProps) {
+export function PendingInvitations({
+  missionId,
+  refetchTrigger
+}: PendingInvitationsProps) {
   const {
     data: invitesData,
     error: invitesError,
@@ -119,6 +123,11 @@ export function PendingInvitations({ missionId }: PendingInvitationsProps) {
     refetch: refetchInvites
   } = useFetch<GetMissionInvitesResponse>(`/api/missions/${missionId}/invites`);
 
+  useEffect(() => {
+    if (refetchTrigger > 0) {
+      refetchInvites();
+    }
+  }, [refetchTrigger]);
   const handleCancelInvitation = useCallback(
     async (invitationId: string, registered: boolean) => {
       try {
