@@ -38,6 +38,10 @@ export default function MissionDetailPage() {
     `/api/missions/${id}`
   );
   const [isEditing, setIsEditing] = useState(false);
+  const [
+    pendingInvitationsRefetchTrigger,
+    setPendingInvitationsRefetchTrigger
+  ] = useState(0);
 
   const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -295,7 +299,10 @@ export default function MissionDetailPage() {
                 </DialogContent>
               </Dialog>
               <div className="w-24">
-                <PendingInvitations missionId={id} />
+                <PendingInvitations
+                  missionId={id}
+                  refetchTrigger={pendingInvitationsRefetchTrigger}
+                />
               </div>
             </div>
           </div>
@@ -342,6 +349,9 @@ export default function MissionDetailPage() {
                   missionId={id}
                   userId={item.employee?.user.id}
                   onDeleteFetch={refetch}
+                  onInviteSuccess={() =>
+                    setPendingInvitationsRefetchTrigger((prev) => prev + 1)
+                  }
                 />
               );
             })}

@@ -35,6 +35,7 @@ type TeamGestionnaryItemProps = {
   missionJob: EnumMissionJob;
   userId?: string;
   onDeleteFetch?: () => void;
+  onInviteSuccess: () => void;
 };
 
 type ModalInfo = {
@@ -52,7 +53,8 @@ export const TeamGestionnaryItem = ({
   missionId,
   missionJob,
   userId,
-  onDeleteFetch
+  onDeleteFetch,
+  onInviteSuccess
 }: TeamGestionnaryItemProps) => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isInviteWithDetailDialogOpen, setIsInviteWithDetailDialogOpen] =
@@ -159,6 +161,7 @@ export const TeamGestionnaryItem = ({
 
       setIsInviteDialogOpen(false);
       setIsInviteWithDetailDialogOpen(false);
+      onInviteSuccess();
       reset();
     } catch (error) {
       setApiError(
