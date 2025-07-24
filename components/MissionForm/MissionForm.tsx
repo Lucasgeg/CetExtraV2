@@ -24,6 +24,7 @@ import { Option } from "../ui/MultipleSelector";
 import { useParams } from "next/navigation";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { Loader } from "../ui/Loader/Loader";
+import { InviteListDelete } from "@/types/InviteListDelete";
 
 const MissionCard = dynamic(
   () =>
@@ -90,10 +91,16 @@ export default function MissionForm({
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
-  const [invitationsData, setInvitationsData] = useState<{ id: string }[]>([]);
+  const [invitationsData, setInvitationsData] = useState<
+    InviteListDelete | undefined
+  >(undefined);
   const [employees, setEmployees] = useState<
     MissionDetailApiResponse["employees"] | undefined
   >(undefined);
+  const [isDeletingInvitations, setIsDeletingInvitations] = useState(false);
+  const [deleteInvitationsError, setDeleteInvitationsError] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     // Seulement si nous avons un ID de mission à éditer et que nous n'avons pas déjà les données
@@ -137,7 +144,16 @@ export default function MissionForm({
               display_name: data.missionLocation?.fullName || "Lieu inconnu"
             }
           });
-          setInvitationsData(data.invitations || []);
+
+          const invitations: InviteListDelete = {
+            invites: data.invitations?.map((i) => i.id) || [],
+            employees:
+              data.employees
+                ?.filter((e) => e.status === "pending")
+                .map((e) => e.id) || []
+          };
+          setInvitationsData(invitations);
+
           setEmployees(data.employees);
         } catch (error) {
           if (error instanceof Error) {
@@ -176,8 +192,8 @@ export default function MissionForm({
   const [isSuccess, setIsSuccess] = useState(false);
   const [missionId, setMissionId] = useState<string | undefined>(undefined);
   const hasInvitations =
-    (invitationsData && invitationsData.length > 0) ||
-    (employees && employees.some((emp) => emp.status === "pending"));
+    (invitationsData && invitationsData.invites.length > 0) ||
+    (invitationsData && invitationsData.employees.length > 0);
   const hasEngagedEmployees =
     employees && employees.some((emp) => emp.status === "accepted");
   const selectedJobOptions = watch("extraJobOptions", []);
@@ -312,21 +328,81 @@ export default function MissionForm({
     );
   }
 
+  const handleDeleteInvitations = async () => {
+    if (!editedMissionId) return;
+
+    setIsDeletingInvitations(true);
+    setDeleteInvitationsError(null);
+
+    try {
+      const response = await fetch(`/api/missions/${editedMissionId}/invites`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(invitationsData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Erreur lors de la suppression des invitations"
+        );
+      }
+
+      // Réinitialiser les invitations
+      setInvitationsData({
+        employees: [],
+        invites: []
+      });
+
+      // Mettre à jour les employés pour retirer ceux avec statut "pending"
+      if (employees) {
+        setEmployees(employees.filter((emp) => emp.status !== "pending"));
+      }
+
+      // Message de succès optionnel
+    } catch (error) {
+      console.error("Erreur lors de la suppression des invitations:", error);
+      setDeleteInvitationsError(
+        error instanceof Error
+          ? error.message
+          : "Une erreur est survenue lors de la suppression des invitations"
+      );
+    } finally {
+      setIsDeletingInvitations(false);
+    }
+  };
+
   const renderAlert = () => {
     if (hasInvitations) {
       return (
         <div className="flex items-center justify-center gap-2">
-          <div className="space-y-0.5 bg-extra-surface px-2 leading-3">
-            <span className="text-xs text-red-500">
-              Attention, cette mission a des invitations en attente de réponse.
-            </span>
-            <br />
-            <span className="text-xs text-red-500">
-              Vous ne pourrez pas modifier la mission tant que les invitations
-              sont en attente.
-            </span>
+          <div className="flex flex-col gap-0">
+            <div className="bg-extra-surface px-2 leading-3">
+              <span className="text-xs text-red-500">
+                Attention, cette mission a des invitations en attente de
+                réponse.
+              </span>
+              <br />
+              <span className="text-xs text-red-500">
+                Vous ne pourrez pas modifier la mission tant que les invitations
+                sont en attente.
+              </span>
+            </div>
+            {deleteInvitationsError && (
+              <span className="text-xs text-red-500">
+                {deleteInvitationsError}
+              </span>
+            )}
           </div>
-          <Button size="sm" variant="outline" className="py-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="py-1"
+            onClick={handleDeleteInvitations}
+            disabled={isDeletingInvitations}
+          >
             Supprimer les invitations
           </Button>
         </div>
