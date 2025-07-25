@@ -101,7 +101,7 @@ export const TeamGestionnaryItem = ({
       setApiError(null);
 
       const response = await fetch(
-        `/api/missions/${missionId}/user/${userId}`,
+        `/api/missions/${missionId}/users/${userId}`,
         {
           method: "PATCH",
           headers: {
@@ -252,8 +252,9 @@ export const TeamGestionnaryItem = ({
                     <div className="mt-4 flex justify-end gap-2">
                       <Button
                         variant="outline"
-                        onClick={() => setIsInviteDialogOpen(false)}
+                        onClick={() => setRmDialogOpen(false)}
                         disabled={rmSubmitting}
+                        type="button"
                       >
                         Annuler
                       </Button>
@@ -530,7 +531,7 @@ export const TeamGestionnaryItem = ({
           <DialogDescription>
             L'extra a été retiré de la mission avec succès.
           </DialogDescription>
-          <Button onClick={handleCloseRmDialog} className="mt-4">
+          <Button onClick={handleCloseRmDialog} className="ml-auto mt-4">
             Fermer
           </Button>
         </DialogContent>
