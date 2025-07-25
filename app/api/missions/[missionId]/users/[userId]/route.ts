@@ -18,7 +18,7 @@ import { Prisma } from "@prisma/client";
  * Elle met à jour le statut de la relation UserMission à "cancelled" et envoie un email
  * de notification à l'utilisateur concerné pour l'informer de l'annulation.
  *
- * @route PATCH /api/mission/[missionId]/user/[userId]
+ * @route PATCH /api/mission/[missionId]/users/[userId]
  *
  * @param {Request} request - Requête contenant le message d'annulation et le type de poste
  * @param {Object} props - Propriétés de la route Next.js
@@ -42,7 +42,7 @@ import { Prisma } from "@prisma/client";
  *
  * @example
  * // Exemple de requête
- * PATCH /api/mission/123e4567-e89b-12d3-a456-426614174000/user/098f6bcd-4621-3373-8ade-4e832627b4f6
+ * PATCH /api/mission/123e4567-e89b-12d3-a456-426614174000/users/098f6bcd-4621-3373-8ade-4e832627b4f6
  * Content-Type: application/json
  *
  * {
