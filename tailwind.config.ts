@@ -13,7 +13,6 @@ export default {
         "brand-gradient-start": "#22345E",
         "brand-gradient-mid": "#FDBA3B",
         "brand-gradient-end": "#F15A29",
-        // Palette employeur (bleutée)
         employer: {
           primary: "#33335E",
           secondary: "#2E7BA6",
@@ -29,7 +28,6 @@ export default {
           warning: "#F7B742",
           error: "#EA5F3E"
         },
-        // Palette extra (jaune/orangé)
         extra: {
           primary: "#F7B742",
           secondary: "#EA5F3E",
@@ -45,7 +43,6 @@ export default {
           warning: "#F7B742",
           error: "#EA5F3E"
         },
-        // Blanc et noir doux
         "white-soft": "#F4F7FA",
         "black-soft": "#232336",
         background: "hsl(var(--background))",
@@ -87,6 +84,16 @@ export default {
           "3": "hsl(var(--chart-3))",
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))"
+        },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar-background))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))"
         }
       },
       borderRadius: {
@@ -112,8 +119,12 @@ export default {
           }
         },
         gradientHover: {
-          "0%": { backgroundPosition: "0% 50%" },
-          "100%": { backgroundPosition: "100% 50%" }
+          "0%": {
+            backgroundPosition: "0% 50%"
+          },
+          "100%": {
+            backgroundPosition: "100% 50%"
+          }
         }
       },
       animation: {

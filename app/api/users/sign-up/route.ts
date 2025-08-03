@@ -3,6 +3,8 @@ import prisma from "@/app/lib/prisma";
 import { EnumRole, UserSignUpSchema } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
+import { encrypt } from "@/utils/crypto";
+import { getKey } from "@/utils/keyCache";
 import { createClerkClient } from "@clerk/nextjs/server";
 import { MissionJob, Prisma, UserMissionStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -31,6 +33,31 @@ export async function POST(req: Request) {
 
 const createExtra = async (data: UserSignUpSchema) => {
   try {
+    // Récupération de la clé de chiffrement
+    const key = await getKey();
+
+    // Préparer les données chiffrées pour l'utilisateur extra
+    const encryptedExtraData = {
+      first_name: encrypt(data.extra?.first_name || "", key),
+      last_name: encrypt(data.extra?.last_name || "", key),
+      phone: data.extra?.phone ? encrypt(data.extra?.phone, key) : null,
+      email: encrypt(data.email, key),
+      // Conversion et chiffrement de la date de naissance au format ISO
+      birthdate: data.extra?.birthdate
+        ? encrypt(
+            new Date(data.extra.birthdate).toISOString().split("T")[0],
+            key
+          )
+        : ""
+    };
+
+    // Chiffrer les données de localisation
+    const encryptedLocationData = {
+      fullName: encrypt(data.location?.display_name || "", key),
+      lat: encrypt(data.location?.lat.toString() || "", key),
+      lon: encrypt(data.location?.lon.toString() || "", key)
+    };
+
     const response: TransactionResult = await prisma.$transaction(
       async (tx) => {
         if (!data.extra || !data.location || !data.extra.birthdate) {
@@ -44,26 +71,26 @@ const createExtra = async (data: UserSignUpSchema) => {
         try {
           user = await tx.user.create({
             data: {
-              email: data.email,
+              email: encryptedExtraData.email, // Email non chiffré pour la compatibilité Clerk
               role: data.role,
               clerkId: data.clerkId,
               extra: {
                 create: {
-                  first_name: data.extra.first_name,
-                  last_name: data.extra.last_name,
-                  birthdate: data.extra.birthdate,
+                  first_name: encryptedExtraData.first_name,
+                  last_name: encryptedExtraData.last_name,
+                  birthdateIso: encryptedExtraData.birthdate,
                   missionJobs: data.extra.missionJob.map(
                     (job) => job.toLowerCase() as MissionJob
                   ),
                   max_travel_distance: data.extra.max_travel_distance,
-                  phone: data.extra.phone
+                  phone: encryptedExtraData.phone
                 }
               },
               userLocation: {
                 create: {
-                  fullName: data.location.display_name,
-                  lat: data.location.lat,
-                  lon: data.location.lon
+                  fullName: encryptedLocationData.fullName,
+                  lat: encryptedLocationData.lat,
+                  lon: encryptedLocationData.lon
                 }
               }
             }
@@ -192,28 +219,51 @@ const createCompany = async (data: UserSignUpSchema) => {
     return;
   }
   try {
+    // Récupération de la clé de chiffrement
+    const key = await getKey();
+
+    // Chiffrer les données de l'entreprise
+    const encryptedCompanyData = {
+      company_name: encrypt(data.company.company_name, key),
+      contactFirstName: encrypt(data.company.contactFirstName, key),
+      contactLastName: encrypt(data.company.contactLastName, key),
+      companyEmail: encrypt(data.email, key),
+
+      company_phone: data.company.company_phone
+        ? encrypt(data.company.company_phone, key)
+        : null
+    };
+
+    // Chiffrer les données de localisation
+    const encryptedLocationData = {
+      fullName: encrypt(data.location.display_name, key),
+      lat: encrypt(data.location.lat.toString(), key),
+      lon: encrypt(data.location.lon.toString(), key)
+    };
+
     await prisma.user.create({
       data: {
-        email: data.email,
+        email: encryptedCompanyData.companyEmail,
         role: data.role,
         clerkId: data.clerkId,
         company: {
           create: {
-            company_name: data.company.company_name,
-            contactFirstName: data.company.contactFirstName,
-            contactLastName: data.company.contactLastName,
-            company_phone: data.company.company_phone
+            company_name: encryptedCompanyData.company_name,
+            contactFirstName: encryptedCompanyData.contactFirstName,
+            contactLastName: encryptedCompanyData.contactLastName,
+            company_phone: encryptedCompanyData.company_phone
           }
         },
         userLocation: {
           create: {
-            fullName: data.location.display_name,
-            lat: data.location.lat,
-            lon: data.location.lon
+            fullName: encryptedLocationData.fullName,
+            lat: encryptedLocationData.lat,
+            lon: encryptedLocationData.lon
           }
         }
       }
     });
+
     await clerkClient.users.updateUserMetadata(data.clerkId, {
       publicMetadata: {
         role: data.role
