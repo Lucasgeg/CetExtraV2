@@ -2,6 +2,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
+import { getEncryptionKey } from "./utils/keyCache";
 
 // Définition des routes publiques selon l'environnement
 const basePublicRoutes = [
@@ -46,6 +47,7 @@ const isExtraRoute = createRouteMatcher(["/extra(.*)"]);
 export default clerkMiddleware(async (auth, request) => {
   const { userId, sessionClaims } = await auth();
   const userRole = sessionClaims?.publicMetadata?.role as string;
+
   if (isAdminRoute(request)) {
     await auth.protect();
 

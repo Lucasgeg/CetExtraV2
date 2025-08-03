@@ -1,8 +1,10 @@
 import prisma from "@/app/lib/prisma";
+import { decrypt } from "@/utils/crypto";
 import {
   calculateDistance,
   randomizeCoordinatesAdvanced
 } from "@/utils/distance.utils";
+import { getKey } from "@/utils/keyCache";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,7 +15,7 @@ export async function GET(request: NextRequest) {
     if (!userId || sessionClaims.publicMetadata.role !== "company") {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-
+    const key = await getKey();
     const { searchParams } = new URL(request.url);
     const lat = parseFloat(searchParams.get("lat") || "0");
     const lon = parseFloat(searchParams.get("lon") || "0");
@@ -58,44 +60,56 @@ export async function GET(request: NextRequest) {
       take: limit,
       skip: skip
     });
-
     // Filtre et traitement des utilisateurs
     const nearbyUsers = users
       .filter((user) => {
         if (!user.userLocation) return false;
+        const decryptedUserLat = Number(decrypt(user.userLocation.lat, key));
+        const decryptedUserLon = Number(decrypt(user.userLocation.lon, key));
+        // Calculer la distance et vérifier si elle est dans le rayon
+
         const distance = calculateDistance(
           lat,
           lon,
-          user.userLocation.lat,
-          user.userLocation.lon
+          decryptedUserLat,
+          decryptedUserLon
         );
         return distance <= radius;
       })
       .map((user) => {
+        if (!user.userLocation) {
+          return null; // Ignorer les utilisateurs sans localisation
+        }
+        const decryptedLat = Number(decrypt(user.userLocation.lat, key));
+        const decryptedLon = Number(decrypt(user.userLocation.lon, key));
         const distance = calculateDistance(
           lat,
           lon,
-          user.userLocation!.lat,
-          user.userLocation!.lon
+          decryptedLat,
+          decryptedLon
         );
 
         const displayCoordinates = preservePrivacy
-          ? randomizeCoordinatesAdvanced(
-              user.userLocation!.lat,
-              user.userLocation!.lon,
-              0.1,
-              0.8
-            )
+          ? randomizeCoordinatesAdvanced(decryptedLat, decryptedLon, 0.1, 0.8)
           : {
-              lat: user.userLocation!.lat,
-              lon: user.userLocation!.lon
+              lat: decryptedLat,
+              lon: decryptedLon
             };
+        const decryptedFirstName = user.extra?.first_name
+          ? decrypt(user.extra.first_name, key)
+          : "";
+        const decryptedLastName = user.extra?.last_name
+          ? decrypt(user.extra.last_name, key)
+          : "";
+        const decryptedProfilePictureUrl = user.profilePictureUrl
+          ? decrypt(user.profilePictureUrl, key)
+          : "";
 
         return {
           id: user.id,
-          name: `${user.extra?.first_name || ""} ${user.extra?.last_name || ""}`.trim(),
-          firstName: user.extra?.first_name || "",
-          lastName: user.extra?.last_name || "",
+          name: `${decryptedFirstName} ${decryptedLastName}`.trim(),
+          firstName: decryptedFirstName,
+          lastName: decryptedLastName,
           lat: displayCoordinates.lat,
           lon: displayCoordinates.lon,
           distance,
@@ -103,14 +117,17 @@ export async function GET(request: NextRequest) {
             ? user.extra.missionJobs.join(", ")
             : user.extra?.missionJobs || "Non spécifié",
           isPrivacyProtected: preservePrivacy,
-          profileImageUrl: user.profilePictureUrl || null
+          profileImageUrl: decryptedProfilePictureUrl
         };
       });
 
     // Trier par distance et renvoyer
+    const filteredNearbyUsers = nearbyUsers.filter(
+      (user): user is NonNullable<typeof user> => user !== null
+    );
     return NextResponse.json({
-      users: nearbyUsers.sort((a, b) => a.distance - b.distance),
-      total: nearbyUsers.length,
+      users: filteredNearbyUsers.sort((a, b) => a.distance - b.distance),
+      total: filteredNearbyUsers.length,
       page,
       limit,
       radius,

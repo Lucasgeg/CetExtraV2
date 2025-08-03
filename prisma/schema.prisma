@@ -31,7 +31,7 @@ model Extra {
   userId              String       @unique
   first_name          String
   last_name           String
-  birthdate           DateTime
+  birthdateIso        String       @default("")
   phone               String?
   missionJobs         MissionJob[] @default([])
   max_travel_distance Int
@@ -81,8 +81,8 @@ model Mission {
 }
 
 model UserLocation {
-  lat      Float
-  lon      Float
+  lat      String  @default("")
+  lon      String  @default("")
   fullName String
   userId   String? @unique
   id       String  @id @default(uuid())

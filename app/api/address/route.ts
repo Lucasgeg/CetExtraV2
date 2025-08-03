@@ -84,7 +84,6 @@ const getLocationFromDb = async (q: string): Promise<Suggestion[]> => {
         id: true
       }
     });
-    console.info("results from db:", locations);
 
     locations.forEach((location) => {
       suggestions.push({

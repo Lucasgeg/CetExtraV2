@@ -13,7 +13,8 @@ export const CompanySignupDisplay = ({
     company,
     updateCompanyProperty,
     setErrorMessages,
-    updateUserProperty
+    updateUserProperty,
+    user
   } = useSignUpStore();
 
   const handleChange = (key: keyof Omit<Company, "id">, value?: string) => {
@@ -55,6 +56,7 @@ export const CompanySignupDisplay = ({
         <AddressAutocomplete
           errorMessage={errorMessages?.location}
           handleClick={(s) => updateUserProperty("location", s)}
+          value={user?.location}
         />
       </div>
     </>
