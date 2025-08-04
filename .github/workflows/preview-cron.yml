@@ -1,0 +1,16 @@
+name: Cron mensuel
+
+on:
+  schedule:
+    - cron: '0 0 2 * *'
+
+jobs:
+  monthly-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appel du endpoint de batch
+        run: |
+          curl -X POST \
+            -H "X-Cron-Secret: ${{ secrets.X_CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            ${{ secrets.PREVIEW_CET_EXTRA_URL }}/api/private/batchs/security/encrypt
