@@ -1,7 +1,5 @@
 "use client";
-import { useState } from "react";
 import { useSignUpStore } from "@/store/useSignUpstore";
-import { RadioGroup } from "../ui/RadioGroup";
 import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
 import {
   CompanyErrorMessages,
@@ -10,30 +8,18 @@ import {
   SignupErrorMessages,
   UserSignUpSchema
 } from "@/store/types";
-import { useSignUp } from "@clerk/nextjs";
 import { CompanySignupDisplay } from "./CompanySignupDisplay";
+import { Button } from "../ui/button";
 
 export const MoreInformationDisplay = ({
-  actionSubmitAction
+  actionSubmitAction,
+  actionPreviousAction
 }: {
   actionSubmitAction: () => void;
+  actionPreviousAction: () => void;
 }) => {
-  const {
-    updateUserProperty,
-    user,
-    company,
-    extra,
-    setErrorMessages,
-    errorMessages
-  } = useSignUpStore();
-  const [selectedRole, setSelectedRole] = useState<EnumRole>(EnumRole.EXTRA);
-  const { isLoaded, signUp } = useSignUp();
-
-  const handleRoleChange = (value: string) => {
-    const role = value as EnumRole;
-    setSelectedRole(role);
-    updateUserProperty("role", role);
-  };
+  const { user, company, extra, setErrorMessages, errorMessages } =
+    useSignUpStore();
 
   const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
     const errors: SignupErrorMessages = {};
@@ -89,25 +75,33 @@ export const MoreInformationDisplay = ({
     return errors;
   };
 
-  const roleOptions = [
-    {
-      value: EnumRole.EXTRA,
-      label: "Extra",
-      description: "Une personne à la recherche de missions ponctuelles"
-    },
-    {
-      value: EnumRole.COMPANY,
-      label: "Employeur",
-      description: "Une entreprise à la recherche de candidats"
-    }
-  ];
+  // todo: Transférer au prochain écran
+  // const { isLoaded, signUp } = useSignUp();
 
-  const handleSubmitAction = async (e: React.FormEvent) => {
-    // vérification des champs d'inscription de l'utilisateur
-    // si tout est ok, on passe à l'étape de vérification
-    e.preventDefault();
-    if (!user || !isLoaded) return;
+  // const handleSubmitAction = async (e: React.FormEvent) => {
+  //   // vérification des champs d'inscription de l'utilisateur
+  //   // si tout est ok, on passe à l'étape de vérification
+  //   e.preventDefault();
+  //   if (!user || !isLoaded) return;
 
+  //   const errors = verifySignupErrors(user);
+  //   if (errors.extra && user.role === EnumRole.EXTRA) {
+  //     setErrorMessages({ extra: errors.extra });
+  //     return;
+  //   }
+  //   if (errors.company && user.role === EnumRole.COMPANY) {
+  //     setErrorMessages({ company: errors.company });
+  //     return;
+  //   }
+
+  //   await signUp?.prepareEmailAddressVerification({
+  //     strategy: "email_code"
+  //   });
+  //   actionSubmitAction();
+  // };
+
+  const handleNextAction = () => {
+    if (!user || !user.role) return;
     const errors = verifySignupErrors(user);
     if (errors.extra && user.role === EnumRole.EXTRA) {
       setErrorMessages({ extra: errors.extra });
@@ -117,10 +111,6 @@ export const MoreInformationDisplay = ({
       setErrorMessages({ company: errors.company });
       return;
     }
-
-    await signUp?.prepareEmailAddressVerification({
-      strategy: "email_code"
-    });
     actionSubmitAction();
   };
   return (
@@ -129,30 +119,21 @@ export const MoreInformationDisplay = ({
         Nous avons besoin de quelques informations supplémentaire pour valider
         ton compte:
       </h2>
-      <form onSubmit={handleSubmitAction} className="w-full">
+      <div className="w-full">
         <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
-          <div className="flex flex-col items-center lg:flex-row">
-            <span>Tu es un:</span>
-            <RadioGroup
-              name="role"
-              options={roleOptions}
-              selectedValue={selectedRole}
-              onChange={handleRoleChange}
-            />
-          </div>
-          {selectedRole === EnumRole.EXTRA ? (
+          {user?.role === EnumRole.EXTRA ? (
             <ExtraSignUpDisplay errorMessages={errorMessages.extra} />
           ) : (
             <CompanySignupDisplay errorMessages={errorMessages.company} />
           )}
         </div>
-        <button
-          type="submit"
-          className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        >
-          Valider
-        </button>
-      </form>
+        <div className="mt-2 flex justify-between">
+          <Button theme="company" onClick={actionPreviousAction}>
+            Précédent
+          </Button>
+          <Button onClick={handleNextAction}>Valider</Button>
+        </div>
+      </div>
     </>
   );
 };

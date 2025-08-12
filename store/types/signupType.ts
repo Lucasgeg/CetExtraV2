@@ -1,5 +1,5 @@
 import { Suggestion } from "@/types/api";
-import { Company, Extra, UserLocation, EnumRole } from "./dbType";
+import { Company, Extra, EnumRole } from "./dbType";
 
 export type UserSignUpSchema = {
   email: string;
@@ -14,6 +14,8 @@ export type UserSignUpSchema = {
   extra?: Extra;
   // Champs spécifiques à Company
   company?: Omit<Company, "id">;
+  description?: string;
+  profilePhoto?: File | Blob | null;
 };
 
 export type ExtraErrorMessages = {

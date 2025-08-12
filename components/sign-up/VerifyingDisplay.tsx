@@ -23,7 +23,7 @@ export const VerifyingDisplay = () => {
   const [apiError, setApiError] = React.useState<string | undefined>();
 
   const { isLoaded, signUp, setActive } = useSignUp();
-  const { user, extra, company } = useSignUpStore();
+  const { user, extra, company, profilePhoto } = useSignUpStore();
   const router = useRouter();
 
   const getClerkVerificationErrorMessage = (error: ClerkAPIError): string => {
@@ -82,20 +82,23 @@ export const VerifyingDisplay = () => {
 
       if (signUpAttempt.status === "complete") {
         if (signUpAttempt.createdUserId) {
-          const body = {
+          const userData = {
             ...user,
             clerkId: signUpAttempt.createdUserId,
             extra: extra,
             company: company
           };
 
+          const formData = new FormData();
+          formData.append("userData", JSON.stringify(userData));
+          if (profilePhoto) {
+            formData.append("profilePhoto", profilePhoto);
+          }
+
           try {
             const response = await fetch("/api/users/sign-up", {
               method: "POST",
-              body: JSON.stringify(body),
-              headers: {
-                "Content-Type": "application/json"
-              }
+              body: formData
             });
 
             if (response.ok) {

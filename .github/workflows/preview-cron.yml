@@ -2,7 +2,7 @@ name: Cron mensuel
 
 on:
   schedule:
-    - cron: '0 0 2 * *'
+    - cron: "0 0 2 * *"
 
 jobs:
   monthly-job:
