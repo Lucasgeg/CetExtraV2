@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Html,
   Head,
@@ -10,7 +9,6 @@ import {
   Column,
   Heading,
   Text,
-  Button,
   Hr,
   Tailwind,
   Img

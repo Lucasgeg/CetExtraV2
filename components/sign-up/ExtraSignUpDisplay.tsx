@@ -6,8 +6,7 @@ import {
   Items,
   LabelledSelect
 } from "../ui/atom/LabelledSelect/LabelledSelect";
-import { Extra, ExtraErrorMessages, EnumMissionJob } from "@/store/types";
-import MultipleSelector from "../ui/MultipleSelector";
+import { Extra, ExtraErrorMessages } from "@/store/types";
 
 export const ExtraSignUpDisplay = ({
   errorMessages
@@ -22,30 +21,9 @@ export const ExtraSignUpDisplay = ({
     user
   } = useSignUpStore();
 
-  const [selectedMissionJobs, setSelectedMissionJobs] = useState<
-    { value: string; label: string }[]
-  >([]);
-
   const [selectedMaxTravelDistance, setSelectedMaxTravelDistance] = useState<
     number | undefined
   >(undefined);
-
-  const missionJobOptions = Object.entries(EnumMissionJob).map(
-    ([key, value]) => ({
-      label: value,
-      value: key
-    })
-  );
-
-  const handleMissionJobsChange = (
-    options: { value: string; label: string }[]
-  ) => {
-    setSelectedMissionJobs(options);
-    updateExtraProperty(
-      "missionJob",
-      options.map((opt) => opt.value as EnumMissionJob)
-    );
-  };
 
   const handleMaxTravelDistanceChange = (value: string) => {
     setSelectedMaxTravelDistance(Number(value));
@@ -71,25 +49,9 @@ export const ExtraSignUpDisplay = ({
     { value: "25", label: "25 km" },
     { value: "30", label: "30 km" }
   ];
+
   return (
     <>
-      <div className="flex flex-col items-center lg:flex-row">
-        <span className="lg:w-1/3">Tu recherche un poste de:</span>
-        <div className="flex-1">
-          <MultipleSelector
-            dropdownClassName="w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary"
-            placement="top"
-            badgeClassName="bg-extra-primary text-employer-primary hover:bg-employer-secondary"
-            withSearch={true}
-            options={missionJobOptions}
-            value={selectedMissionJobs}
-            onChange={handleMissionJobsChange}
-            maxSelected={missionJobOptions.length}
-            className="w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary"
-          />
-        </div>
-      </div>
-
       <LabelledInput
         label="Ton nom"
         inputProps={{

@@ -7,10 +7,16 @@ import Link from "next/link";
 import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
 import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
 import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
+import { RoleChoiceDisplay } from "@/components/sign-up/RoleChoiceDisplay";
+import { JobSelectionDisplay } from "@/components/sign-up/JobSelectionDisplay";
+import { AboutYouDisplay } from "@/components/sign-up/AboutYouDisplay";
 
 enum SignUpStep {
   Initial,
+  RoleSelection,
   MoreInformation,
+  JobSelection,
+  AboutYouInformation,
   Verifying
 }
 
@@ -19,20 +25,49 @@ export default function SignUpPage() {
     SignUpStep.Initial
   );
 
-  const handleSubmitAction = () => {
-    setSignUpStep(SignUpStep.Verifying);
-  };
-
   const handleRegistrationStartAction = (e: React.FormEvent) => {
     e.preventDefault();
-    setSignUpStep(SignUpStep.MoreInformation);
+    setSignUpStep(SignUpStep.RoleSelection);
   };
 
   const renderDisplay = () => {
     switch (signUpStep) {
+      case SignUpStep.RoleSelection:
+        return (
+          <RoleChoiceDisplay
+            handleSubmit={() => {
+              setSignUpStep(SignUpStep.MoreInformation);
+            }}
+          />
+        );
       case SignUpStep.MoreInformation:
         return (
-          <MoreInformationDisplay actionSubmitAction={handleSubmitAction} />
+          <MoreInformationDisplay
+            actionPreviousAction={() => {
+              setSignUpStep(SignUpStep.RoleSelection);
+            }}
+            actionSubmitAction={() =>
+              setSignUpStep(SignUpStep.AboutYouInformation)
+            }
+          />
+        );
+      case SignUpStep.AboutYouInformation:
+        return (
+          <AboutYouDisplay
+            actionSubmitAction={() => setSignUpStep(SignUpStep.JobSelection)}
+            actionPreviousAction={() =>
+              setSignUpStep(SignUpStep.MoreInformation)
+            }
+          />
+        );
+      case SignUpStep.JobSelection:
+        return (
+          <JobSelectionDisplay
+            actionPreviousAction={() => {
+              setSignUpStep(SignUpStep.AboutYouInformation);
+            }}
+            actionSubmitAction={() => setSignUpStep(SignUpStep.Verifying)}
+          />
         );
       case SignUpStep.Verifying:
         return <VerifyingDisplay />;

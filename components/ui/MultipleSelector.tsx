@@ -610,7 +610,7 @@ const MultipleSelector = React.forwardRef<
               />
 
               <CommandList
-                className="top-1 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
+                className="top-1 z-10 max-h-52 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
                 onMouseLeave={() => {
                   setOnScrollbar(false);
                 }}
@@ -634,10 +634,7 @@ const MultipleSelector = React.forwardRef<
                       <CommandGroup
                         key={key}
                         heading={key}
-                        className={cn(
-                          "h-full max-h-52 overflow-auto",
-                          dropdownClassName
-                        )}
+                        className={cn(dropdownClassName)}
                       >
                         <>
                           {dropdowns.map((option) => {

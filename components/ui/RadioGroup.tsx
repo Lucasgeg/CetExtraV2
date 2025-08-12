@@ -30,9 +30,12 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
 
   return (
     <TooltipProvider>
-      <div className="flex items-center">
+      <div className="flex flex-1 items-center py-2">
         {options.map((option) => (
-          <label key={option.value} className="flex space-x-2 text-center">
+          <label
+            key={option.value}
+            className="flex h-full w-full space-x-2 text-center"
+          >
             <input
               type="radio"
               name={name}
@@ -48,7 +51,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
                   selectedValue === option.value
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200"
-                } transition-all duration-300`}
+                } flex h-full w-full items-center justify-center transition-all duration-300`}
               >
                 <span>{option.label}</span>
               </TooltipTrigger>

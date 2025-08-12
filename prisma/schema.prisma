@@ -17,6 +17,7 @@ model User {
   active            Boolean       @default(true)
   clerkId           String        @unique
   profilePictureUrl String?
+  description       String?
   company           Company?
   extra             Extra?
   userLocation      UserLocation?
@@ -27,15 +28,15 @@ model User {
 }
 
 model Extra {
-  id                  String       @id @default(uuid())
-  userId              String       @unique
+  id                  String            @id @default(uuid())
+  userId              String            @unique
   first_name          String
   last_name           String
-  birthdateIso        String       @default("")
+  birthdateIso        String            @default("")
   phone               String?
-  missionJobs         MissionJob[] @default([])
+  missionJobs         ExtraMissionJob[]
   max_travel_distance Int
-  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Company {
@@ -167,9 +168,32 @@ model BlogSubscriber {
   @@index([email])
 }
 
+model ExtraMissionJob {
+  id         String     @id @default(uuid())
+  extraId    String
+  missionJob MissionJob
+  experience Int
+  extra      Extra      @relation(fields: [extraId], references: [id], onDelete: Cascade)
+
+  @@unique([extraId, missionJob])
+}
+
 enum MissionJob {
   waiter
+  chefDeRang
+  maitreHotel
+  commisSalle
+  runner
+  bartender
+  sommelier
+  host
+  diningManager
   cook
+  chefDePartie
+  commisKitchen
+  sousChef
+  dishwasher
+  pastryChef
 }
 
 enum Role {

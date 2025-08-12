@@ -4,9 +4,10 @@ import { EnumRole, UserSignUpSchema } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
 import { encrypt } from "@/utils/crypto";
+import { convertToDbMissionJob } from "@/utils/enum";
 import { getKey } from "@/utils/keyCache";
 import { createClerkClient } from "@clerk/nextjs/server";
-import { MissionJob, Prisma, UserMissionStatus } from "@prisma/client";
+import { Prisma, UserMissionStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const clerkClient = createClerkClient({
@@ -15,13 +16,29 @@ const clerkClient = createClerkClient({
 
 export async function POST(req: Request) {
   try {
-    const data: UserSignUpSchema = await req.json();
+    const contentType = req.headers.get("content-type");
+
+    let data: UserSignUpSchema;
+    let profilePhoto: File | null = null;
+
+    if (contentType?.includes("multipart/form-data")) {
+      // Traitement des données FormData
+
+      const formData = await req.formData();
+
+      const userDataString = formData.get("userData") as string;
+      data = JSON.parse(userDataString);
+      profilePhoto = formData.get("profilePhoto") as File | null;
+    } else {
+      // Traitement JSON classique (pour la compatibilité)
+      data = await req.json();
+    }
 
     if (data.role === EnumRole.EXTRA) {
-      return await createExtra(data);
+      return await createExtra(data, profilePhoto);
     }
     if (data.role === EnumRole.COMPANY) {
-      return await createCompany(data);
+      return await createCompany(data, profilePhoto);
     }
   } catch (error) {
     return NextResponse.json(
@@ -31,7 +48,10 @@ export async function POST(req: Request) {
   }
 }
 
-const createExtra = async (data: UserSignUpSchema) => {
+const createExtra = async (
+  data: UserSignUpSchema,
+  profilePhoto: File | null = null
+) => {
   try {
     // Récupération de la clé de chiffrement
     const key = await getKey();
@@ -51,7 +71,6 @@ const createExtra = async (data: UserSignUpSchema) => {
         : ""
     };
 
-    // Chiffrer les données de localisation
     const encryptedLocationData = {
       fullName: encrypt(data.location?.display_name || "", key),
       lat: encrypt(data.location?.lat.toString() || "", key),
@@ -68,10 +87,11 @@ const createExtra = async (data: UserSignUpSchema) => {
           };
         }
         let user;
+
         try {
           user = await tx.user.create({
             data: {
-              email: encryptedExtraData.email, // Email non chiffré pour la compatibilité Clerk
+              email: encryptedExtraData.email,
               role: data.role,
               clerkId: data.clerkId,
               extra: {
@@ -79,13 +99,19 @@ const createExtra = async (data: UserSignUpSchema) => {
                   first_name: encryptedExtraData.first_name,
                   last_name: encryptedExtraData.last_name,
                   birthdateIso: encryptedExtraData.birthdate,
-                  missionJobs: data.extra.missionJob.map(
-                    (job) => job.toLowerCase() as MissionJob
-                  ),
                   max_travel_distance: data.extra.max_travel_distance,
-                  phone: encryptedExtraData.phone
+                  phone: encryptedExtraData.phone,
+                  missionJobs: {
+                    createMany: {
+                      data: data.extra.missionJob.map((job) => ({
+                        experience: job.experience,
+                        missionJob: convertToDbMissionJob(job.missionJob)
+                      }))
+                    }
+                  }
                 }
               },
+              description: encrypt(data.description || "", key),
               userLocation: {
                 create: {
                   fullName: encryptedLocationData.fullName,
@@ -178,22 +204,30 @@ const createExtra = async (data: UserSignUpSchema) => {
     }
 
     try {
+      // Mise à jour des métadonnées Clerk
       await clerkClient.users.updateUserMetadata(data.clerkId, {
         publicMetadata: {
           role: data.role
         }
       });
+      // Mise à jour de la photo de profil si elle existe
+      if (profilePhoto) {
+        await clerkClient.users.updateUserProfileImage(data.clerkId, {
+          file: profilePhoto
+        });
+      }
     } catch (clerkError) {
-      console.error("Failed to update Clerk user metadata:", clerkError);
+      console.error("Failed to update Clerk user:", clerkError);
 
+      // Rollback en cas d'erreur
       await prisma.user.delete({
         where: { clerkId: data.clerkId }
       });
       await clerkClient.users.deleteUser(data.clerkId);
-      throw new ApiError("Failed to update user metadata", 500);
+      throw new ApiError("Failed to update user profile", 500);
     }
 
-    return NextResponse.json({ message: "User created" });
+    return NextResponse.json({ message: "User created successfully" });
   } catch (error) {
     console.error("Error during the process:", error);
     try {
@@ -214,10 +248,17 @@ const createExtra = async (data: UserSignUpSchema) => {
   }
 };
 
-const createCompany = async (data: UserSignUpSchema) => {
+const createCompany = async (
+  data: UserSignUpSchema,
+  profilePhoto: File | null = null
+) => {
   if (!data.company || !data.location) {
-    return;
+    return NextResponse.json(
+      { message: "Missing required company data" },
+      { status: 400 }
+    );
   }
+
   try {
     // Récupération de la clé de chiffrement
     const key = await getKey();
@@ -264,12 +305,20 @@ const createCompany = async (data: UserSignUpSchema) => {
       }
     });
 
+    // Mise à jour des métadonnées et photo Clerk
     await clerkClient.users.updateUserMetadata(data.clerkId, {
       publicMetadata: {
         role: data.role
       }
     });
-    return NextResponse.json({ message: "User created" });
+
+    if (profilePhoto) {
+      await clerkClient.users.updateUserProfileImage(data.clerkId, {
+        file: profilePhoto
+      });
+    }
+
+    return NextResponse.json({ message: "Company user created successfully" });
   } catch (error) {
     await clerkClient.users.deleteUser(data.clerkId);
     console.error("Error deleting user:", error);

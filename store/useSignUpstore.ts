@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { SignupErrorMessages, UserSignUpSchema } from "./types/signupType";
-import { Company, Extra, EnumMissionJob, EnumRole } from "./types";
+import { Company, Extra, EnumRole } from "./types";
 
 export type SignUpStore = {
   user: Partial<UserSignUpSchema> | null;
@@ -9,6 +9,7 @@ export type SignUpStore = {
   errorMessages: SignupErrorMessages;
   extra?: Partial<Extra>;
   company: Partial<Company>;
+  profilePhoto?: File | Blob | null;
 };
 
 export type Actions = {
@@ -25,11 +26,13 @@ export type Actions = {
     key: K,
     value: Partial<Omit<Company, "id">>[K]
   ) => void;
-
   setPassword: (password: string) => void;
   setConfirmPassword: (confirmPassword: string) => void;
   setErrorMessages: (errors: SignupErrorMessages) => void;
+  setProfilePhoto: (photo: File | Blob | null) => void;
+  clearProfilePhoto: () => void;
 };
+
 const initialState: UserSignUpSchema = {
   email: "",
   clerkId: "",
@@ -44,10 +47,11 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
   confirmPassword: "",
   errorMessages: {},
   extra: {
-    missionJob: [EnumMissionJob.WAITER],
+    missionJob: [],
     max_travel_distance: 5
   },
   company: {},
+  profilePhoto: null, // Initialisation
   setUser: (newUser: Partial<UserSignUpSchema>) =>
     set((state) => ({
       user: state.user ? { ...state.user, ...newUser } : newUser
@@ -70,5 +74,7 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
   setPassword: (password: string) => set({ password }),
   setConfirmPassword: (confirmPassword: string) => set({ confirmPassword }),
   setErrorMessages: (errors) =>
-    set((prev) => ({ ...prev, errorMessages: errors }))
+    set((prev) => ({ ...prev, errorMessages: errors })),
+  setProfilePhoto: (photo: File | Blob | null) => set({ profilePhoto: photo }),
+  clearProfilePhoto: () => set({ profilePhoto: null })
 }));

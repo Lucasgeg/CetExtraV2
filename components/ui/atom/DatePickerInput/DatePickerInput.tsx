@@ -5,13 +5,10 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { useEffect, useState } from "react";
 import { fr } from "date-fns/locale";
+import { Modal } from "../../Modal/Modal";
 
 type DatePickerInputProps = {
   label?: string;
@@ -65,13 +62,17 @@ export function DatePickerInput({
           )}
         </PopoverTrigger>
       </div>
-      <PopoverContent className="w-auto p-0">
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="w-auto p-0"
+      >
         <Calendar
           mode="single"
           selected={date}
           onSelect={(d) => onSelectedDateAction(d)}
         />
-      </PopoverContent>
+      </Modal>
     </Popover>
   );
 }
