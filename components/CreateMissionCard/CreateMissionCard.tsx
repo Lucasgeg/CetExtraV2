@@ -72,7 +72,12 @@ export const MissionCard = ({
           {title}
         </h2>
       </CardHeader>
-      <CardContent className="flex h-full flex-col justify-center">
+      <CardContent
+        className={cn(
+          "flex h-full flex-col overflow-auto",
+          variant === "select" ? "justify-start" : "justify-center"
+        )}
+      >
         {variant === "input" && (
           <Input
             id={id}
@@ -105,7 +110,7 @@ export const MissionCard = ({
 
         {variant === "select" && selectProps && (
           <MultipleSelector
-            placement="top"
+            placement="bottom"
             badgeClassName="bg-extra-primary text-employer-primary hover:bg-employer-secondary"
             withSearch={selectProps.withSearch}
             options={selectProps.options}
