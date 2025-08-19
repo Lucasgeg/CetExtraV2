@@ -75,31 +75,6 @@ export const MoreInformationDisplay = ({
     return errors;
   };
 
-  // todo: Transférer au prochain écran
-  // const { isLoaded, signUp } = useSignUp();
-
-  // const handleSubmitAction = async (e: React.FormEvent) => {
-  //   // vérification des champs d'inscription de l'utilisateur
-  //   // si tout est ok, on passe à l'étape de vérification
-  //   e.preventDefault();
-  //   if (!user || !isLoaded) return;
-
-  //   const errors = verifySignupErrors(user);
-  //   if (errors.extra && user.role === EnumRole.EXTRA) {
-  //     setErrorMessages({ extra: errors.extra });
-  //     return;
-  //   }
-  //   if (errors.company && user.role === EnumRole.COMPANY) {
-  //     setErrorMessages({ company: errors.company });
-  //     return;
-  //   }
-
-  //   await signUp?.prepareEmailAddressVerification({
-  //     strategy: "email_code"
-  //   });
-  //   actionSubmitAction();
-  // };
-
   const handleNextAction = () => {
     if (!user || !user.role) return;
     const errors = verifySignupErrors(user);
@@ -113,6 +88,7 @@ export const MoreInformationDisplay = ({
     }
     actionSubmitAction();
   };
+
   return (
     <>
       <h2 className="text-xl">

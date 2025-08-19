@@ -1,6 +1,10 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { add, format } from "date-fns";
 import { type Locale, enUS } from "date-fns/locale";
@@ -23,7 +27,6 @@ import {
 import { DayPicker, DayPickerProps } from "react-day-picker";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { ScrollArea } from "./scroll-area";
-import { Modal } from "./Modal/Modal";
 
 // ---------- utils start ----------
 /**
@@ -1237,7 +1240,7 @@ const DateTimePicker = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <Modal isOpen={isOpen} onClose={() => handleOpenChange(false)}>
+        <PopoverContent>
           <div
             ref={popoverContentRef}
             className="rounded-lg border bg-white p-4 shadow-lg"
@@ -1311,8 +1314,7 @@ const DateTimePicker = React.forwardRef<
               </Button>
             </div>
           </div>
-        </Modal>
-        {/* <PopoverContent className="z-[1050] w-auto p-0"></PopoverContent> */}
+        </PopoverContent>
       </Popover>
     );
   }

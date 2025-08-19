@@ -74,7 +74,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       position = "center",
       animated = true,
       trapFocus = true,
-      zIndex = 9999
+      zIndex = 0
     },
     ref
   ) => {
@@ -183,6 +183,33 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       }
     }, [isOpen]);
 
+    // Ajoutez cet useEffect après les autres useEffect, vers la ligne 150
+    useEffect(() => {
+      if (!isOpen) return;
+
+      // Créer un ID unique pour éviter les conflits
+      const styleId = `modal-backdrop-${Date.now()}`;
+
+      // Créer et injecter les styles backdrop
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        dialog::backdrop {
+          background-color: rgba(0, 0, 0, 0.5) !important;
+          backdrop-filter: blur(4px) !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      return () => {
+        // Nettoyer le style à la fermeture
+        const styleElement = document.getElementById(styleId);
+        if (styleElement) {
+          styleElement.remove();
+        }
+      };
+    }, [isOpen]);
+
     // Render conditionnel
     if (!isOpen) return null;
 
@@ -192,7 +219,6 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
         className={cn(
           "fixed inset-0 m-0 flex h-full max-h-none w-full max-w-none flex-col bg-transparent",
           positionClasses[position],
-          `z-[${zIndex}]`,
           animated && "duration-200 animate-in fade-in-0",
           !isOpen && animated && "duration-200 animate-out fade-out-0",
           backdropClassName
@@ -200,16 +226,9 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
         aria-label={ariaLabel}
         aria-describedby={ariaDescribedBy}
         style={{
-          zIndex,
           backgroundColor: "transparent"
         }}
       >
-        <style jsx global>{`
-          dialog::backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-          }
-        `}</style>
         <div
           className={cn(
             "relative mx-4 my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg bg-white shadow-xl",

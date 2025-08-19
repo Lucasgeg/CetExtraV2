@@ -550,7 +550,8 @@ export default function MissionForm({
                     }}
                     disable={
                       hasInvitations ||
-                      (occupiedJobs && Object.keys(occupiedJobs).length > 0)
+                      (occupiedJobs && Object.keys(occupiedJobs).length > 0) ||
+                      !startDate
                     }
                     errorMessage={errors.missionEndDate?.message}
                     iconContainerClassName="bg-gradient-to-br from-red-600 to-[#F3E8FF]"
