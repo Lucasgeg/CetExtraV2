@@ -74,7 +74,7 @@ export const MissionCard = ({
       </CardHeader>
       <CardContent
         className={cn(
-          "flex h-full flex-col overflow-auto",
+          "flex h-full flex-col",
           variant === "select" ? "justify-start" : "justify-center"
         )}
       >
