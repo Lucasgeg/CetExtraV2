@@ -9,9 +9,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { EnumMissionJob } from "@/store/types";
+import { EnumMissionJob, PrismaMissionJob } from "@/store/types";
 import { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { CreateMissionFormValues, Suggestion, TeamCount } from "@/types/api";
+import { CreateMissionFormValues, Suggestion } from "@/types/api";
 import Link from "next/link";
 import {
   Dialog,
@@ -25,6 +25,7 @@ import { useParams } from "next/navigation";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { Loader } from "../ui/Loader/Loader";
 import { InviteListDelete } from "@/types/InviteListDelete";
+import { convertToFrontendMissionJob, getMissionJobKey } from "@/utils/enum";
 
 const MissionCard = dynamic(
   () =>
@@ -124,19 +125,23 @@ export default function MissionForm({
             additionalInfo: data.additionalInfo || "",
             missionStartDate: data.missionStartDate,
             missionEndDate: data.missionEndDate,
-            extraJobOptions: data.requiredPositions.map(
-              (position) => position.jobType.toUpperCase() as EnumMissionJob
-            ),
-            teamCounts: data.requiredPositions.reduce<
-              Record<EnumMissionJob, number>
-            >(
+            // Utiliser directement convertToFrontendMissionJob qui retourne les valeurs EnumMissionJob
+            extraJobOptions: data.requiredPositions.map((position) => {
+              return convertToFrontendMissionJob(
+                position.jobType as PrismaMissionJob
+              );
+            }),
+            teamCounts: data.requiredPositions.reduce<Record<string, number>>(
               (acc, pos) => {
-                // Convertir directement en enum
-                const jobEnum = pos.jobType.toUpperCase() as EnumMissionJob;
-                acc[jobEnum] = pos.quantity;
+                // Utiliser la clé de l'enum comme clé dans teamCounts
+                const frontendJob = convertToFrontendMissionJob(
+                  pos.jobType as PrismaMissionJob
+                );
+                const jobKey = getMissionJobKey(frontendJob);
+                acc[jobKey] = pos.quantity;
                 return acc;
               },
-              {} as Record<EnumMissionJob, number>
+              {}
             ),
             location: {
               lat: data.missionLocation?.lat || 0,
@@ -177,14 +182,15 @@ export default function MissionForm({
     if (!employees) return undefined;
     return employees
       .filter((emp) => emp.status === "accepted")
-      .reduce<Record<EnumMissionJob, number>>(
-        (acc, emp) => {
-          const jobType = emp.missionJob.toUpperCase() as EnumMissionJob;
-          acc[jobType] = (acc[jobType] || 0) + 1;
-          return acc;
-        },
-        {} as Record<EnumMissionJob, number>
-      );
+      .reduce<Record<string, number>>((acc, emp) => {
+        // Utiliser la clé de l'enum comme clé dans occupiedJobs
+        const frontendJob = convertToFrontendMissionJob(
+          emp.missionJob as PrismaMissionJob
+        );
+        const jobKey = getMissionJobKey(frontendJob);
+        acc[jobKey] = (acc[jobKey] || 0) + 1;
+        return acc;
+      }, {});
   }, [employees]);
 
   const [confirmView, setConfirmView] = useState(false);
@@ -197,7 +203,7 @@ export default function MissionForm({
   const hasEngagedEmployees =
     employees && employees.some((emp) => emp.status === "accepted");
   const selectedJobOptions = watch("extraJobOptions", []);
-  const teamCounts = watch("teamCounts", {}) as TeamCount;
+  const teamCounts = watch("teamCounts", {}) as Record<string, number>;
   const startDate = watch("missionStartDate");
   const currentLocation = watch("location");
 
@@ -219,27 +225,37 @@ export default function MissionForm({
   };
 
   const handleJobOptionChange = (selected: EnumMissionJob[]) => {
-    const newTeamCounts = selected.reduce((acc, job) => {
-      acc[job] = teamCounts?.[job] && teamCounts[job] > 0 ? teamCounts[job] : 1;
-      return acc;
-    }, {} as TeamCount);
+    const newTeamCounts = selected.reduce(
+      (acc, jobValue) => {
+        // Convertir la valeur en clé pour teamCounts
+        const jobKey = getMissionJobKey(jobValue);
+        acc[jobKey] =
+          teamCounts?.[jobKey] && teamCounts[jobKey] > 0
+            ? teamCounts[jobKey]
+            : 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     setValue("extraJobOptions", selected);
     setValue("teamCounts", newTeamCounts);
   };
 
-  const onIncrement = (job: EnumMissionJob) => {
+  const onIncrement = (jobValue: EnumMissionJob) => {
+    const jobKey = getMissionJobKey(jobValue);
     setValue("teamCounts", {
       ...teamCounts,
-      [job]: (teamCounts?.[job] || 1) + 1
-    } as TeamCount);
+      [jobKey]: (teamCounts?.[jobKey] || 1) + 1
+    });
   };
-  const onDecrement = (job: EnumMissionJob) => {
-    const minimalCount = occupiedJobs?.[job] || 1;
+  const onDecrement = (jobValue: EnumMissionJob) => {
+    const jobKey = getMissionJobKey(jobValue);
+    const minimalCount = occupiedJobs?.[jobKey] || 1;
     setValue("teamCounts", {
       ...teamCounts,
-      [job]: Math.max(minimalCount, (teamCounts?.[job] || 1) - 1)
-    } as TeamCount);
+      [jobKey]: Math.max(minimalCount, (teamCounts?.[jobKey] || 1) - 1)
+    });
   };
 
   const onSubmit = async (data: CreateMissionFormValues) => {
@@ -282,8 +298,8 @@ export default function MissionForm({
     ([key, value]) => {
       return {
         label: value,
-        value: key,
-        disabled: occupiedJobs?.[key as EnumMissionJob] !== undefined
+        value: value, // Utiliser la valeur au lieu de la clé
+        disabled: occupiedJobs?.[key] !== undefined
       };
     }
   );
@@ -432,7 +448,7 @@ export default function MissionForm({
         {renderTitle()}
         {renderAlert()}
       </h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1">
+      <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
         {formIsValid && confirmView ? (
           <ValidationMission
             formData={getValues()}
@@ -440,8 +456,9 @@ export default function MissionForm({
             isSubmitting={isSubmitting}
           />
         ) : (
-          <div className="grid h-full grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
-            <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
+          <div className="grid h-full min-h-0 grid-cols-1 gap-x-4 gap-y-2 p-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+            {/* First col */}
+            <div className="flex h-full min-h-0 flex-col justify-between gap-2 lg:row-span-2">
               <Controller
                 name="missionName"
                 control={control}
@@ -559,7 +576,8 @@ export default function MissionForm({
                 )}
               />
             </div>
-            <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
+            {/* Middle Col */}
+            <div className="flex h-full min-h-0 flex-col justify-between gap-2 lg:row-span-2">
               <Controller
                 name="missionDescription"
                 control={control}
@@ -603,113 +621,119 @@ export default function MissionForm({
                 )}
               />
             </div>
-            <div className="flex h-full flex-col justify-between gap-2 lg:row-span-2">
-              <Controller
-                name="extraJobOptions"
-                control={control}
-                rules={{
-                  required: "Sélectionnez au moins un poste",
-                  validate: (value) =>
-                    value.length > 0 || "Sélectionnez au moins un poste"
-                }}
-                render={({ field }) => {
-                  const selectedOptions = options.filter((opt) =>
-                    field.value?.includes(opt.value as EnumMissionJob)
-                  );
-                  return (
-                    <MissionCard
-                      type=""
-                      id="extraJobOptions"
-                      variant="select"
-                      selectProps={{
-                        options,
-                        value: selectedOptions,
-                        onChange: (selected) => {
-                          const jobValues = selected.map(
-                            (opt) => opt.value as EnumMissionJob
-                          );
-                          handleJobOptionChange(jobValues);
-                        },
-                        withSearch: true
-                      }}
-                      placeholder="Sélectionnez les postes requis"
-                      title="Postes requis"
-                      icon={<UsersIcon />}
-                      iconContainerClassName="bg-gradient-to-br from-extra-primary to-[#F3E8FF]"
-                      errorMessage={errors.extraJobOptions?.message}
-                      className="max-h-36 min-h-24 border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
-                    />
-                  );
-                }}
-              />
+            {/* Third Col */}
+            <div className="flex h-full min-h-0 flex-col justify-start gap-4 overflow-hidden lg:row-span-2">
+              {/* Controller */}
+              <div className="flex-shrink-0">
+                <Controller
+                  name="extraJobOptions"
+                  control={control}
+                  rules={{
+                    required: "Sélectionnez au moins un poste",
+                    validate: (value) =>
+                      value.length > 0 || "Sélectionnez au moins un poste"
+                  }}
+                  render={({ field }) => {
+                    const selectedOptions = options.filter((opt) =>
+                      field.value?.includes(opt.value as EnumMissionJob)
+                    );
+                    return (
+                      <MissionCard
+                        type=""
+                        id="extraJobOptions"
+                        variant="select"
+                        selectProps={{
+                          options,
+                          value: selectedOptions,
+                          onChange: (selected) => {
+                            const jobValues = selected.map(
+                              (opt) => opt.value as EnumMissionJob
+                            );
+                            handleJobOptionChange(jobValues);
+                          },
+                          withSearch: true
+                        }}
+                        placeholder="Sélectionnez les postes requis"
+                        title="Postes requis"
+                        icon={<UsersIcon />}
+                        iconContainerClassName="bg-gradient-to-br from-extra-primary to-[#F3E8FF]"
+                        errorMessage={errors.extraJobOptions?.message}
+                        className="border-extra-primary bg-gradient-to-br from-[#F7B742] to-[#FFF8ED] hover:border-[#FFD700]"
+                      />
+                    );
+                  }}
+                />
+              </div>
 
-              <div className="flex-1 overflow-auto rounded-lg bg-employer-background shadow-md">
-                <h2 className="text-center text-lg font-semibold text-employer-primary">
+              {/* Affichage - avec scroll limité à ce conteneur */}
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-employer-background shadow-md">
+                <h2 className="flex-shrink-0 px-4 py-2 text-center text-lg font-semibold text-employer-primary">
                   Gestion de l'équipe:
                 </h2>
 
                 {selectedJobOptions.length > 0 ? (
-                  <ul className="px-6 py-4">
-                    {selectedJobOptions.map((option, index) => (
-                      <Fragment key={option}>
-                        <li className="flex justify-between text-employer-secondary">
-                          <div className="flex items-center gap-2">
-                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
-                              {index + 1}
-                            </span>
-                            <span>
-                              {
-                                EnumMissionJob[
-                                  option as unknown as keyof typeof EnumMissionJob
-                                ]
-                              }
-                            </span>
-                          </div>
-                          <div className="flex min-w-32 items-center justify-center gap-2">
-                            <Button
-                              type="button"
-                              className="px-2 py-1"
-                              onClick={() => onDecrement(option)}
-                              aria-label={`Retirer un ${option}`}
-                              disabled={
-                                teamCounts?.[option]
-                                  ? teamCounts?.[option] <=
-                                    (occupiedJobs?.[option] || 1)
-                                  : false
-                              }
-                            >
-                              -
-                            </Button>
-                            <span className="w-6 text-center font-bold">
-                              {teamCounts?.[option] || 1}
-                            </span>
-                            <Button
-                              type="button"
-                              className="px-2 py-1"
-                              onClick={() => onIncrement(option)}
-                              aria-label={`Ajouter un ${option}`}
-                            >
-                              +
-                            </Button>
-                          </div>
-                        </li>
-                        {index < selectedJobOptions.length - 1 && (
-                          <hr className="border-t-1 mx-auto my-2 w-1/2 border border-employer-secondary" />
-                        )}
-                      </Fragment>
-                    ))}
-                  </ul>
+                  <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+                    <ul className="space-y-4">
+                      {selectedJobOptions.map((jobValue, index) => {
+                        const jobKey = getMissionJobKey(jobValue);
+                        const currentCount = teamCounts?.[jobKey] || 1;
+                        const minCount = occupiedJobs?.[jobKey] || 1;
+
+                        return (
+                          <Fragment key={jobValue}>
+                            <li className="flex justify-between text-employer-secondary">
+                              <div className="flex items-center gap-2">
+                                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
+                                  {index + 1}
+                                </span>
+                                <span className="text-sm">{jobValue}</span>
+                              </div>
+                              <div className="flex min-w-32 flex-shrink-0 items-center justify-center gap-2">
+                                <Button
+                                  type="button"
+                                  className="px-2 py-1 text-xs"
+                                  onClick={() => onDecrement(jobValue)}
+                                  aria-label={`Retirer un ${jobValue}`}
+                                  disabled={currentCount <= minCount}
+                                >
+                                  -
+                                </Button>
+                                <span className="w-6 text-center font-bold">
+                                  {currentCount}
+                                </span>
+                                <Button
+                                  type="button"
+                                  className="px-2 py-1 text-xs"
+                                  onClick={() => onIncrement(jobValue)}
+                                  aria-label={`Ajouter un ${jobValue}`}
+                                >
+                                  +
+                                </Button>
+                              </div>
+                            </li>
+                            {index < selectedJobOptions.length - 1 && (
+                              <hr className="border-t-1 mx-auto w-1/2 border border-employer-secondary" />
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 ) : (
-                  <p className="text-center text-employer-secondary">
-                    Aucune équipe sélectionnée
-                  </p>
+                  <div className="flex min-h-0 flex-1 items-center justify-center">
+                    <p className="text-center text-employer-secondary">
+                      Aucune équipe sélectionnée
+                    </p>
+                  </div>
                 )}
               </div>
-              <div className="flex justify-between gap-4">
+
+              {/* Boutons - toujours visibles en bas */}
+              <div className="flex h-auto flex-shrink-0 justify-between gap-4">
                 <Button
                   theme="company"
                   type="button"
-                  className="flex-1 lg:h-20"
+                  className="h-auto flex-1"
                   variant={"destructive"}
                   disabled={isSubmitting}
                   onClick={() => {
@@ -725,7 +749,7 @@ export default function MissionForm({
                 <Button
                   theme="company"
                   type="button"
-                  className="group relative flex-1 overflow-hidden font-bold lg:h-20"
+                  className="group relative flex-1 overflow-hidden font-bold lg:h-auto"
                   disabled={isSubmitting || hasInvitations}
                   onClick={checkFormValidity}
                 >

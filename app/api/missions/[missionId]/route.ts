@@ -9,6 +9,7 @@ import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, MissionLocation } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { convertToDbMissionJob } from "@/utils/enum";
 
 /**
  * Handles GET requests for fetching detailed information about a specific mission.
@@ -215,6 +216,8 @@ export async function PUT(
     });
   }
 
+  const body = await req.json();
+
   const {
     location,
     missionDescription,
@@ -224,7 +227,7 @@ export async function PUT(
     teamCounts,
     additionalInfo,
     extraJobOptions
-  } = (await req.json()) as CreateMissionFormValues;
+  } = body as CreateMissionFormValues;
 
   if (!location || !location.lat || !location.lon || !location.display_name) {
     return NextResponse.json(
@@ -355,15 +358,14 @@ accepté`,
         throw new Error("Failed to update mission");
       }
 
+      // Utiliser la fonction utilitaire pour convertir les types de jobs
       const positionsToKeep = Object.entries(teamCounts)
         .filter(([jobType, quantity]) => {
-          // Vérifier que la position est dans extraJobOptions et que la quantité est > 0
           return (
             quantity > 0 && extraJobOptions.includes(jobType as EnumMissionJob)
           );
         })
-        // Convertir en MissionJob en utilisant une conversion explicite
-        .map(([jobType]) => jobType.toLowerCase() as MissionJob);
+        .map(([jobType]) => convertToDbMissionJob(jobType));
 
       const requiredPositionsDeleted = await tx.requiredPosition.deleteMany({
         where: {
@@ -384,8 +386,8 @@ accepté`,
       for (const [jobType, quantity] of Object.entries(teamCounts)) {
         if (quantity <= 0) continue;
 
-        // Convertir le type de job du frontend vers le format BD
-        const dbJobType = jobType.toLowerCase();
+        // Utiliser la fonction utilitaire pour convertir le type de job
+        const dbJobType = convertToDbMissionJob(jobType);
 
         // Chercher si ce type de poste existe déjà
         const existingPosition = await tx.requiredPosition.findFirst({

@@ -21,12 +21,12 @@ import {
 import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
 import useFetch from "@/hooks/useFetch";
-import { EnumMissionJob } from "@/store/types";
+import { PrismaMissionJob } from "@/store/types";
 import { Suggestion } from "@/types/api";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
-import { getJobLabel } from "@/utils/enum";
+import { getJobLabel, convertToFrontendMissionJob } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { LatLngExpression } from "leaflet";
 import { useParams } from "next/navigation";
@@ -103,7 +103,7 @@ export default function MissionDetailPage() {
     if (!data) return [];
 
     const items: Array<{
-      job: EnumMissionJob;
+      job: PrismaMissionJob;
       employee?: (typeof data.employees)[0];
       isOccupied: boolean;
     }> = [];
@@ -121,7 +121,7 @@ export default function MissionDetailPage() {
         );
 
         items.push({
-          job: position.jobType as EnumMissionJob,
+          job: position.jobType as PrismaMissionJob,
           employee: assignedEmployee,
           isOccupied: !!assignedEmployee
         });
@@ -286,7 +286,9 @@ export default function MissionDetailPage() {
                       <li key={position.jobType}>
                         {capitalizeFirstLetter(
                           getJobLabel(
-                            position.jobType.toUpperCase() as EnumMissionJob
+                            convertToFrontendMissionJob(
+                              position.jobType as PrismaMissionJob
+                            )
                           )
                         )}{" "}
                         - {position.quantity} poste(s)
@@ -314,8 +316,8 @@ export default function MissionDetailPage() {
                   tipNumber={index + 1}
                   value={
                     item.employee
-                      ? `${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} - ${item.employee.user.extra.firstName} ${item.employee.user.extra.lastName}`
-                      : `Place de ${capitalizeFirstLetter(getJobLabel(item.job.toUpperCase() as EnumMissionJob))} disponible`
+                      ? `${capitalizeFirstLetter(getJobLabel(convertToFrontendMissionJob(item.job)))} - ${item.employee.user.extra.firstName} ${item.employee.user.extra.lastName}`
+                      : `Place de ${capitalizeFirstLetter(getJobLabel(convertToFrontendMissionJob(item.job)))} disponible`
                   }
                   isOccupied={item.isOccupied}
                   modalInfo={
@@ -331,7 +333,7 @@ export default function MissionDetailPage() {
                               <p>
                                 Poste:{" "}
                                 {getJobLabel(
-                                  item.job.toUpperCase() as EnumMissionJob
+                                  convertToFrontendMissionJob(item.job)
                                 )}
                               </p>
                               <p>Date de début: {item.employee.startDate}</p>
@@ -343,7 +345,7 @@ export default function MissionDetailPage() {
                         }
                       : undefined
                   }
-                  missionJob={item.job.toUpperCase() as EnumMissionJob}
+                  missionJob={convertToFrontendMissionJob(item.job)}
                   maxDateEnd={data.missionEndDate}
                   minDateStart={data.missionStartDate}
                   missionId={id}
