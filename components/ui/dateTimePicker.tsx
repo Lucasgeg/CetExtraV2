@@ -1240,7 +1240,7 @@ const DateTimePicker = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent className="z-[1050]">
           <div
             ref={popoverContentRef}
             className="rounded-lg border bg-white p-4 shadow-lg"

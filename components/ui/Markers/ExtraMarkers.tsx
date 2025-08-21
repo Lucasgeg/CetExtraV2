@@ -9,6 +9,7 @@ type ExtraMarkerProps = PropsWithChildren & {
   size?: number; // Diamètre du marker en pixels
   fallbackInitial?: string; // Initiale à afficher si pas de photo
   isHighlighted?: boolean; // Pour l'animation
+  onClick?: () => void; // Callback pour le clic
 };
 
 const ExtraMarker: React.FC<ExtraMarkerProps> = ({
@@ -17,7 +18,8 @@ const ExtraMarker: React.FC<ExtraMarkerProps> = ({
   size = 48,
   fallbackInitial = "E",
   children,
-  isHighlighted = true
+  isHighlighted = true,
+  onClick
 }) => {
   const svgMarkup = `
 <svg width="${size}" height="${size * 1.2}" viewBox="0 0 64 76" xmlns="http://www.w3.org/2000/svg">
@@ -73,7 +75,7 @@ const ExtraMarker: React.FC<ExtraMarkerProps> = ({
   });
 
   return (
-    <Marker position={position} icon={icon}>
+    <Marker position={position} icon={icon} eventHandlers={{ click: onClick }}>
       {children}
     </Marker>
   );

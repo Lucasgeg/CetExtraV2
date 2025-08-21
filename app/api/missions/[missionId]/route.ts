@@ -1,5 +1,5 @@
 import prisma from "@/app/lib/prisma";
-import { EnumMissionJob, EnumRole } from "@/store/types";
+import { EnumMissionJob, EnumRole, PrismaMissionJob } from "@/store/types";
 import { CreateMissionFormValues, Suggestion } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
@@ -9,7 +9,10 @@ import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, MissionLocation } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-import { convertToDbMissionJob } from "@/utils/enum";
+import {
+  convertToDbMissionJob,
+  convertToFrontendMissionJob
+} from "@/utils/enum";
 
 /**
  * Handles GET requests for fetching detailed information about a specific mission.
@@ -290,15 +293,20 @@ export async function PUT(
   }
   const acceptedJobTypes = oldMission.employees
     .filter((emp) => emp.status === "accepted")
-    .map((emp) => emp.missionJob.toUpperCase() as EnumMissionJob);
+    .map((emp) => {
+      // Convertir le job de la DB vers le format frontend pour comparaison
+      const frontendJob = convertToFrontendMissionJob(
+        emp.missionJob as PrismaMissionJob
+      );
+      return frontendJob;
+    });
 
   const uniqueAcceptedJobTypes = [...new Set(acceptedJobTypes)];
 
-  for (const jobType of uniqueAcceptedJobTypes) {
-    if (!extraJobOptions.includes(jobType)) {
+  for (const frontendJob of uniqueAcceptedJobTypes) {
+    if (!extraJobOptions.includes(frontendJob)) {
       throw new ApiError(
-        `Impossible de supprimer le poste de type ${jobType} car des employés l'ont déjà
-accepté`,
+        `Impossible de supprimer le poste de type ${frontendJob} car des employés l'ont déjà accepté`,
         400
       );
     }

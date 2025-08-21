@@ -1,4 +1,5 @@
 import prisma from "@/app/lib/prisma";
+import { PrismaMissionJob } from "@/store/types";
 import { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
 import { decrypt } from "@/utils/crypto";
 import { getKey } from "@/utils/keyCache";
@@ -60,8 +61,8 @@ export async function GET(
             firstName: decrypt(user.extra.first_name, key),
             lastName: decrypt(user.extra.last_name, key),
             missionJobs: user.extra.missionJobs.map((job) => ({
-              missionJob: String(job.missionJob),
-              experience: String(job.experience)
+              missionJob: job.missionJob as PrismaMissionJob,
+              experience: job.experience
             })),
             phone: user.extra.phone ? decrypt(user.extra.phone, key) : undefined
           }

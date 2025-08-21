@@ -17,6 +17,8 @@ import {
 import { Loader } from "../ui/Loader/Loader";
 import ExtraMarker from "../ui/Markers/ExtraMarkers";
 import L from "leaflet";
+import { UserSlider } from "../UserSlider/UserSlider";
+import { useUserResearchStore } from "@/store/useUserResearchStore";
 
 interface MapWithUserFilterProps {
   center: LatLngExpression;
@@ -118,8 +120,10 @@ const MapEventHandler = ({
   missionLocation: { lat: number; lon: number };
   onUsersFiltered: (users: UserWithLocation[]) => void;
   onRadiusChange?: (radius: number) => void;
+  onInitialLoad?: () => void;
 }) => {
   const map = useMap();
+  const hasInitiallyLoaded = useRef(false);
 
   const filterAndNotify = (
     centerLat: number,
@@ -137,6 +141,16 @@ const MapEventHandler = ({
     onRadiusChange?.(radius);
   };
 
+  // Déclencher le filtrage initial basé sur les bounds de la carte
+  useEffect(() => {
+    if (users.length > 0 && !hasInitiallyLoaded.current) {
+      const bounds = map.getBounds();
+      const visibleRadius = getVisibleRadius(bounds);
+      filterAndNotify(missionLocation.lat, missionLocation.lon, visibleRadius);
+      hasInitiallyLoaded.current = true;
+    }
+  }, [users, map, missionLocation]);
+
   useMapEvents({
     zoomend: () => {
       const bounds = map.getBounds();
@@ -146,9 +160,8 @@ const MapEventHandler = ({
 
     moveend: () => {
       const bounds = map.getBounds();
-      const center = bounds.getCenter();
       const visibleRadius = getVisibleRadius(bounds);
-      filterAndNotify(center.lat, center.lng, visibleRadius);
+      filterAndNotify(missionLocation.lat, missionLocation.lon, visibleRadius);
     }
   });
 
@@ -165,6 +178,14 @@ export const MapWithUserFilter = ({
 }: MapWithUserFilterProps) => {
   const [visibleUsers, setVisibleUsers] = useState<UserWithLocation[]>([]);
   const [visibleRadius, setVisibleRadius] = useState(initialRadius);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  const {
+    requiredPositions,
+    missionEndDate,
+    missionStartDate,
+    missionId,
+    missionName
+  } = useUserResearchStore();
 
   // Stabiliser missionLocation avec useMemo
   const stableMissionLocation = useMemo(
@@ -191,27 +212,6 @@ export const MapWithUserFilter = ({
     preservePrivacy: true
   });
 
-  // Effet initial pour filtrer les utilisateurs au chargement
-  useEffect(() => {
-    if (users.length === 0) return;
-
-    const filteredUsers = filterUsersByDistance(
-      users,
-      stableMissionLocation.lat,
-      stableMissionLocation.lon,
-      initialRadius
-    ) as UserWithLocation[];
-
-    setVisibleUsers(filteredUsers);
-    onUsersFilteredRef.current?.(filteredUsers);
-    setVisibleRadius(initialRadius);
-  }, [
-    users,
-    stableMissionLocation.lat,
-    stableMissionLocation.lon,
-    initialRadius
-  ]);
-
   const handleUsersFiltered = (filteredUsers: UserWithLocation[]) => {
     setVisibleUsers(filteredUsers);
     onUsersFilteredRef.current?.(filteredUsers);
@@ -220,6 +220,17 @@ export const MapWithUserFilter = ({
   const handleRadiusChange = (radius: number) => {
     setVisibleRadius(radius);
   };
+
+  const handleUserMarkerClick = (userId: string) => {
+    setSelectedUserId(userId);
+  };
+
+  const handleSliderClose = () => {
+    setSelectedUserId(undefined);
+  };
+
+  // Trouver l'utilisateur sélectionné
+  const selectedUser = visibleUsers.find((user) => user.id === selectedUserId);
 
   if (error) {
     return (
@@ -259,7 +270,7 @@ export const MapWithUserFilter = ({
         >
           <Popup>
             <div className="text-center">
-              <strong>📍 Mission</strong>
+              <strong>{missionName}</strong>
             </div>
           </Popup>
         </Marker>
@@ -276,17 +287,8 @@ export const MapWithUserFilter = ({
             }
             photoUrl={user.profileImageUrl}
             size={64}
-          >
-            <Popup>
-              <div className="text-center">
-                <strong>👤 {user.name}</strong>
-                <div className="mt-1 text-sm text-gray-600">
-                  <div>💼 {user.job}</div>
-                  {user.distance && <div>📏 {user.distance.toFixed(2)} km</div>}
-                </div>
-              </div>
-            </Popup>
-          </ExtraMarker>
+            onClick={() => handleUserMarkerClick(user.id)}
+          ></ExtraMarker>
         ))}
       </MapContainer>
 
@@ -298,6 +300,20 @@ export const MapWithUserFilter = ({
           filteredUsers={visibleUsers.length}
           loading={loading}
           privacyProtected={privacyProtected}
+        />
+      )}
+
+      {/* Slider pour afficher les détails de l'utilisateur */}
+      {selectedUserId && (
+        <UserSlider
+          isOpen={!!selectedUserId}
+          onClose={handleSliderClose}
+          userId={selectedUserId}
+          title={`Profil de ${selectedUser?.name}`}
+          requiredPositions={requiredPositions}
+          missionEndDate={missionEndDate}
+          missionStartDate={missionStartDate}
+          missionId={missionId || ""}
         />
       )}
     </div>

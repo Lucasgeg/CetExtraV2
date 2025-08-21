@@ -2,21 +2,21 @@ import { Suggestion } from "@/types/api";
 
 // Enums
 export enum EnumMissionJob {
-  WAITER = "Serveur / Serveuse",
+  WAITER = "Serveur",
   CHEF_DE_RANG = "Chef de rang",
   MAITRE_HOTEL = "Maître d'hôtel",
   COMMIS_SALLE = "Commis de salle",
-  RUNNER = "Runner (débarrasseur)",
-  BARTENDER = "Barman / Barmaid",
-  SOMMELIER = "Sommelier / Sommelière",
-  HOST = "Hôte / Hôtesse d'accueil",
+  RUNNER = "Runner",
+  BARTENDER = "Barman",
+  SOMMELIER = "Sommelier",
+  HOST = "Hôte d'accueil",
   DINING_MANAGER = "Responsable de salle",
-  COOK = "Cuisinier / Cuisinière",
+  COOK = "Cuisinier",
   CHEF_DE_PARTIE = "Chef de partie",
   COMMIS_KITCHEN = "Commis de cuisine",
   SOUS_CHEF = "Second de cuisine",
   DISHWASHER = "Plongeur cuisine",
-  PASTRY_CHEF = "Pâtissier / Pâtissière"
+  PASTRY_CHEF = "Pâtissier"
 }
 
 export enum PrismaMissionJob {
