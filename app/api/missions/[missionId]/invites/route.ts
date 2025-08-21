@@ -6,11 +6,13 @@ import { ApiError } from "@/types/ApiError";
 import { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
 import { InviteListDelete } from "@/types/InviteListDelete";
 import { MissionInviteBody } from "@/types/MissionInvite";
-import { getMissionJobValue } from "@/utils/enum";
+import { decrypt, encrypt } from "@/utils/crypto";
+import { convertToDbMissionJob } from "@/utils/enum";
+import { getKey } from "@/utils/keyCache";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
-import { MissionJob, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { render } from "@react-email/components";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -46,20 +48,21 @@ export async function POST(
   req: Request,
   props: { params: Promise<{ missionId: string }> }
 ) {
-  const { sessionClaims, userId } = await auth();
+  const { sessionClaims, userId: currentUserId } = await auth();
   const { missionId } = await props.params;
 
   try {
     const {
       expeditorUserId,
       receiverEmail,
+      userId,
       missionEndDate,
       missionJob,
       missionStartDate
     } = (await req.json()) as MissionInviteBody;
 
     // Validation des données
-    if (!missionId || !expeditorUserId || !receiverEmail || !missionJob) {
+    if (!missionId || !expeditorUserId || !missionJob) {
       return new Response(
         JSON.stringify({
           message: "Tous les champs obligatoires doivent être renseignés"
@@ -68,7 +71,7 @@ export async function POST(
       );
     }
 
-    if (!isEmailValid(receiverEmail)) {
+    if (receiverEmail && !isEmailValid(receiverEmail)) {
       return new Response(
         JSON.stringify({ message: "L'adresse email n'est pas valide" }),
         { status: 400 }
@@ -88,6 +91,16 @@ export async function POST(
     const startDate = new Date(missionStartDate);
     const endDate = new Date(missionEndDate);
     const now = new Date();
+
+    if (!userId && !receiverEmail) {
+      return new Response(
+        JSON.stringify({
+          message:
+            "Vous devez fournir soit un email soit un identifiant d'utilisateur"
+        }),
+        { status: 400 }
+      );
+    }
 
     if (startDate < now) {
       return new Response(
@@ -118,7 +131,7 @@ export async function POST(
       );
     }
 
-    if (userId !== expeditorUserId) {
+    if (currentUserId !== expeditorUserId) {
       return new Response(
         JSON.stringify({
           message: "Vous n'êtes pas autorisé à effectuer cette action"
@@ -167,24 +180,32 @@ export async function POST(
             status: 404
           };
         }
-
-        const userFromDb = await tx.user.findUnique({
-          where: { email: receiverEmail },
-          select: {
-            id: true,
-            role: true
+        if (userId) {
+          const userFromDb = await tx.user.findUnique({
+            where: { id: userId },
+            select: {
+              id: true,
+              role: true,
+              email: true
+            }
+          });
+          if (userFromDb?.role === "company") {
+            return {
+              success: false,
+              error: "Vous ne pouvez pas inviter une entreprise à une mission",
+              status: 403
+            };
           }
-        });
 
-        if (userFromDb?.role === "company") {
-          return {
-            success: false,
-            error: "Vous ne pouvez pas inviter une entreprise à une mission",
-            status: 403
-          };
-        }
-
-        if (userFromDb !== null) {
+          if (!userFromDb) {
+            return {
+              success: false,
+              error: "Utilisateur non trouvé",
+              status: 404
+            };
+          }
+          const key = await getKey();
+          const receiverEmail = decrypt(userFromDb.email, key);
           try {
             await createUserMissionFromDb(
               {
@@ -218,20 +239,21 @@ export async function POST(
             };
           }
           try {
+            const companyName = decrypt(user.company?.company_name, key);
             const duration =
               new Date(missionEndDate).getTime() -
               new Date(missionStartDate).getTime();
             const missionInvitation = MissionInvitation({
-              companyName: user.company?.company_name,
+              companyName,
               isAllreadyRegistered: true,
               duration: duration,
-              missionJob: getMissionJobValue(missionJob),
+              missionJob: missionJob,
               missionDate: new Date(missionStartDate).toISOString(),
               missionName: user.company.createdMissions[0].name,
               missionLocation:
                 user.company.createdMissions[0].missionLocation?.fullName ||
                 "Non spécifié",
-              receiverEmail: receiverEmail
+              receiverEmail
             });
 
             await resend.emails.send({
@@ -259,6 +281,15 @@ export async function POST(
           };
         } else {
           try {
+            if (!receiverEmail) {
+              return {
+                success: false,
+                error:
+                  "L'adresse email est requise pour inviter un nouvel utilisateur",
+                status: 400
+              };
+            }
+
             const userMission = await createUserInvitation(
               {
                 receiverEmail,
@@ -274,11 +305,13 @@ export async function POST(
             const duration =
               new Date(missionEndDate).getTime() -
               new Date(missionStartDate).getTime();
+            const key = await getKey();
+            const companyName = decrypt(user.company?.company_name, key);
             const missionInvitation = MissionInvitation({
-              companyName: user.company?.company_name,
+              companyName,
               isAllreadyRegistered: false,
               duration: duration,
-              missionJob: getMissionJobValue(missionJob),
+              missionJob: missionJob,
               missionDate: new Date(missionStartDate).toISOString(),
               missionName: user.company.createdMissions[0].name,
               missionLocation:
@@ -336,17 +369,7 @@ export async function POST(
       status: 201
     });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error(
-        "Prisma error in mission invite API:",
-        error.code,
-        error.message,
-        error.meta
-      );
-    } else {
-      console.error("Error in mission invite API:", error);
-    }
-
+    // Gestion des erreurs spécifiques
     if (error instanceof ApiError) {
       return new NextResponse(JSON.stringify({ message: error.message }), {
         status: error.status
@@ -360,6 +383,22 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    // Utilisation de l'utilitaire pour les erreurs Prisma
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError ||
+      error instanceof Prisma.PrismaClientUnknownRequestError ||
+      error instanceof Prisma.PrismaClientValidationError
+    ) {
+      const { message, status } = handlePrismaError(
+        error,
+        "POST mission/invites"
+      );
+      return new NextResponse(JSON.stringify({ message }), { status });
+    }
+
+    // Logging plus précis
+    console.error("Error in mission invite API:", error);
 
     // Erreur générique
     return new NextResponse(
@@ -467,6 +506,8 @@ export async function GET(
   if (!pendingInvites) {
     return NextResponse.json({ message: "Mission not found" }, { status: 404 });
   }
+
+  const key = await getKey();
   const response: GetMissionInvitesResponse = {
     counts: {
       employees: pendingInvites._count.employees,
@@ -480,15 +521,21 @@ export async function GET(
       missionJob: employee.missionJob,
       user: {
         id: employee.user.id,
-        email: employee.user.email,
-        firstName: employee.user.extra?.first_name || null,
-        lastName: employee.user.extra?.last_name || null,
-        profilePictureUrl: employee.user.profilePictureUrl || null
+        email: decrypt(employee.user.email, key),
+        firstName: employee.user.extra?.first_name
+          ? decrypt(employee.user.extra?.first_name, key)
+          : null,
+        lastName: employee.user.extra?.last_name
+          ? decrypt(employee.user.extra?.last_name, key)
+          : null,
+        profilePictureUrl: employee.user.profilePictureUrl
+          ? decrypt(employee.user.profilePictureUrl, key)
+          : null
       }
     })),
     invitations: pendingInvites.invitations.map((invite) => ({
       id: invite.id,
-      email: invite.email,
+      email: decrypt(invite.email, key),
       missionJob: invite.missionJob,
       missionStartDate: invite.missionStartDate.toISOString(),
       missionEndDate: invite.missionEndDate.toISOString()
@@ -637,30 +684,38 @@ const createUserMissionFromDb = async (
   userId: string,
   tx: Prisma.TransactionClient
 ) => {
-  return await tx.userMission.upsert({
-    where: {
-      userId_missionId: {
+  try {
+    return await tx.userMission.upsert({
+      where: {
+        userId_missionId: {
+          userId,
+          missionId
+        }
+      },
+      create: {
         userId,
-        missionId
+        missionId,
+        missionStartDate: new Date(body.missionStartDate),
+        missionJob: convertToDbMissionJob(body.missionJob), // body.missionJob.toLowerCase() as MissionJob
+        missionEndDate: new Date(body.missionEndDate),
+        hourlyRate: 0,
+        status: "pending"
+      },
+      update: {
+        missionStartDate: new Date(body.missionStartDate),
+        missionJob: convertToDbMissionJob(body.missionJob), // body.missionJob.toLowerCase() as MissionJob
+        missionEndDate: new Date(body.missionEndDate),
+        hourlyRate: 0,
+        status: "pending"
       }
-    },
-    create: {
-      userId,
-      missionId,
-      missionStartDate: new Date(body.missionStartDate),
-      missionJob: body.missionJob.toLowerCase() as MissionJob,
-      missionEndDate: new Date(body.missionEndDate),
-      hourlyRate: 0,
-      status: "pending"
-    },
-    update: {
-      missionStartDate: new Date(body.missionStartDate),
-      missionJob: body.missionJob.toLowerCase() as MissionJob,
-      missionEndDate: new Date(body.missionEndDate),
-      hourlyRate: 0,
-      status: "pending"
-    }
-  });
+    });
+  } catch (error) {
+    const { message, status } = handlePrismaError(
+      error,
+      "createUserMissionFromDb"
+    );
+    throw new ApiError(message, status);
+  }
 };
 
 const createUserInvitation = async (
@@ -668,30 +723,39 @@ const createUserInvitation = async (
   missionId: string,
   tx: Prisma.TransactionClient
 ) => {
-  return await tx.invitation.upsert({
-    where: {
-      email_missionId: {
+  try {
+    const key = await getKey();
+    return await tx.invitation.upsert({
+      where: {
+        email_missionId: {
+          email: body.receiverEmail!,
+          missionId: missionId
+        }
+      },
+      create: {
+        email: encrypt(body.receiverEmail!, key),
+        missionId: missionId,
+        missionEndDate: new Date(body.missionEndDate),
+        missionJob: convertToDbMissionJob(body.missionJob),
+        missionStartDate: new Date(body.missionStartDate),
+        hourlyRate: 0,
+        status: "pending"
+      },
+      update: {
         email: body.receiverEmail,
-        missionId: missionId
+        missionId: missionId,
+        missionEndDate: new Date(body.missionEndDate),
+        missionJob: convertToDbMissionJob(body.missionJob),
+        missionStartDate: new Date(body.missionStartDate),
+        hourlyRate: 0,
+        status: "pending"
       }
-    },
-    create: {
-      email: body.receiverEmail,
-      missionId: missionId,
-      missionEndDate: new Date(body.missionEndDate),
-      missionJob: body.missionJob.toLowerCase() as MissionJob,
-      missionStartDate: new Date(body.missionStartDate),
-      hourlyRate: 0,
-      status: "pending"
-    },
-    update: {
-      email: body.receiverEmail,
-      missionId: missionId,
-      missionEndDate: new Date(body.missionEndDate),
-      missionJob: body.missionJob.toLowerCase() as MissionJob,
-      missionStartDate: new Date(body.missionStartDate),
-      hourlyRate: 0,
-      status: "pending"
-    }
-  });
+    });
+  } catch (error) {
+    const { message, status } = handlePrismaError(
+      error,
+      "createUserInvitation"
+    );
+    throw new ApiError(message, status);
+  }
 };

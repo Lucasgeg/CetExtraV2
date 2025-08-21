@@ -53,16 +53,16 @@ export const MissionInvitation = ({
     <Html lang="fr">
       <Head />
       <Tailwind>
-        <Img
-          alt="logo Cet Extra"
-          src="https://cetextra.fr/cetextralogo.jpeg"
-          className="mx-auto h-[10rem] w-[10rem] rounded-md"
-        />
-        <Preview>
-          Invitation à une mission chez {companyName} via Cet Extra
-        </Preview>
         <Body className="bg-[#F4F7FA] font-sans">
           <Container className="mx-auto my-2 max-w-[600px] rounded-lg border border-[#EFD08C] bg-white p-0 shadow-md">
+            <Img
+              alt="logo Cet Extra"
+              src="https://cetextra.fr/cetextralogo.jpeg"
+              className="mx-auto h-[10rem] w-[10rem] rounded-md"
+            />
+            <Preview>
+              Invitation à une mission chez {companyName} via Cet Extra
+            </Preview>
             <Section>
               <Row>
                 <Column>

@@ -1,3 +1,5 @@
+import { PrismaMissionJob } from "@/store/types";
+
 export type GetUserByIdResponse = {
   id: string;
   email: string;
@@ -8,8 +10,8 @@ export type GetUserByIdResponse = {
     firstName: string;
     lastName: string;
     missionJobs: Array<{
-      missionJob: string;
-      experience: string;
+      missionJob: PrismaMissionJob;
+      experience: number;
     }>;
     phone?: string;
   };

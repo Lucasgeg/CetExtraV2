@@ -22,6 +22,7 @@ import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
 import useFetch from "@/hooks/useFetch";
 import { PrismaMissionJob } from "@/store/types";
+import { useUserResearchStore } from "@/store/useUserResearchStore";
 import { Suggestion } from "@/types/api";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { UserWithLocation } from "@/types/UserWithLocation.enum";
@@ -30,13 +31,14 @@ import { getJobLabel, convertToFrontendMissionJob } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
 import { LatLngExpression } from "leaflet";
 import { useParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
     `/api/missions/${id}`
   );
+  const { setRequiredPositions, setMissionData } = useUserResearchStore();
   const [isEditing, setIsEditing] = useState(false);
   const [
     pendingInvitationsRefetchTrigger,
@@ -51,13 +53,17 @@ export default function MissionDetailPage() {
   const handleUsersFiltered = useCallback((users: UserWithLocation[]) => {
     setFilteredUsers(users);
   }, []);
-
   const missionLocation: Suggestion = {
     lat: data?.missionLocation?.lat || 0,
     lon: data?.missionLocation?.lon || 0,
     display_name: data?.missionLocation?.fullName || "Lieu inconnu"
   };
-
+  useEffect(() => {
+    if (data) {
+      setMissionData(data);
+      setRequiredPositions(data.requiredPositions);
+    }
+  }, [data, setMissionData, setRequiredPositions]);
   // Stabiliser center
   const center = useMemo(
     (): LatLngExpression => [
@@ -226,7 +232,15 @@ export default function MissionDetailPage() {
               {data.additionalInfo || "Aucune description fournie."}
             </CardContent>
           </Card>
-          <Dialog open={fullScreenMapOpen} onOpenChange={setFullScreenMapOpen}>
+          <Dialog
+            open={fullScreenMapOpen}
+            onOpenChange={(open) => {
+              setFullScreenMapOpen(open);
+              if (!open) {
+                setPendingInvitationsRefetchTrigger((prev) => prev + 1);
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button
                 theme="company"

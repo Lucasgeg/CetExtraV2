@@ -73,8 +73,7 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
       size = "md",
       position = "center",
       animated = true,
-      trapFocus = true,
-      zIndex = 0
+      trapFocus = true
     },
     ref
   ) => {
