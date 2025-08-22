@@ -1,5 +1,7 @@
 "use server";
 import prisma from "@/app/lib/prisma";
+import { decrypt } from "@/utils/crypto";
+import { getKey } from "@/utils/keyCache";
 import { auth } from "@clerk/nextjs/server";
 
 export const getMainUserData = async () => {
@@ -16,12 +18,14 @@ export const getMainUserData = async () => {
       id: true,
       extra: {
         select: {
-          id: true
+          id: true,
+          first_name: true
         }
       },
       company: {
         select: {
-          id: true
+          id: true,
+          contactFirstName: true
         }
       }
     }
@@ -29,10 +33,18 @@ export const getMainUserData = async () => {
   if (!data?.id) {
     throw new Error("User not found");
   }
+  const key = await getKey();
+  let userFirstName;
+  if (data.extra?.first_name) {
+    userFirstName = decrypt(data.extra.first_name, key);
+  } else if (data.company?.contactFirstName) {
+    userFirstName = decrypt(data.company.contactFirstName, key);
+  }
 
   return {
     userId: data.id,
     extraId: data.extra?.id || null,
-    companyId: data.company?.id || null
+    companyId: data.company?.id || null,
+    userFirstName
   };
 };

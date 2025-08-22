@@ -5,6 +5,7 @@ type CurrentuserStore = {
   userId: string;
   extraId: string | null;
   companyId: string | null;
+  userFirstName?: string;
 };
 
 type Action = {
