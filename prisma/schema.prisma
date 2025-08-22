@@ -40,15 +40,40 @@ model Extra {
 }
 
 model Company {
-  id               String    @id @default(uuid())
-  userId           String    @unique
-  company_name     String
-  company_phone    String?
-  contactFirstName String
-  contactLastName  String
-  logoId           String?
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdMissions  Mission[]
+  id     String @id @default(uuid())
+  userId String @unique
+
+  // Phase 1 - Informations basiques
+  company_name        String // Raison sociale (déjà existant)
+  siret               String              @unique
+  businessSector      BusinessSector // Secteur d'activité
+  collectiveAgreement CollectiveAgreement // Convention collective
+
+  // Adresses
+  headOfficeAddress String // Adresse du siège social
+  billingAddress    String? // Adresse de facturation (optionnelle)
+
+  // Contact
+  company_phone String?
+
+  // Représentant légal
+  contactFirstName            String // Prénom du contact (déjà existant, à renommer potentiellement)
+  contactLastName             String // Nom du contact (déjà existant, à renommer potentiellement)
+  legalRepresentativeFunction LegalRepresentativeFunction // Fonction du représentant légal
+
+  // Phase 2 - Informations administratives (collectées au moment de la première création d'une mission)
+  urssafId         String? // Numéro URSSAF/identifiant employeur
+  retirementFund   RetirementFund? // Caisse de retraite complémentaire
+  providentFund    ProvidentFund? // Organisme de prévoyance
+  insuranceDetails String? // Mentions relatives à l'assurance
+
+  // Autres
+  logoId           String? // ID du logo (déjà existant)
+  profileCompleted Boolean @default(false) // Indique si le profil est complet passé à True lors de la phase 2
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdMissions Mission[]
 }
 
 model RequiredPosition {
@@ -213,4 +238,62 @@ enum MissionStatus {
   active
   completed
   cancelled
+}
+
+// Secteur d'activité
+enum BusinessSector {
+  TRAITEUR
+  ORGANISATEUR_EVENEMENTS
+  SALLE_RECEPTION
+  RESTAURANT
+  HOTEL
+  CAFE
+  BAR
+  DISCOTEQUE
+  CASINO
+  CAMPING
+  AUTRE
+}
+
+// Convention collective
+enum CollectiveAgreement {
+  HCR
+  SYNTEC
+  EVENEMENTIEL
+  AUDIOVISUEL
+  SPORT
+  ANIMATION
+  TOURISME
+  AUTRE
+}
+
+// Fonds de retraite
+enum RetirementFund {
+  AGIRC_ARRCO
+  IRCANTEC
+  CARCDSF
+  CIPAV
+  AUTRE
+}
+
+// Prévoyance santé
+enum ProvidentFund {
+  AG2R
+  MALAKOFF_HUMANIS
+  APICIL
+  PRO_BTP
+  KLESIA
+  AUDIENS
+  AUTRE
+}
+
+// Représentant légal
+enum LegalRepresentativeFunction {
+  GERANT
+  PRESIDENT
+  DIRECTEUR_GENERAL
+  ADMINISTRATEUR
+  ASSOCIE
+  MANDATAIRE
+  AUTRE
 }
