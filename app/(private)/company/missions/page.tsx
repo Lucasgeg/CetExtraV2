@@ -227,7 +227,7 @@ export default function CompanyMissionsPage() {
   };
 
   return (
-    <div className="relative h-auto pb-6 lg:h-full">
+    <div className="flex h-full flex-col pb-6">
       <Modal
         isOpen={!!missionToCancel}
         onClose={() => setMissionToCancel(null)}

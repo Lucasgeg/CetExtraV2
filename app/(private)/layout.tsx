@@ -1,8 +1,7 @@
 import { ClerkProvider, UserButton } from "@clerk/nextjs";
-import { CetExtraLogo } from "@/components/icons/CetExtraLogo";
 import { Cog6ToothIcon } from "@heroicons/react/24/outline";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary";
-import Link from "next/link";
+import { LayoutTitle } from "@/components/LayoutTitle/LayoutTitle";
 export default function RootLayout({
   children
 }: Readonly<{
@@ -12,20 +11,17 @@ export default function RootLayout({
     <ClerkProvider>
       <div className="mx-auto flex h-full w-full flex-col sm:px-6">
         {/* Header fixe */}
-        <header className="relative flex items-center py-2">
-          <Link href={"/company"}>
-            <CetExtraLogo className="h-16 lg:h-24" />
-          </Link>
-          <span className="absolute left-1/2 -translate-x-1/2 transform text-2xl lg:text-6xl">
-            Bienvenue John Doe
-          </span>
+        <header className="relative flex h-1/6 items-center py-2">
+          <LayoutTitle />
           <div className="ml-auto flex gap-1">
-            <div className="h-7 w-7 rounded-full">
-              <Cog6ToothIcon className="h-full w-full" />
-            </div>
-            <div className="h-7 w-7">
-              <UserButton />
-            </div>
+            <UserButton
+              appearance={{
+                elements: {
+                  userButtonAvatarBox: "h-16 w-16",
+                  userButtonAvatarImage: "h-16 w-16 rounded-full"
+                }
+              }}
+            />
           </div>
         </header>
 
