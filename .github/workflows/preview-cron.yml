@@ -8,6 +8,8 @@ jobs:
   monthly-job:
     runs-on: ubuntu-latest
     steps:
+      - name: Afficher l'URL du endpoint (pour debug)
+        run: echo "URL=${{ secrets.PREVIEW_CET_EXTRA_URL }}" 
       - name: Appel du endpoint de batch
         run: |
           curl -X POST \
