@@ -3,7 +3,7 @@ name: Cron mensuel
 on:
   schedule:
     - cron: '0 0 2 * *'
-
+  workflow_dispatch:  
 jobs:
   monthly-job:
     runs-on: ubuntu-latest
