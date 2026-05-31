@@ -7,7 +7,13 @@ import { encrypt } from "@/utils/crypto";
 import { convertToDbMissionJob } from "@/utils/enum";
 import { getKey } from "@/utils/keyCache";
 import { createClerkClient } from "@clerk/nextjs/server";
-import { Prisma, UserMissionStatus } from "@prisma/client";
+import {
+  BusinessSector,
+  CollectiveAgreement,
+  LegalRepresentativeFunction,
+  Prisma,
+  UserMissionStatus
+} from "@prisma/client";
 import { NextResponse } from "next/server";
 
 const clerkClient = createClerkClient({
@@ -263,12 +269,38 @@ const createCompany = async (
     // Récupération de la clé de chiffrement
     const key = await getKey();
 
+    const companyInput = data.company as Partial<{
+      siret: string;
+      businessSector: BusinessSector;
+      collectiveAgreement: CollectiveAgreement;
+      headOfficeAddress: string;
+      legalRepresentativeFunction: LegalRepresentativeFunction;
+    }>;
+
+    if (!companyInput.siret) {
+      return NextResponse.json(
+        { message: "Missing required company field: siret" },
+        { status: 400 }
+      );
+    }
+
     // Chiffrer les données de l'entreprise
     const encryptedCompanyData = {
       company_name: encrypt(data.company.company_name, key),
       contactFirstName: encrypt(data.company.contactFirstName, key),
       contactLastName: encrypt(data.company.contactLastName, key),
       companyEmail: encrypt(data.email, key),
+      siret: encrypt(companyInput.siret, key),
+      headOfficeAddress: encrypt(
+        companyInput.headOfficeAddress || data.location.display_name,
+        key
+      ),
+      businessSector: companyInput.businessSector || BusinessSector.TRAITEUR,
+      collectiveAgreement:
+        companyInput.collectiveAgreement || CollectiveAgreement.HCR,
+      legalRepresentativeFunction:
+        companyInput.legalRepresentativeFunction ||
+        LegalRepresentativeFunction.GERANT,
 
       company_phone: data.company.company_phone
         ? encrypt(data.company.company_phone, key)
@@ -292,6 +324,12 @@ const createCompany = async (
             company_name: encryptedCompanyData.company_name,
             contactFirstName: encryptedCompanyData.contactFirstName,
             contactLastName: encryptedCompanyData.contactLastName,
+            siret: encryptedCompanyData.siret,
+            businessSector: encryptedCompanyData.businessSector,
+            collectiveAgreement: encryptedCompanyData.collectiveAgreement,
+            headOfficeAddress: encryptedCompanyData.headOfficeAddress,
+            legalRepresentativeFunction:
+              encryptedCompanyData.legalRepresentativeFunction,
             company_phone: encryptedCompanyData.company_phone
           }
         },

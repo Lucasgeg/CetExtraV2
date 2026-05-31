@@ -4,7 +4,7 @@ import {
   PrismaClientRustPanicError,
   PrismaClientInitializationError,
   PrismaClientValidationError
-} from "@prisma/client/runtime/library";
+} from "@prisma/client/runtime/client";
 
 /**
  * Exemple d'utilisation:
