@@ -1,10 +1,7 @@
 import prisma from "@/app/lib/prisma";
 import StatReport from "@/components/MailTemplate/StatReport";
-import { decrypt, encrypt } from "@/utils/crypto";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
-import { getCryptoVariable } from "@/utils/security";
 import { Prisma } from "@prisma/client";
-import crypto from "crypto";
 import { Resend } from "resend";
 
 // Types et interfaces
@@ -116,13 +113,7 @@ export async function POST(request: Request) {
   const errors: ErrorRecord[] = [];
 
   try {
-    // 1. Authentification avec Infisical
-    const token = await authenticateWithInfisical();
-
-    // 2. Récupération des clés de chiffrement
-    const { key, oldKey } = await fetchEncryptionKeys(token);
-
-    // 3. Traitement par lots des tables
+    // 1. Traitement par lots des tables
     console.info("Starting batch processing of database tables");
 
     // Traitement de la table Extra
@@ -145,12 +136,10 @@ export async function POST(request: Request) {
           await tx.extra.update({
             where: { id: extra.id },
             data: {
-              first_name: encrypt(decrypt(extra.first_name, oldKey), key),
-              last_name: encrypt(decrypt(extra.last_name, oldKey), key),
-              phone: extra.phone
-                ? encrypt(decrypt(extra.phone, oldKey), key)
-                : null,
-              birthdateIso: encrypt(decrypt(extra.birthdateIso, oldKey), key)
+              first_name: extra.first_name,
+              last_name: extra.last_name,
+              phone: extra.phone,
+              birthdateIso: extra.birthdateIso
             }
           });
           stats.success++;
@@ -195,7 +184,7 @@ export async function POST(request: Request) {
         try {
           await tx.user.update({
             where: { id: user.id },
-            data: { email: encrypt(decrypt(user.email, oldKey), key) }
+            data: { email: user.email }
           });
           stats.success++;
           // Log seulement pour les multiples de 100 pour éviter de spammer
@@ -260,18 +249,10 @@ export async function POST(request: Request) {
           await tx.company.update({
             where: { id: company.id },
             data: {
-              company_name: encrypt(decrypt(company.company_name, oldKey), key),
-              company_phone: company.company_phone
-                ? encrypt(decrypt(company.company_phone, oldKey), key)
-                : null,
-              contactFirstName: encrypt(
-                decrypt(company.contactFirstName, oldKey),
-                key
-              ),
-              contactLastName: encrypt(
-                decrypt(company.contactLastName, oldKey),
-                key
-              )
+              company_name: company.company_name,
+              company_phone: company.company_phone,
+              contactFirstName: company.contactFirstName,
+              contactLastName: company.contactLastName
             }
           });
           stats.success++;
@@ -331,9 +312,9 @@ export async function POST(request: Request) {
           await tx.userLocation.update({
             where: { id: location.id },
             data: {
-              lat: encrypt(decrypt(location.lat, oldKey), key),
-              lon: encrypt(decrypt(location.lon, oldKey), key),
-              fullName: encrypt(decrypt(location.fullName, oldKey), key)
+              lat: location.lat,
+              lon: location.lon,
+              fullName: location.fullName
             }
           });
           stats.success++;
@@ -392,7 +373,7 @@ export async function POST(request: Request) {
         try {
           await tx.invitation.update({
             where: { id: invitation.id },
-            data: { email: encrypt(decrypt(invitation.email, oldKey), key) }
+            data: { email: invitation.email }
           });
           stats.success++;
           // Log seulement pour les multiples de 100 pour éviter de spammer
@@ -449,39 +430,8 @@ export async function POST(request: Request) {
       - Average: ${recordsPerSecond.toFixed(2)} records/second
     `);
 
-    // 5. Mise à jour des clés de chiffrement dans Infisical
     const environment =
       process.env.VERCEL_ENV === "production" ? "production" : "dev";
-    const workspaceId = process.env.INFISICAL_WORKSPACE_ID;
-
-    if (!workspaceId) {
-      throw new Error("INFISICAL_WORKSPACE_ID not defined");
-    }
-
-    // On reprend un nouveau token au cas où il a expiré
-    const newToken = await authenticateWithInfisical();
-    const newKey = crypto.randomBytes(32).toString("hex");
-    // Mise à jour de la clé du mois précédent
-    const newKeyResponse = await fetch(
-      `https://eu.infisical.com/api/v3/secrets/update/${getCryptoVariable(true)}?workspaceId=${workspaceId}&environment=${environment}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${newToken}`
-        },
-        body: JSON.stringify({
-          secretValue: newKey,
-          secretDescription: `Updated at ${new Date().toISOString()}`
-        })
-      }
-    );
-
-    if (!newKeyResponse.ok) {
-      throw new Error(
-        `Failed to update old key: ${newKeyResponse.status} ${newKeyResponse.statusText}`
-      );
-    }
 
     // Envois d'un mail au responsable avec les statistiques
     try {
@@ -547,99 +497,6 @@ export async function POST(request: Request) {
       { status: status || 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
-
-/**
- * Authentification auprès d'Infisical pour récupérer le token d'accès
- */
-async function authenticateWithInfisical(): Promise<string> {
-  const body = new URLSearchParams({
-    clientId: process.env.INFISICAL_CLIENT_ID || "",
-    clientSecret: process.env.INFISICAL_CLIENT_SECRET || ""
-  });
-
-  const res = await fetch(
-    "https://eu.infisical.com/api/v1/auth/universal-auth/login",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString()
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(
-      `Failed to authenticate with Infisical: ${res.status} ${res.statusText}`
-    );
-  }
-
-  const data = await res.json();
-  const token = data.accessToken;
-
-  if (!token) {
-    throw new Error("No token received from Infisical");
-  }
-
-  return token;
-}
-
-/**
- * Récupération des clés de chiffrement depuis Infisical
- */
-async function fetchEncryptionKeys(
-  token: string
-): Promise<{ key: Buffer; oldKey: Buffer }> {
-  const environment =
-    process.env.VERCEL_ENV === "production" ? "production" : "dev";
-  const workspaceId = process.env.INFISICAL_WORKSPACE_ID;
-
-  if (!workspaceId) {
-    throw new Error("INFISICAL_WORKSPACE_ID not defined");
-  }
-
-  // Récupération de la nouvelle clé
-  const response = await fetch(
-    `https://eu.infisical.com/api/v3/secrets/raw/${getCryptoVariable()}?workspaceId=${workspaceId}&environment=${environment}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch current key: ${response.status} ${response.statusText}`
-    );
-  }
-
-  const data = await response.json();
-  const key = Buffer.from(data.secret.secretValue, "hex");
-
-  // Récupération de l'ancienne clé
-  const oldKeyResponse = await fetch(
-    `https://eu.infisical.com/api/v3/secrets/raw/${getCryptoVariable(true)}?workspaceId=${workspaceId}&environment=${environment}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
-
-  if (!oldKeyResponse.ok) {
-    throw new Error(
-      `Failed to fetch old key: ${oldKeyResponse.status} ${oldKeyResponse.statusText}`
-    );
-  }
-
-  const oldKeyData = await oldKeyResponse.json();
-  const oldKey = Buffer.from(oldKeyData.secret.secretValue, "hex");
-
-  return { key, oldKey };
 }
 
 /**

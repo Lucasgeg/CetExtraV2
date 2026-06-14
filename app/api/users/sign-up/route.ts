@@ -3,9 +3,7 @@ import prisma from "@/app/lib/prisma";
 import { EnumRole, UserSignUpSchema } from "@/store/types";
 import { TransactionResult } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
-import { encrypt } from "@/utils/crypto";
 import { convertToDbMissionJob } from "@/utils/enum";
-import { getKey } from "@/utils/keyCache";
 import { createClerkClient } from "@clerk/nextjs/server";
 import {
   BusinessSector,
@@ -59,28 +57,20 @@ const createExtra = async (
   profilePhoto: File | null = null
 ) => {
   try {
-    // Récupération de la clé de chiffrement
-    const key = await getKey();
-
-    // Préparer les données chiffrées pour l'utilisateur extra
-    const encryptedExtraData = {
-      first_name: encrypt(data.extra?.first_name || "", key),
-      last_name: encrypt(data.extra?.last_name || "", key),
-      phone: data.extra?.phone ? encrypt(data.extra?.phone, key) : null,
-      email: encrypt(data.email, key),
-      // Conversion et chiffrement de la date de naissance au format ISO
+    const extraData = {
+      first_name: data.extra?.first_name || "",
+      last_name: data.extra?.last_name || "",
+      phone: data.extra?.phone || null,
+      email: data.email,
       birthdate: data.extra?.birthdate
-        ? encrypt(
-            new Date(data.extra.birthdate).toISOString().split("T")[0],
-            key
-          )
+        ? new Date(data.extra.birthdate).toISOString().split("T")[0]
         : ""
     };
 
-    const encryptedLocationData = {
-      fullName: encrypt(data.location?.display_name || "", key),
-      lat: encrypt(data.location?.lat.toString() || "", key),
-      lon: encrypt(data.location?.lon.toString() || "", key)
+    const locationData = {
+      fullName: data.location?.display_name || "",
+      lat: data.location?.lat.toString() || "",
+      lon: data.location?.lon.toString() || ""
     };
 
     const response: TransactionResult = await prisma.$transaction(
@@ -97,16 +87,16 @@ const createExtra = async (
         try {
           user = await tx.user.create({
             data: {
-              email: encryptedExtraData.email,
+              email: extraData.email,
               role: data.role,
               clerkId: data.clerkId,
               extra: {
                 create: {
-                  first_name: encryptedExtraData.first_name,
-                  last_name: encryptedExtraData.last_name,
-                  birthdateIso: encryptedExtraData.birthdate,
+                  first_name: extraData.first_name,
+                  last_name: extraData.last_name,
+                  birthdateIso: extraData.birthdate,
                   max_travel_distance: data.extra.max_travel_distance,
-                  phone: encryptedExtraData.phone,
+                  phone: extraData.phone,
                   missionJobs: {
                     createMany: {
                       data: data.extra.missionJob.map((job) => ({
@@ -117,12 +107,12 @@ const createExtra = async (
                   }
                 }
               },
-              description: encrypt(data.description || "", key),
+              description: data.description || "",
               userLocation: {
                 create: {
-                  fullName: encryptedLocationData.fullName,
-                  lat: encryptedLocationData.lat,
-                  lon: encryptedLocationData.lon
+                  fullName: locationData.fullName,
+                  lat: locationData.lat,
+                  lon: locationData.lon
                 }
               }
             }
@@ -266,9 +256,6 @@ const createCompany = async (
   }
 
   try {
-    // Récupération de la clé de chiffrement
-    const key = await getKey();
-
     const companyInput = data.company as Partial<{
       siret: string;
       businessSector: BusinessSector;
@@ -284,17 +271,14 @@ const createCompany = async (
       );
     }
 
-    // Chiffrer les données de l'entreprise
-    const encryptedCompanyData = {
-      company_name: encrypt(data.company.company_name, key),
-      contactFirstName: encrypt(data.company.contactFirstName, key),
-      contactLastName: encrypt(data.company.contactLastName, key),
-      companyEmail: encrypt(data.email, key),
-      siret: encrypt(companyInput.siret, key),
-      headOfficeAddress: encrypt(
+    const companyData = {
+      company_name: data.company.company_name,
+      contactFirstName: data.company.contactFirstName,
+      contactLastName: data.company.contactLastName,
+      companyEmail: data.email,
+      siret: companyInput.siret,
+      headOfficeAddress:
         companyInput.headOfficeAddress || data.location.display_name,
-        key
-      ),
       businessSector: companyInput.businessSector || BusinessSector.TRAITEUR,
       collectiveAgreement:
         companyInput.collectiveAgreement || CollectiveAgreement.HCR,
@@ -302,42 +286,39 @@ const createCompany = async (
         companyInput.legalRepresentativeFunction ||
         LegalRepresentativeFunction.GERANT,
 
-      company_phone: data.company.company_phone
-        ? encrypt(data.company.company_phone, key)
-        : null
+      company_phone: data.company.company_phone || null
     };
 
-    // Chiffrer les données de localisation
-    const encryptedLocationData = {
-      fullName: encrypt(data.location.display_name, key),
-      lat: encrypt(data.location.lat.toString(), key),
-      lon: encrypt(data.location.lon.toString(), key)
+    const locationData = {
+      fullName: data.location.display_name,
+      lat: data.location.lat.toString(),
+      lon: data.location.lon.toString()
     };
 
     await prisma.user.create({
       data: {
-        email: encryptedCompanyData.companyEmail,
+        email: companyData.companyEmail,
         role: data.role,
         clerkId: data.clerkId,
         company: {
           create: {
-            company_name: encryptedCompanyData.company_name,
-            contactFirstName: encryptedCompanyData.contactFirstName,
-            contactLastName: encryptedCompanyData.contactLastName,
-            siret: encryptedCompanyData.siret,
-            businessSector: encryptedCompanyData.businessSector,
-            collectiveAgreement: encryptedCompanyData.collectiveAgreement,
-            headOfficeAddress: encryptedCompanyData.headOfficeAddress,
+            company_name: companyData.company_name,
+            contactFirstName: companyData.contactFirstName,
+            contactLastName: companyData.contactLastName,
+            siret: companyData.siret,
+            businessSector: companyData.businessSector,
+            collectiveAgreement: companyData.collectiveAgreement,
+            headOfficeAddress: companyData.headOfficeAddress,
             legalRepresentativeFunction:
-              encryptedCompanyData.legalRepresentativeFunction,
-            company_phone: encryptedCompanyData.company_phone
+              companyData.legalRepresentativeFunction,
+            company_phone: companyData.company_phone
           }
         },
         userLocation: {
           create: {
-            fullName: encryptedLocationData.fullName,
-            lat: encryptedLocationData.lat,
-            lon: encryptedLocationData.lon
+            fullName: locationData.fullName,
+            lat: locationData.lat,
+            lon: locationData.lon
           }
         }
       }

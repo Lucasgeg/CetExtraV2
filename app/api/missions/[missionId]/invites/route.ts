@@ -6,9 +6,7 @@ import { ApiError } from "@/types/ApiError";
 import { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
 import { InviteListDelete } from "@/types/InviteListDelete";
 import { MissionInviteBody } from "@/types/MissionInvite";
-import { decrypt, encrypt } from "@/utils/crypto";
 import { convertToDbMissionJob } from "@/utils/enum";
-import { getKey } from "@/utils/keyCache";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
@@ -204,8 +202,7 @@ export async function POST(
               status: 404
             };
           }
-          const key = await getKey();
-          const receiverEmail = decrypt(userFromDb.email, key);
+          const receiverEmail = userFromDb.email;
           try {
             await createUserMissionFromDb(
               {
@@ -239,7 +236,7 @@ export async function POST(
             };
           }
           try {
-            const companyName = decrypt(user.company?.company_name, key);
+            const companyName = user.company?.company_name;
             const duration =
               new Date(missionEndDate).getTime() -
               new Date(missionStartDate).getTime();
@@ -305,8 +302,7 @@ export async function POST(
             const duration =
               new Date(missionEndDate).getTime() -
               new Date(missionStartDate).getTime();
-            const key = await getKey();
-            const companyName = decrypt(user.company?.company_name, key);
+            const companyName = user.company?.company_name;
             const missionInvitation = MissionInvitation({
               companyName,
               isAllreadyRegistered: false,
@@ -507,7 +503,6 @@ export async function GET(
     return NextResponse.json({ message: "Mission not found" }, { status: 404 });
   }
 
-  const key = await getKey();
   const response: GetMissionInvitesResponse = {
     counts: {
       employees: pendingInvites._count.employees,
@@ -521,21 +516,17 @@ export async function GET(
       missionJob: employee.missionJob,
       user: {
         id: employee.user.id,
-        email: decrypt(employee.user.email, key),
-        firstName: employee.user.extra?.first_name
-          ? decrypt(employee.user.extra?.first_name, key)
-          : null,
-        lastName: employee.user.extra?.last_name
-          ? decrypt(employee.user.extra?.last_name, key)
-          : null,
+        email: employee.user.email,
+        firstName: employee.user.extra?.first_name || null,
+        lastName: employee.user.extra?.last_name || null,
         profilePictureUrl: employee.user.profilePictureUrl
-          ? decrypt(employee.user.profilePictureUrl, key)
+          ? employee.user.profilePictureUrl
           : null
       }
     })),
     invitations: pendingInvites.invitations.map((invite) => ({
       id: invite.id,
-      email: decrypt(invite.email, key),
+      email: invite.email,
       missionJob: invite.missionJob,
       missionStartDate: invite.missionStartDate.toISOString(),
       missionEndDate: invite.missionEndDate.toISOString()
@@ -724,7 +715,6 @@ const createUserInvitation = async (
   tx: Prisma.TransactionClient
 ) => {
   try {
-    const key = await getKey();
     return await tx.invitation.upsert({
       where: {
         email_missionId: {
@@ -733,7 +723,7 @@ const createUserInvitation = async (
         }
       },
       create: {
-        email: encrypt(body.receiverEmail!, key),
+        email: body.receiverEmail!,
         missionId: missionId,
         missionEndDate: new Date(body.missionEndDate),
         missionJob: convertToDbMissionJob(body.missionJob),

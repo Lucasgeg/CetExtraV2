@@ -3,8 +3,6 @@ import { EnumMissionJob, EnumRole, PrismaMissionJob } from "@/store/types";
 import { CreateMissionFormValues, Suggestion } from "@/types/api";
 import { ApiError } from "@/types/ApiError";
 import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
-import { decrypt } from "@/utils/crypto";
-import { getKey } from "@/utils/keyCache";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { auth } from "@clerk/nextjs/server";
 import { MissionJob, MissionLocation } from "@prisma/client";
@@ -98,7 +96,6 @@ export async function GET(
         { status: 404 }
       );
     }
-    const key = await getKey();
     const response: MissionDetailApiResponse = {
       id: mission.id,
       name: mission.name,
@@ -134,10 +131,10 @@ export async function GET(
         hourlyRate: employee.hourlyRate,
         user: {
           id: employee.user.id,
-          email: decrypt(employee.user.email, key),
+          email: employee.user.email,
           extra: {
-            firstName: decrypt(employee.user.extra?.first_name || "", key),
-            lastName: decrypt(employee.user.extra?.last_name || "", key)
+            firstName: employee.user.extra?.first_name || "",
+            lastName: employee.user.extra?.last_name || ""
           }
         }
       })),

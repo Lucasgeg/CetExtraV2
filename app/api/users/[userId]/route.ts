@@ -1,8 +1,6 @@
 import prisma from "@/app/lib/prisma";
 import { PrismaMissionJob } from "@/store/types";
 import { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
-import { decrypt } from "@/utils/crypto";
-import { getKey } from "@/utils/keyCache";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -44,42 +42,36 @@ export async function GET(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const key = await getKey();
-
     const response: GetUserByIdResponse = {
       id: userId,
-      description: user?.description
-        ? decrypt(user.description, key)
-        : undefined,
-      email: decrypt(user.email, key),
+      description: user?.description || undefined,
+      email: user.email,
       profilePictureUrl: user.profilePictureUrl
-        ? decrypt(user.profilePictureUrl, key)
+        ? user.profilePictureUrl
         : undefined,
       extra: user.extra
         ? {
-            birthdateIso: decrypt(user.extra.birthdateIso, key),
-            firstName: decrypt(user.extra.first_name, key),
-            lastName: decrypt(user.extra.last_name, key),
+            birthdateIso: user.extra.birthdateIso,
+            firstName: user.extra.first_name,
+            lastName: user.extra.last_name,
             missionJobs: user.extra.missionJobs.map((job) => ({
               missionJob: job.missionJob as PrismaMissionJob,
               experience: job.experience
             })),
-            phone: user.extra.phone ? decrypt(user.extra.phone, key) : undefined
+            phone: user.extra.phone || undefined
           }
         : undefined,
       company: user.company
         ? {
             userId: user.company.userId,
             id: user.company.id,
-            companyName: decrypt(user.company.company_name, key),
+            companyName: user.company.company_name,
             companyPhone: user.company.company_phone
-              ? decrypt(user.company.company_phone, key)
+              ? user.company.company_phone
               : undefined,
-            contactFirstName: decrypt(user.company.contactFirstName, key),
-            contactLastName: decrypt(user.company.contactLastName, key),
-            logoId: user.company.logoId
-              ? decrypt(user.company.logoId, key)
-              : undefined
+            contactFirstName: user.company.contactFirstName,
+            contactLastName: user.company.contactLastName,
+            logoId: user.company.logoId ? user.company.logoId : undefined
           }
         : undefined
     };
