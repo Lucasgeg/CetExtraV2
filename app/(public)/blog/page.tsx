@@ -56,35 +56,46 @@ export default async function BlogListPage() {
   });
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto px-6 py-12">
-      <section className="max-w-2xl rounded-2xl border-4 border-extra-primary bg-extra-background/90 p-8 shadow-2xl">
-        <h1 className="mb-8 text-center text-4xl font-extrabold text-extra-text-primary md:text-5xl">
-          Le Blog
-        </h1>
+    <div className="flex h-full w-full flex-1 flex-col overflow-y-auto py-8 sm:py-12">
+      <section className="rounded-[2rem] border border-public-line bg-public-paper-alt p-8 shadow-paper sm:p-10">
+        <div className="max-w-3xl">
+          <p className="text-xs uppercase tracking-[0.35em] text-public-teal">
+            Journal du projet
+          </p>
+          <h1 className="mt-4 font-display text-4xl leading-tight text-public-ink sm:text-5xl">
+            Le blog Cet Extra
+          </h1>
+          <p className="mt-4 max-w-2xl text-lg leading-8 text-public-ink/75">
+            Des nouvelles du produit, des idées de terrain et les prochaines
+            étapes pour rendre le recrutement d'extras plus simple.
+          </p>
+        </div>
 
-        <ul className="space-y-8 text-extra-text-primary">
+        <ul className="mt-10 space-y-5 text-public-ink">
           {posts.map((post) => (
             <li
               key={post.id}
-              className="rounded-lg border border-extra-primary bg-extra-background p-6 shadow-md transition hover:border-extra-secondary hover:shadow-lg"
+              className="rounded-[1.5rem] border border-public-line bg-public-paper p-6 transition hover:-translate-y-0.5 hover:border-public-brass hover:shadow-card"
             >
-              <h2 className="mb-2 text-2xl font-semibold text-extra-secondary">
+              <h2 className="font-display text-2xl text-public-clay">
                 <Link
                   href={`/blog/${post.shortUrl}`}
-                  className="hover:text-extra-primary hover:underline"
+                  className="transition hover:text-public-teal hover:underline"
                 >
                   {post.title}
                 </Link>
               </h2>
-              <p className="mb-2 text-sm text-extra-text-secondary">
+              <p className="mt-2 text-sm uppercase tracking-[0.25em] text-public-ink/45">
                 {new Date(post.createdAt).toLocaleDateString("fr-FR")}
               </p>
-              <p className="mb-4 text-extra-text-primary">{post.shortDesc}</p>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-public-ink/75">
+                {post.shortDesc}
+              </p>
               <Button
                 asChild
-                theme="extra"
+                theme="public"
                 variant="link"
-                className="px-0 text-base"
+                className="mt-4 px-0 text-base"
               >
                 <Link href={`/blog/${post.shortUrl}`}>Lire l'article →</Link>
               </Button>

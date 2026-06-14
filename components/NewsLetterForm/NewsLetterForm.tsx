@@ -59,15 +59,15 @@ export default function NewsletterForm() {
   if (hideContainer) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md rounded-lg bg-gray-100 px-4 py-3 shadow-lg sm:max-w-lg">
+    <div className="fixed bottom-4 left-4 right-4 mx-auto w-full max-w-lg rounded-[1.75rem] border border-public-line bg-public-paper-alt px-5 py-5 shadow-paper sm:left-auto sm:right-6 sm:w-[32rem]">
       <div
-        className="absolute right-2 top-2 cursor-pointer"
+        className="absolute right-3 top-3 cursor-pointer"
         onClick={handleClose}
       >
-        <XMarkIcon className="h-5 w-5 text-gray-500" />
+        <XMarkIcon className="h-5 w-5 text-public-ink/50 transition hover:text-public-ink" />
       </div>
 
-      <p className="mb-3 text-center text-base font-semibold text-gray-800 sm:text-lg">
+      <p className="mb-3 pr-6 text-center font-display text-2xl text-public-ink">
         Restez informé des dernières nouvelles !
       </p>
 
@@ -79,7 +79,7 @@ export default function NewsletterForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Votre email"
             required
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="w-full rounded-2xl border border-public-line bg-public-paper px-3 py-2 text-sm text-public-ink placeholder:text-public-ink/35 focus:border-public-brass focus:outline-none focus:ring-2 focus:ring-public-brass/20"
             disabled={status === "loading"}
           />
 
@@ -87,12 +87,12 @@ export default function NewsletterForm() {
             <input
               type="checkbox"
               required
-              className="h-4 w-4"
+              className="h-4 w-4 accent-public-clay"
               checked={acceptTerms}
               onChange={(e) => setAcceptTerms(e.target.checked)}
               disabled={status === "loading"}
             />
-            <label className="text-xs text-gray-600">
+            <label className="text-xs text-public-ink/65">
               J'accepte de recevoir des emails
             </label>
           </div>
@@ -101,7 +101,8 @@ export default function NewsletterForm() {
         <Button
           type="submit"
           disabled={status === "loading" || !acceptTerms}
-          className="w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:text-base"
+          theme="public"
+          className="w-full rounded-full px-4 py-2 text-sm font-medium sm:text-base"
         >
           {status === "loading" ? "Envoi..." : "M'inscrire"}
         </Button>
@@ -109,7 +110,7 @@ export default function NewsletterForm() {
 
       {message && (
         <p
-          className={`mt-2 text-sm ${status === "error" ? "text-red-500" : "text-green-600"}`}
+          className={`mt-2 text-sm ${status === "error" ? "text-red-600" : "text-public-teal"}`}
         >
           {message}
         </p>

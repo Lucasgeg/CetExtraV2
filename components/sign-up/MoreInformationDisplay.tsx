@@ -90,26 +90,31 @@ export const MoreInformationDisplay = ({
   };
 
   return (
-    <>
-      <h2 className="text-xl">
-        Nous avons besoin de quelques informations supplémentaire pour valider
-        ton compte:
+    <div className="flex w-full flex-col gap-4">
+      <h2 className="font-display text-2xl text-public-ink">
+        Quelques informations pour valider votre compte
       </h2>
-      <div className="w-full">
-        <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
+      <div className="w-full space-y-4">
+        <div className="grid gap-3 md:grid-cols-2">
           {user?.role === EnumRole.EXTRA ? (
             <ExtraSignUpDisplay errorMessages={errorMessages.extra} />
           ) : (
             <CompanySignupDisplay errorMessages={errorMessages.company} />
           )}
         </div>
-        <div className="mt-2 flex justify-between">
-          <Button theme="company" onClick={actionPreviousAction}>
+        <div className="mt-2 flex justify-between gap-3">
+          <Button
+            theme="public"
+            variant="outline"
+            onClick={actionPreviousAction}
+          >
             Précédent
           </Button>
-          <Button onClick={handleNextAction}>Valider</Button>
+          <Button theme="public" onClick={handleNextAction}>
+            Valider
+          </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 };

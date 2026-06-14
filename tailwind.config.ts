@@ -10,6 +10,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        public: {
+          paper: "#F7F2E8",
+          "paper-alt": "#FFF9F1",
+          ink: "#1E2A4A",
+          brass: "#D9A441",
+          clay: "#D66A3F",
+          teal: "#2A8C8C",
+          line: "#E4D7BF"
+        },
         "brand-gradient-start": "#22345E",
         "brand-gradient-mid": "#FDBA3B",
         "brand-gradient-end": "#F15A29",
@@ -101,6 +110,11 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)"
       },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "Arial", "sans-serif"],
+        display: ["var(--font-fraunces)", "Georgia", "serif"],
+        mono: ["var(--font-geist-mono)", "monospace"]
+      },
       keyframes: {
         "accordion-down": {
           from: {
@@ -133,7 +147,16 @@ export default {
         gradientHover: "gradientHover 2s ease infinite"
       },
       backgroundImage: {
+        "public-grid":
+          "linear-gradient(rgba(30, 42, 74, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(30, 42, 74, 0.06) 1px, transparent 1px)",
+        "public-spotlight":
+          "radial-gradient(circle at top, rgba(217, 164, 65, 0.18), transparent 56%)",
         "main-gradient": "linear-gradient(135deg, #06041B 0%, #33335E 100%)"
+      },
+      boxShadow: {
+        paper: "0 28px 80px rgba(30, 42, 74, 0.15)",
+        card: "0 18px 50px rgba(30, 42, 74, 0.12)",
+        insetLine: "inset 0 1px 0 rgba(255, 255, 255, 0.6)"
       },
       maxWidth: {
         "screen-3xl": "1920px",

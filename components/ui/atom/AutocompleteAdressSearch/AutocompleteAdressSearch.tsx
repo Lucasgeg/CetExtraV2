@@ -94,7 +94,7 @@ export const AddressAutocomplete = ({
                 value={selectedAddress?.display_name || query}
                 onChange={(e) => setQuery(e.target.value)}
                 className={cn(
-                  "w-full",
+                  "w-full rounded-2xl border-public-line bg-public-paper focus:border-public-brass focus:ring-public-brass",
                   inputclassName,
                   selectedAddress && "pr-8"
                 )}
@@ -107,7 +107,7 @@ export const AddressAutocomplete = ({
                   <button
                     type="button"
                     aria-label="Supprimer l'adresse sélectionnée"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-public-ink/40 hover:text-public-clay"
                     onClick={() => {
                       setSelectedAddress(undefined);
                       setQuery("");
@@ -128,12 +128,12 @@ export const AddressAutocomplete = ({
           align="start"
           sideOffset={4}
         >
-          <ul className="max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white">
+          <ul className="max-h-60 w-full overflow-y-auto rounded-2xl border border-public-line bg-public-paper">
             {suggestions.map((suggestion) => (
               <li
                 key={suggestion.lat.toString() + suggestion.lon.toString()}
                 onClick={() => handleSelectSuggestion(suggestion)}
-                className="cursor-pointer p-2 hover:bg-gray-100"
+                className="cursor-pointer p-3 text-sm text-public-ink transition hover:bg-public-paper-alt"
               >
                 {suggestion.display_name}
               </li>

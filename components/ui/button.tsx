@@ -51,9 +51,30 @@ const buttonVariants = cva(
 );
 
 const getThemeClasses = (
-  theme: "company" | "extra" | undefined,
+  theme: "company" | "extra" | "public" | undefined,
   variant: string = "default"
 ) => {
+  if (theme === "public") {
+    switch (variant) {
+      case "default":
+        return "bg-public-ink text-public-paper border border-public-ink hover:bg-public-clay hover:border-public-clay";
+      case "destructive":
+        return "bg-public-clay text-white border border-public-clay hover:bg-public-clay/90";
+      case "outline":
+        return "bg-public-paper text-public-ink border border-public-line hover:bg-public-paper-alt";
+      case "secondary":
+        return "bg-public-brass text-public-ink border border-public-brass hover:bg-public-brass/90";
+      case "ghost":
+        return "bg-transparent text-public-ink hover:bg-public-paper-alt";
+      case "link":
+        return "text-public-clay underline-offset-4 hover:underline";
+      case "disabled":
+        return "bg-public-paper-alt text-public-ink/60 border border-public-line cursor-not-allowed";
+      default:
+        return "";
+    }
+  }
+
   // Palette employeur
   if (theme === EnumRole.COMPANY) {
     switch (variant) {
@@ -102,7 +123,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  theme?: "company" | "extra";
+  theme?: "company" | "extra" | "public";
   beforeContent?: React.ReactNode;
   afterContent?: React.ReactNode;
 }

@@ -7,6 +7,7 @@ import AddCommentForm from "@/components/ui/AddCommentForm/AddCommentForm";
 import CommentsList from "@/components/ui/CommentList/CommentList";
 import type { Components } from "react-markdown";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 type BlogPostPageParams = {
   id: string;
@@ -121,40 +122,41 @@ export default async function BlogPostPage(props: {
   };
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] px-6 py-12">
-      <article className="w-full max-w-4xl rounded-2xl border-4 border-[#FDBA3B] bg-white/90 p-8 shadow-2xl">
-        <h1 className="mb-2 text-center text-4xl font-extrabold text-[#22345E] md:text-5xl">
+    <div className="flex w-full flex-1 flex-col items-center py-8 sm:py-12">
+      <article className="w-full max-w-4xl rounded-[2rem] border border-public-line bg-public-paper-alt p-8 shadow-paper sm:p-10">
+        <p className="text-xs uppercase tracking-[0.35em] text-public-teal">
+          Article
+        </p>
+        <h1 className="mt-4 text-balance font-display text-4xl leading-tight text-public-ink sm:text-5xl">
           {post.title}
         </h1>
-        <p className="mb-4 text-center text-sm text-gray-600">
+        <p className="mt-3 text-sm uppercase tracking-[0.25em] text-public-ink/45">
           {new Date(post.createdAt).toLocaleDateString("fr-FR")}
         </p>
-        <div className="prose prose-lg mx-auto mb-8 max-w-none text-[#22345E] prose-h2:text-[#F15A29] prose-a:text-[#F15A29] prose-a:underline hover:prose-a:text-[#FDBA3B]">
+        <div className="prose prose-lg mx-auto mt-8 max-w-none text-public-ink prose-headings:font-display prose-h2:text-public-clay prose-h3:text-public-clay prose-a:text-public-clay prose-a:underline hover:prose-a:text-public-teal">
           <ReactMarkdown components={MarkdownComponents}>
             {post.content}
           </ReactMarkdown>
         </div>
-        <div className="mt-8 flex justify-center gap-4">
-          <Link
-            href="/blog"
-            className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
-          >
-            Retour au blog
-          </Link>
-          <Link
-            href="/"
-            className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
-          >
-            Accueil
-          </Link>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Button asChild theme="public">
+            <Link href="/blog">Retour au blog</Link>
+          </Button>
+          <Button asChild theme="public" variant="outline">
+            <Link href="/">Accueil</Link>
+          </Button>
         </div>
       </article>
-      <section className="mt-8 w-full max-w-4xl rounded-2xl border-2 border-[#22345E] bg-white/90 p-6 shadow-lg">
-        <h2 className="mb-4 text-2xl font-bold text-[#22345E]">Commentaires</h2>
+      <section className="mt-8 w-full max-w-4xl rounded-[2rem] border border-public-line bg-public-paper px-6 py-6 shadow-card sm:p-8">
+        <h2 className="font-display text-3xl text-public-ink">Commentaires</h2>
 
-        <CommentsList postId={post.id} />
+        <div className="mt-6">
+          <CommentsList postId={post.id} />
+        </div>
 
-        <AddCommentForm postId={post.id} />
+        <div className="mt-6">
+          <AddCommentForm postId={post.id} />
+        </div>
       </section>
     </div>
   );

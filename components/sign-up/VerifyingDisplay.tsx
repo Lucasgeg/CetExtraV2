@@ -178,35 +178,40 @@ export const VerifyingDisplay = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <h1 className="mb-6 text-center text-2xl font-bold">
-        Vérifier votre email
-      </h1>
+    <div className="mx-auto w-full max-w-md space-y-6">
+      <div className="text-center">
+        <p className="text-xs uppercase tracking-[0.3em] text-public-teal">
+          Vérification
+        </p>
+        <h1 className="mt-2 font-display text-3xl text-public-ink">
+          Vérifier votre email
+        </h1>
+      </div>
 
-      <div className="mb-4 text-center text-sm text-gray-600">
+      <div className="text-center text-sm text-public-ink/65">
         Nous avons envoyé un code de vérification à{" "}
         <strong>{user?.email}</strong>
       </div>
 
       {/* Affichage des erreurs de vérification */}
       {verificationError && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-red-700">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-red-700">
           {verificationError}
         </div>
       )}
 
       {/* Affichage des erreurs API */}
       {apiError && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-red-700">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-red-700">
           {apiError}
         </div>
       )}
 
-      <form onSubmit={handleVerify} className="space-y-6">
+      <form onSubmit={handleVerify} className="space-y-5">
         <div>
           <label
             htmlFor="code"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-public-ink"
           >
             Entrez le code de vérification
           </label>
@@ -215,7 +220,7 @@ export const VerifyingDisplay = () => {
             id="code"
             name="code"
             onChange={handleCodeChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block h-11 w-full rounded-2xl border-public-line bg-public-paper px-4 shadow-sm focus:border-public-brass focus:outline-none focus:ring-public-brass sm:text-sm"
             placeholder="123456"
             maxLength={6}
             disabled={isLoading}
@@ -226,7 +231,7 @@ export const VerifyingDisplay = () => {
           <button
             type="submit"
             disabled={!isLoaded || isLoading || !code.trim()}
-            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-full border border-public-ink bg-public-ink px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:border-public-clay hover:bg-public-clay focus:outline-none focus:ring-2 focus:ring-public-brass/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -263,7 +268,7 @@ export const VerifyingDisplay = () => {
             type="button"
             onClick={handleResendCode}
             disabled={isLoading}
-            className="text-sm text-blue-600 hover:text-blue-500 disabled:opacity-50"
+            className="text-sm text-public-clay hover:text-public-teal disabled:opacity-50"
           >
             Renvoyer le code
           </button>

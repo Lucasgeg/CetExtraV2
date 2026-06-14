@@ -29,8 +29,15 @@ export const RoleChoiceDisplay = ({ handleSubmit }: RoleChoiceDisplayProps) => {
     }
   ];
   return (
-    <div className="flex h-full w-full flex-col">
-      <h2 className="text-center text-lg font-semibold">Tu es un:</h2>
+    <div className="flex h-full w-full flex-col gap-4">
+      <div>
+        <p className="text-xs uppercase tracking-[0.3em] text-public-teal">
+          Première étape
+        </p>
+        <h2 className="mt-2 font-display text-2xl text-public-ink">
+          Vous êtes un
+        </h2>
+      </div>
       <RadioGroup
         name="role"
         options={roleOptions}
@@ -38,7 +45,7 @@ export const RoleChoiceDisplay = ({ handleSubmit }: RoleChoiceDisplayProps) => {
         onChange={handleRoleChange}
       />
       <div className="ml-auto">
-        <Button size="lg" onClick={handleSubmit}>
+        <Button theme="public" size="lg" onClick={handleSubmit}>
           Suivant
         </Button>
       </div>

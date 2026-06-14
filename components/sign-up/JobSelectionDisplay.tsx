@@ -123,7 +123,14 @@ export const JobSelectionDisplay = ({
       onSubmit={handleSubmitAction}
       className="flex w-full flex-1 flex-col gap-4"
     >
-      <h2 className="text-xl font-bold">Sélection des postes</h2>
+      <div>
+        <p className="text-xs uppercase tracking-[0.3em] text-public-teal">
+          Dernière étape
+        </p>
+        <h2 className="mt-2 font-display text-2xl text-public-ink">
+          Sélection des postes
+        </h2>
+      </div>
 
       {/* Modal pour sélectionner le niveau d'expérience */}
       <Modal
@@ -138,7 +145,7 @@ export const JobSelectionDisplay = ({
             {selectedJob ? getJobLabel(selectedJob) : ""}
           </h3>
           <div className="flex flex-col items-center gap-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-public-ink/65">
               Cliquez sur les étoiles pour indiquer votre niveau d'expérience :
             </p>
             <div className="flex items-center justify-around gap-2 space-x-1">
@@ -147,15 +154,15 @@ export const JobSelectionDisplay = ({
                   key={star}
                   type="button"
                   onClick={() => setExperienceLevel(star)}
-                  className="rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="rounded-full focus:outline-none focus:ring-2 focus:ring-public-brass focus:ring-offset-2"
                   aria-label={`${star} étoile${star > 1 ? "s" : ""}`}
                 >
                   <StarIcon
                     className={`h-10 w-10 transition-colors duration-200 ${
                       star <= experienceLevel
-                        ? "fill-current text-yellow-400"
-                        : "text-gray-300"
-                    } hover:text-yellow-300`}
+                        ? "fill-current text-public-brass"
+                        : "text-public-line"
+                    } hover:text-public-brass`}
                     fill={star <= experienceLevel ? "currentColor" : "none"}
                     stroke="currentColor"
                     strokeWidth="1"
@@ -165,12 +172,13 @@ export const JobSelectionDisplay = ({
                 </button>
               ))}
             </div>
-            <span className="flex justify-center text-sm text-gray-600">
+            <span className="flex justify-center text-sm text-public-ink/65">
               {generateInformationSwitch(experienceLevel)}
             </span>
             {experienceLevel !== 0 && (
               <Button
                 variant="outline"
+                theme="public"
                 className="text-sm"
                 type="button"
                 onClick={() => setExperienceLevel(0)}
@@ -182,12 +190,17 @@ export const JobSelectionDisplay = ({
             <div className="flex gap-3">
               <Button
                 variant="outline"
+                theme="public"
                 onClick={handleModalClose}
                 className="flex-1"
               >
                 Annuler
               </Button>
-              <Button onClick={handleExperienceConfirm} className="flex-1">
+              <Button
+                theme="public"
+                onClick={handleExperienceConfirm}
+                className="flex-1"
+              >
                 Confirmer
               </Button>
             </div>
@@ -198,13 +211,15 @@ export const JobSelectionDisplay = ({
       {/* Jobs sélectionnés */}
       {extra?.missionJob && extra.missionJob.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-lg font-semibold">Postes sélectionnés :</h3>
+          <h3 className="mb-2 text-lg font-semibold text-public-ink">
+            Postes sélectionnés :
+          </h3>
           <div className="flex flex-wrap gap-2">
             {extra.missionJob.map((job) => (
               <Badge
                 key={job.missionJob}
                 variant="default"
-                className="cursor-pointer bg-green-500 text-white hover:bg-green-600"
+                className="cursor-pointer bg-public-clay text-white hover:bg-public-clay/90"
                 onClick={() => handleRemoveJob(job.missionJob)}
               >
                 {getJobLabel(job.missionJob)} ({job.experience} an
@@ -219,7 +234,9 @@ export const JobSelectionDisplay = ({
       <div className="flex-1 space-y-4 overflow-auto">
         {Object.entries(jobByCategory).map(([category, jobs]) => (
           <div key={category}>
-            <h3 className="mb-2 text-lg font-medium">{category}</h3>
+            <h3 className="mb-2 text-lg font-medium text-public-ink">
+              {category}
+            </h3>
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {jobs.map((job) => (
                 <li key={job.value}>
@@ -227,8 +244,8 @@ export const JobSelectionDisplay = ({
                     variant={isJobSelected(job.label) ? "default" : "outline"}
                     className={`w-full cursor-pointer justify-center transition-colors ${
                       isJobSelected(job.label)
-                        ? "bg-blue-500 text-white hover:bg-blue-600"
-                        : "hover:bg-gray-100"
+                        ? "bg-public-ink text-public-paper hover:bg-public-clay"
+                        : "border-public-line bg-public-paper-alt hover:bg-public-paper"
                     }`}
                     onClick={() => handleJobClick(job.label)}
                   >
@@ -242,10 +259,16 @@ export const JobSelectionDisplay = ({
       </div>
 
       <div className="flex justify-between pt-4">
-        <Button theme="company" onClick={actionPreviousAction} type="button">
+        <Button
+          theme="public"
+          variant="outline"
+          onClick={actionPreviousAction}
+          type="button"
+        >
           Précédent
         </Button>
         <Button
+          theme="public"
           type="submit"
           disabled={!extra?.missionJob || extra.missionJob.length === 0}
         >

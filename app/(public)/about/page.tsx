@@ -30,115 +30,94 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center px-6 py-6">
-      <section className="w-full max-w-2xl rounded-2xl border-4 border-extra-border bg-white-soft p-8 text-center shadow-2xl">
-        <h1 className="mb-4 text-4xl font-extrabold text-employer-primary md:text-5xl">
-          À propos de Cet Extra
-        </h1>
-        <p className="mb-6 text-lg text-employer-secondary md:text-xl">
-          L’application qui simplifie le recrutement d’extras pour les
-          professionnels de l’événementiel.
-        </p>
-
-        <div className="mb-6 space-y-4 text-left text-employer-primary">
-          <h2 className="text-2xl font-bold text-extra-secondary">
-            Ma mission
-          </h2>
-          <p>
-            Cet Extra est une plateforme que j’ai créée pour faciliter la mise
-            en relation rapide et efficace entre employeurs de l’événementiel et
-            extras (employés ponctuels), principalement dans la restauration.
-            Mon objectif : simplifier le recrutement d’extras pour tous les
-            professionnels du secteur.
+    <div className="flex w-full flex-1 items-center py-8 sm:py-12">
+      <section className="grid w-full gap-6 lg:grid-cols-[1fr_0.85fr]">
+        <div className="rounded-[2rem] border border-public-line bg-public-paper-alt p-8 shadow-paper sm:p-10">
+          <p className="text-xs uppercase tracking-[0.35em] text-public-teal">
+            Pourquoi Cet Extra
+          </p>
+          <h1 className="mt-4 font-display text-4xl leading-tight text-public-ink sm:text-5xl">
+            Une réponse simple à un problème très concret.
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-public-ink/80">
+            J’ai construit Cet Extra pour éviter les appels en cascade, les
+            feuilles dispersées et les disponibilités perdues. L'idée est de
+            rendre visibles les bonnes personnes au bon moment.
           </p>
 
-          <h2 className="text-2xl font-bold text-extra-secondary">
-            Qui suis-je&nbsp;?
-          </h2>
-          <p>
-            Je m’appelle Lucas, anciennement maître d'hôtel en restauration
-            pendant plus de 10 ans, aujourd’hui développeur web. Après avoir
-            observé les difficultés rencontrées par les employeurs pour trouver
-            des extras disponibles au bon moment, j’ai décidé de créer une
-            solution simple, moderne et intuitive.
-          </p>
-
-          <h2 className="text-2xl font-bold text-extra-secondary">
-            Pourquoi Cet Extra&nbsp;?
-          </h2>
-          <p>
-            L’idée de Cet Extra m’est venue d’une expérience vécue&nbsp;: chaque
-            lundi, mon ancien employeur en traiteur passait des heures à
-            contacter, un par un, tous les extras potentiels pour savoir s’ils
-            étaient disponibles le week-end suivant. Un processus long,
-            fastidieux, peu efficace.
-          </p>
-          <p>
-            Avec Cet Extra, tout change&nbsp;: les employeurs visualisent en un
-            coup d’œil les profils disponibles à proximité, peuvent les
-            contacter directement via une messagerie intégrée, et gagnent ainsi
-            un temps précieux dans leur organisation.
-          </p>
-
-          <h2 className="text-2xl font-bold text-extra-secondary">
-            Mes valeurs
-          </h2>
-          <ul className="list-disc pl-5">
-            <li>
-              <b>Simplicité</b> : une interface claire, accessible à tous,
-              pensée pour aller à l’essentiel.
-            </li>
-            <li>
-              <b>Confiance</b> : des profils vérifiés et une transparence sur
-              les disponibilités.
-            </li>
-            <li>
-              <b>Proximité</b> : une mise en relation locale pour répondre aux
-              besoins urgents des employeurs.
-            </li>
-          </ul>
-
-          <h2 className="text-2xl font-bold text-extra-secondary">Ma vision</h2>
-          <p>
-            Aujourd’hui, Cet Extra cible principalement les postes de serveur et
-            cuisinier, mais j’ai l’ambition d’élargir rapidement à d’autres
-            métiers de l’événementiel. Je souhaite aussi enrichir l’application
-            avec de nouvelles fonctionnalités&nbsp;: statistiques, messagerie
-            instantanée, gestion de missions, etc., et déployer le service
-            partout en France.
-          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {[
+              [
+                "Simplicité",
+                "Une interface claire, pensée pour aller droit à l'essentiel."
+              ],
+              [
+                "Confiance",
+                "Des profils lisibles et un cadre qui aide à décider vite."
+              ],
+              [
+                "Proximité",
+                "Une mise en relation locale pour répondre aux besoins urgents."
+              ],
+              [
+                "Évolution",
+                "Une base solide pour ajouter la messagerie, les statistiques et les missions."
+              ]
+            ].map(([title, text]) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-public-line bg-public-paper px-5 py-5"
+              >
+                <h2 className="font-display text-2xl text-public-clay">
+                  {title}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-public-ink/70">
+                  {text}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="mb-8 text-employer-primary">
-          <h2 className="text-2xl font-bold text-extra-secondary">
-            Restez informés
-          </h2>
-          <p>
-            Pour suivre l’évolution du projet, découvrir les nouveautés ou vous
-            inscrire aux notifications, rendez-vous sur mon&nbsp;
-            <Link
-              href="/blog"
-              className="font-medium text-extra-secondary underline transition hover:text-extra-primary"
-            >
-              blog&nbsp;!
-            </Link>
-          </p>
-        </div>
+        <aside className="space-y-4">
+          <div className="rounded-[2rem] border border-public-ink bg-public-ink p-8 text-public-paper shadow-paper">
+            <p className="text-xs uppercase tracking-[0.35em] text-public-brass/90">
+              À propos de moi
+            </p>
+            <h2 className="mt-4 font-display text-3xl leading-tight">
+              Ancien maître d'hôtel, aujourd'hui développeur web.
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-public-paper/80">
+              J’ai vu de près le temps perdu à appeler un à un les extras pour
+              savoir qui était disponible le week-end suivant. Cet outil est né
+              de ce moment-là : rendre le tri plus rapide, plus lisible et plus
+              utile.
+            </p>
+          </div>
 
-        <div className="flex justify-center gap-4">
-          <Link
-            href="/blog"
-            className="inline-block rounded-lg bg-extra-primary px-6 py-3 font-semibold text-extra-text-primary shadow transition hover:bg-extra-secondary hover:text-white-soft"
-          >
-            Découvrir le blog
-          </Link>
-          <Link
-            href="/"
-            className="inline-block rounded-lg bg-extra-primary px-6 py-3 font-semibold text-extra-text-primary shadow transition hover:bg-extra-secondary hover:text-white-soft"
-          >
-            Retour à l'accueil
-          </Link>
-        </div>
+          <div className="rounded-[2rem] border border-public-line bg-public-paper px-6 py-6 shadow-card">
+            <p className="text-xs uppercase tracking-[0.35em] text-public-teal">
+              Rester informé
+            </p>
+            <p className="mt-3 text-sm leading-6 text-public-ink/70">
+              Le blog raconte les évolutions du projet et les prochaines étapes.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                href="/blog"
+                className="inline-flex items-center rounded-full border border-public-ink bg-public-ink px-4 py-2 text-sm text-public-paper transition hover:border-public-clay hover:bg-public-clay"
+              >
+                Découvrir le blog
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center rounded-full border border-public-line bg-public-paper-alt px-4 py-2 text-sm text-public-ink transition hover:border-public-brass hover:bg-public-paper"
+              >
+                Retour à l'accueil
+              </Link>
+            </div>
+          </div>
+        </aside>
       </section>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import logo from "@/assets/cetextralogo.jpeg";
-import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
 import { useSignIn } from "@clerk/nextjs";
 import Image from "next/image";
 import * as React from "react";
@@ -70,85 +69,93 @@ export default function Page() {
     }
   };
   return (
-    <>
-      <AnimatedBG />
-      <div className="flex h-screen items-center justify-center">
-        <div className="relative flex w-4/5 flex-col rounded-lg shadow-lg md:grid md:w-1/2 md:grid-cols-2">
-          <div className="flex w-full items-center justify-center bg-[#30325F]">
-            <Image
-              src={logo}
-              alt="logo cet-extra"
-              className="w-1/2 md:w-full"
-            />
-          </div>
-          <div className="flex flex-col items-center justify-center border bg-white px-6 py-3 align-middle">
-            <h1 className="flex flex-col items-center justify-center pb-8">
-              <span className="text-center text-5xl">Cet Extra!</span>
-              <span className="text-2xl">Connexion</span>
+    <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center py-8">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-public-line bg-public-paper-alt shadow-paper md:grid-cols-2">
+        <div className="flex w-full items-center justify-center bg-public-ink p-10">
+          <Image src={logo} alt="logo cet-extra" className="w-3/4" />
+        </div>
+        <div className="flex flex-col items-center justify-center px-6 py-10 sm:px-10">
+          <div className="mb-8 text-center">
+            <p className="text-xs uppercase tracking-[0.35em] text-public-teal">
+              Connexion
+            </p>
+            <h1 className="mt-3 font-display text-5xl text-public-ink">
+              Cet Extra
             </h1>
-            <form
-              onSubmit={handleSubmit}
-              className="xs:pl-5 flex w-3/4 flex-col items-center gap-4"
-            >
-              <div className="item flex w-full flex-col gap-1">
-                <label htmlFor="email">Entrez votre adresse email:</label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={handleChange(setEmail)}
-                />
-              </div>
-              <div className="flex w-full flex-col gap-1">
-                <label htmlFor="password">Entrez votre mot de passe:</label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  placeholder="Mot de passe"
-                  value={password}
-                  onChange={handleChange(setPassword)}
-                />
-              </div>
-              {/* CAPTCHA Widget */}
-              <div id="clerk-captcha" />
-              <div className="xs:flex-row flex w-full flex-col items-center">
-                {error && (
-                  <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {error}
-                  </div>
-                )}
-                <Button
-                  type="submit"
-                  className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Loader size="sm" variant="spinner" />
-                  ) : (
-                    "Se connecter"
-                  )}
-                </Button>
-
-                {/* 
-                //TODO: Implement OAuth 
-                <div className="flex flex-col items-center gap-2">
-                  <span>Ou bien</span>
-                  <button onClick={() => signUpWith("oauth_google")}>
-                    <GoogleLogo />
-                  </button>
-                </div>
-                */}
-              </div>
-            </form>
-            <Link className="text-xs hover:underline" href="/sign-up">
-              Pas encore inscrit? Clique ici
-            </Link>
+            <p className="mt-2 text-sm text-public-ink/65">
+              Accédez à votre espace en quelques secondes.
+            </p>
           </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="flex w-full max-w-md flex-col gap-4"
+          >
+            <div className="flex w-full flex-col gap-1">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-public-ink"
+              >
+                Entrez votre adresse email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={email}
+                onChange={handleChange(setEmail)}
+                className="h-11 rounded-2xl border-public-line bg-public-paper px-4 text-public-ink placeholder:text-public-ink/35 focus:border-public-brass focus:ring-public-brass"
+              />
+            </div>
+            <div className="flex w-full flex-col gap-1">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-public-ink"
+              >
+                Entrez votre mot de passe
+              </label>
+              <Input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Mot de passe"
+                value={password}
+                onChange={handleChange(setPassword)}
+                className="h-11 rounded-2xl border-public-line bg-public-paper px-4 text-public-ink placeholder:text-public-ink/35 focus:border-public-brass focus:ring-public-brass"
+              />
+            </div>
+
+            <div id="clerk-captcha" />
+
+            {error && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              theme="public"
+              className="h-11 rounded-full px-5"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader size="sm" variant="spinner" />
+              ) : (
+                "Se connecter"
+              )}
+            </Button>
+
+            <Link
+              className="text-center text-sm text-public-ink/70 transition hover:text-public-clay hover:underline"
+              href="/sign-up"
+            >
+              Pas encore inscrit ? Créer un compte
+            </Link>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }

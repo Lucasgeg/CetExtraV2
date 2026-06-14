@@ -51,7 +51,7 @@ export const ExtraSignUpDisplay = ({
   ];
 
   return (
-    <>
+    <div className="space-y-4">
       <LabelledInput
         label="Ton nom"
         inputProps={{
@@ -98,6 +98,6 @@ export const ExtraSignUpDisplay = ({
           onChange: (e) => handleChange("phone", e.target.value)
         }}
       />
-    </>
+    </div>
   );
 };

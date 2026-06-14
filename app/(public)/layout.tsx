@@ -1,47 +1,83 @@
+"use client";
+
 import { ClerkProvider } from "@clerk/nextjs";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isBlogAdmin = pathname?.startsWith("/blog/admin");
+
   return (
     <ClerkProvider>
-      <div className="flex min-h-screen flex-col">
-        <nav className="h-16 w-full border-b-4 border-[#FDBA3B] bg-white/90 py-3 shadow-md">
-          <div className="mx-auto flex h-full max-w-screen-xl items-center justify-center">
-            <ul className="flex gap-6">
-              <li>
-                <Link
-                  href="/"
-                  className="rounded-lg bg-transparent px-4 py-2 font-semibold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
-                >
-                  Accueil
+      <div className="relative min-h-screen overflow-hidden bg-public-paper text-public-ink">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-public-spotlight opacity-90" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-public-grid bg-[length:32px_32px] opacity-[0.22]" />
+
+        <div className="mx-auto flex min-h-screen w-full max-w-screen-3xl flex-col px-4 py-4 sm:px-6 lg:px-8">
+          {!isBlogAdmin && (
+            <header className="sticky top-0 z-20 mb-6 border-b border-public-line/80 bg-public-paper/90 backdrop-blur">
+              <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+                <Link href="/" className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full border border-public-line bg-public-paper-alt shadow-paper">
+                    <span className="font-display text-lg tracking-tight">
+                      CE
+                    </span>
+                  </span>
+                  <span>
+                    <span className="block font-display text-2xl tracking-tight">
+                      Cet Extra
+                    </span>
+                    <span className="block text-[0.7rem] uppercase tracking-[0.28em] text-public-ink/60">
+                      Recrutement d'extras
+                    </span>
+                  </span>
                 </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="rounded-lg bg-transparent px-4 py-2 font-semibold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
-                >
-                  A propos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="rounded-lg bg-transparent px-4 py-2 font-semibold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
-                >
-                  Blog
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </nav>
-        <main className="w-full flex-1 bg-gradient-to-r from-brand-gradient-start via-brand-gradient-mid to-brand-gradient-end">
-          <div className="flex h-[calc(100vh-4rem)] flex-col">{children}</div>
-        </main>
+
+                <nav className="flex flex-wrap items-center gap-2">
+                  {[
+                    ["Accueil", "/"],
+                    ["A propos", "/about"],
+                    ["Blog", "/blog"],
+                    ["Se connecter", "/sign-in"],
+                    ["Créer un compte", "/sign-up"]
+                  ].map(([label, href]) => (
+                    <Button
+                      key={href}
+                      asChild
+                      theme="public"
+                      variant="outline"
+                      rounded="pill"
+                      className="h-10 border-public-line bg-public-paper px-4 text-sm shadow-none"
+                    >
+                      <Link href={href}>{label}</Link>
+                    </Button>
+                  ))}
+                </nav>
+              </div>
+            </header>
+          )}
+
+          <main className={`flex flex-1 flex-col ${isBlogAdmin ? "" : "pb-8"}`}>
+            {children}
+          </main>
+
+          {!isBlogAdmin && (
+            <footer className="border-t border-public-line/80 py-5 text-sm text-public-ink/60">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p>Une plateforme pensée pour les équipes de terrain.</p>
+                <p>
+                  Disponible pour les extras, employeurs et lecteurs du blog.
+                </p>
+              </div>
+            </footer>
+          )}
+        </div>
       </div>
     </ClerkProvider>
   );

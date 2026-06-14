@@ -49,14 +49,14 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
                 asChild
                 className={`cursor-pointer rounded p-1 ${
                   selectedValue === option.value
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200"
-                } flex h-full w-full items-center justify-center transition-all duration-300`}
+                    ? "border-public-ink bg-public-ink text-public-paper"
+                    : "border border-public-line bg-public-paper-alt text-public-ink"
+                } flex h-full w-full items-center justify-center rounded-2xl px-4 py-3 transition-all duration-300`}
               >
                 <span>{option.label}</span>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-sm font-medium text-black">
+                <p className="text-sm font-medium text-public-ink">
                   {option.description}
                 </p>
               </TooltipContent>

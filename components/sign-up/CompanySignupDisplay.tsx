@@ -25,7 +25,7 @@ export const CompanySignupDisplay = ({
   };
 
   return (
-    <>
+    <div className="space-y-4">
       <LabelledInput
         label="Nom de votre entreprise"
         inputProps={{
@@ -59,6 +59,6 @@ export const CompanySignupDisplay = ({
           value={user?.location}
         />
       </div>
-    </>
+    </div>
   );
 };

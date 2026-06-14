@@ -71,9 +71,9 @@ export const Switch = ({
         onClick={handleToggle}
         disabled={disabled}
         className={cn(
-          "relative inline-flex items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+          "relative inline-flex items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-public-brass focus:ring-offset-2",
           sizeClasses.container,
-          switchState ? "bg-blue-600" : "bg-gray-200",
+          switchState ? "bg-public-ink" : "bg-public-line",
           disabled && "cursor-not-allowed opacity-50"
         )}
       >
@@ -91,7 +91,7 @@ export const Switch = ({
         className={cn(
           "font-semibold transition-colors duration-200",
           sizeClasses.text,
-          switchState ? "text-blue-600" : "text-gray-500",
+          switchState ? "text-public-ink" : "text-public-ink/55",
           disabled && "opacity-50"
         )}
       >

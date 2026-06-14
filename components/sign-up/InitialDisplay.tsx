@@ -160,15 +160,17 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   return (
     <form
       onSubmit={handleSubmitInitialStep}
-      className="xs:pl-5 flex w-3/4 flex-col items-center gap-4"
+      className="flex w-full flex-col gap-4"
     >
       {errorMessages?.clerk && (
-        <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-red-700">
+        <div className="w-full rounded-2xl border border-red-200 bg-red-50 p-3 text-red-700">
           {errorMessages.clerk}
         </div>
       )}
-      <div className="item flex w-full flex-col gap-1">
-        <label htmlFor="email">Entrez votre adresse email:</label>
+      <div className="flex w-full flex-col gap-1">
+        <label htmlFor="email" className="text-sm font-medium text-public-ink">
+          Entrez votre adresse email
+        </label>
         <Input
           id="email"
           type="email"
@@ -177,10 +179,16 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           value={user?.email || ""}
           onChange={(e) => handleChange("email", e.target.value)}
           errorMessage={errorMessages?.global?.email}
+          className="h-11 rounded-2xl border-public-line bg-public-paper px-4 text-public-ink placeholder:text-public-ink/35 focus:border-public-brass focus:ring-public-brass"
         />
       </div>
       <div className="flex w-full flex-col gap-1">
-        <label htmlFor="password">Entrez votre mot de passe:</label>
+        <label
+          htmlFor="password"
+          className="text-sm font-medium text-public-ink"
+        >
+          Entrez votre mot de passe
+        </label>
         <Input
           id="password"
           type="password"
@@ -189,10 +197,16 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           value={user?.password || ""}
           onChange={(e) => handleChange("password", e.target.value)}
           errorMessage={errorMessages?.global?.password}
+          className="h-11 rounded-2xl border-public-line bg-public-paper px-4 text-public-ink placeholder:text-public-ink/35 focus:border-public-brass focus:ring-public-brass"
         />
       </div>
       <div className="flex w-full flex-col gap-1">
-        <label htmlFor="confirmPassword">Confirmez votre mot de passe:</label>
+        <label
+          htmlFor="confirmPassword"
+          className="text-sm font-medium text-public-ink"
+        >
+          Confirmez votre mot de passe
+        </label>
         <Input
           id="confirmPassword"
           type="password"
@@ -201,14 +215,15 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
           value={user?.confirmPassword || ""}
           onChange={(e) => handleChange("confirmPassword", e.target.value)}
           errorMessage={errorMessages?.global?.confirmPassword}
+          className="h-11 rounded-2xl border-public-line bg-public-paper px-4 text-public-ink placeholder:text-public-ink/35 focus:border-public-brass focus:ring-public-brass"
         />
       </div>
       {/* CAPTCHA Widget */}
       <div id="clerk-captcha" />
-      <div className="xs:flex-row flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-stretch">
         <button
           type="submit"
-          className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="my-4 rounded-full border border-public-ink bg-public-ink px-4 py-2 text-white transition hover:border-public-clay hover:bg-public-clay"
         >
           S'inscrire
         </button>

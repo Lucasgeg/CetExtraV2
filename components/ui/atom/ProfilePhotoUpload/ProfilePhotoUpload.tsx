@@ -61,14 +61,14 @@ export const ProfilePhotoUpload = () => {
             <Image
               src={previewUrl}
               alt="Aperçu de la photo de profil"
-              className="h-32 w-32 rounded-full border-4 border-gray-200 object-cover"
+              className="h-32 w-32 rounded-full border-4 border-public-line object-cover"
               width={128}
               height={128}
             />
             <button
               type="button"
               onClick={handleRemovePhoto}
-              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-sm text-white hover:bg-red-600"
+              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-public-clay text-sm text-white hover:bg-public-clay/90"
               aria-label="Supprimer la photo"
             >
               ×
@@ -77,11 +77,11 @@ export const ProfilePhotoUpload = () => {
         ) : (
           <div
             onClick={triggerFileSelect}
-            className="flex h-32 w-32 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-gray-300 bg-gray-100 transition-colors hover:bg-gray-50"
+            className="flex h-32 w-32 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-public-line bg-public-paper-alt transition-colors hover:bg-public-paper"
           >
             <div className="text-center">
               <svg
-                className="mx-auto mb-2 h-8 w-8 text-gray-400"
+                className="mx-auto mb-2 h-8 w-8 text-public-ink/35"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -93,7 +93,7 @@ export const ProfilePhotoUpload = () => {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <p className="text-xs text-gray-500">Ajouter une photo</p>
+              <p className="text-xs text-public-ink/55">Ajouter une photo</p>
             </div>
           </div>
         )}
@@ -112,6 +112,7 @@ export const ProfilePhotoUpload = () => {
         <Button
           type="button"
           variant="outline"
+          theme="public"
           onClick={triggerFileSelect}
           className="text-sm"
         >
@@ -122,6 +123,7 @@ export const ProfilePhotoUpload = () => {
           <Button
             type="button"
             variant="destructive"
+            theme="public"
             onClick={handleRemovePhoto}
             className="text-sm"
           >
@@ -130,7 +132,7 @@ export const ProfilePhotoUpload = () => {
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-500">
+      <p className="text-center text-xs text-public-ink/55">
         Formats acceptés : JPG, PNG, GIF
         <br />
         Taille maximale : 5MB
