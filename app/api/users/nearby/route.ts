@@ -1,10 +1,8 @@
 import prisma from "@/app/lib/prisma";
-import { decrypt } from "@/utils/crypto";
 import {
   calculateDistance,
   randomizeCoordinatesAdvanced
 } from "@/utils/distance.utils";
-import { getKey } from "@/utils/keyCache";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,7 +13,6 @@ export async function GET(request: NextRequest) {
     if (!userId || sessionClaims.publicMetadata.role !== "company") {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-    const key = await getKey();
     const { searchParams } = new URL(request.url);
     const lat = parseFloat(searchParams.get("lat") || "0");
     const lon = parseFloat(searchParams.get("lon") || "0");
@@ -64,52 +61,36 @@ export async function GET(request: NextRequest) {
     const nearbyUsers = users
       .filter((user) => {
         if (!user.userLocation) return false;
-        const decryptedUserLat = Number(decrypt(user.userLocation.lat, key));
-        const decryptedUserLon = Number(decrypt(user.userLocation.lon, key));
+        const userLat = Number(user.userLocation.lat);
+        const userLon = Number(user.userLocation.lon);
         // Calculer la distance et vérifier si elle est dans le rayon
 
-        const distance = calculateDistance(
-          lat,
-          lon,
-          decryptedUserLat,
-          decryptedUserLon
-        );
+        const distance = calculateDistance(lat, lon, userLat, userLon);
         return distance <= radius;
       })
       .map((user) => {
         if (!user.userLocation) {
           return null; // Ignorer les utilisateurs sans localisation
         }
-        const decryptedLat = Number(decrypt(user.userLocation.lat, key));
-        const decryptedLon = Number(decrypt(user.userLocation.lon, key));
-        const distance = calculateDistance(
-          lat,
-          lon,
-          decryptedLat,
-          decryptedLon
-        );
+        const userLat = Number(user.userLocation.lat);
+        const userLon = Number(user.userLocation.lon);
+        const distance = calculateDistance(lat, lon, userLat, userLon);
 
         const displayCoordinates = preservePrivacy
-          ? randomizeCoordinatesAdvanced(decryptedLat, decryptedLon, 0.1, 0.8)
+          ? randomizeCoordinatesAdvanced(userLat, userLon, 0.1, 0.8)
           : {
-              lat: decryptedLat,
-              lon: decryptedLon
+              lat: userLat,
+              lon: userLon
             };
-        const decryptedFirstName = user.extra?.first_name
-          ? decrypt(user.extra.first_name, key)
-          : "";
-        const decryptedLastName = user.extra?.last_name
-          ? decrypt(user.extra.last_name, key)
-          : "";
-        const decryptedProfilePictureUrl = user.profilePictureUrl
-          ? decrypt(user.profilePictureUrl, key)
-          : "";
+        const firstName = user.extra?.first_name || "";
+        const lastName = user.extra?.last_name || "";
+        const profilePictureUrl = user.profilePictureUrl || "";
 
         return {
           id: user.id,
-          name: `${decryptedFirstName} ${decryptedLastName}`.trim(),
-          firstName: decryptedFirstName,
-          lastName: decryptedLastName,
+          name: `${firstName} ${lastName}`.trim(),
+          firstName,
+          lastName,
           lat: displayCoordinates.lat,
           lon: displayCoordinates.lon,
           distance,
@@ -117,7 +98,7 @@ export async function GET(request: NextRequest) {
             ? user.extra.missionJobs.join(", ")
             : user.extra?.missionJobs || "Non spécifié",
           isPrivacyProtected: preservePrivacy,
-          profileImageUrl: decryptedProfilePictureUrl
+          profileImageUrl: profilePictureUrl
         };
       });
 

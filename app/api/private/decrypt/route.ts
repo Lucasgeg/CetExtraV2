@@ -1,5 +1,3 @@
-import { decrypt } from "@/utils/crypto";
-import { getKey } from "@/utils/keyCache";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -17,7 +15,6 @@ export async function POST(request: Request) {
     });
   }
   const { encryptedData } = await request.json();
-  const key = await getKey();
-  const decryptedData = decrypt(encryptedData, key);
+  const decryptedData = encryptedData;
   return NextResponse.json({ decryptedData });
 }

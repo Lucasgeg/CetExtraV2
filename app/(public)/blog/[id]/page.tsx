@@ -83,7 +83,7 @@ export default async function BlogPostPage(props: {
       // Extraction de l'ID public Cloudinary depuis l'URL
       const cloudinaryRegex =
         /res\.cloudinary\.com\/[^/]+\/upload\/(?:v\d+\/)?(.+)/;
-      const match = src?.match(cloudinaryRegex);
+      const match = typeof src === "string" ? src.match(cloudinaryRegex) : null;
 
       if (match) {
         const publicId = match[1];
@@ -106,10 +106,12 @@ export default async function BlogPostPage(props: {
       }
 
       // Fallback pour les images externes
+      const fallbackSrc = typeof src === "string" ? src : "/placeholder.jpg";
+
       return (
         <div className="relative my-4 h-[400px] w-full">
           <Image
-            src={src || "/placeholder.jpg"}
+            src={fallbackSrc}
             alt={alt || "Image de l'article"}
             fill
             className="rounded-lg object-contain"

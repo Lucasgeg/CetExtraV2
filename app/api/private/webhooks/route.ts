@@ -1,6 +1,4 @@
 import prisma from "@/app/lib/prisma";
-import { encrypt } from "@/utils/crypto";
-import { getKey } from "@/utils/keyCache";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -47,12 +45,11 @@ export async function POST(request: Request) {
       status: 200
     });
   }
-  const key = await getKey();
   try {
     await prisma.user.update({
       where: { clerkId: payload.data.id },
       data: {
-        profilePictureUrl: encrypt(payload.data.image_url, key) || null,
+        profilePictureUrl: payload.data.image_url || null,
         updated_at: new Date()
       }
     });

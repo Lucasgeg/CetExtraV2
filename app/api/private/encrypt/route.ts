@@ -1,5 +1,3 @@
-import { encrypt } from "@/utils/crypto";
-import { getKey } from "@/utils/keyCache";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -19,10 +17,7 @@ export async function POST(request: Request) {
 
   try {
     const { plaintext } = await request.json();
-
-    const key = await getKey();
-
-    const encryptedData = encrypt(plaintext, key);
+    const encryptedData = plaintext;
     return NextResponse.json({ encryptedData });
   } catch (error) {
     console.error("Error in encryption route:", error);
