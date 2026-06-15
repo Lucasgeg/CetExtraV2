@@ -21,7 +21,7 @@ export const JobSelectionDisplay = ({
 
   const [selectedJob, setSelectedJob] = useState<EnumMissionJob | null>(null);
   const [experienceLevel, setExperienceLevel] = useState<number>(0);
-  const { isLoaded, signUp } = useSignUp();
+  const { signUp } = useSignUp();
 
   const jobOptions = getJobOptionsForSelector();
   const jobByCategory = jobOptions.reduce(
@@ -110,11 +110,10 @@ export const JobSelectionDisplay = ({
 
   const handleSubmitAction = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !isLoaded) return;
+    if (!user) return;
 
-    await signUp?.prepareEmailAddressVerification({
-      strategy: "email_code"
-    });
+    const sendCodeResult = await signUp.verifications.sendEmailCode();
+    if (sendCodeResult.error) return;
     actionSubmitAction();
   };
 

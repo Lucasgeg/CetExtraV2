@@ -13,7 +13,7 @@ type InitialDisplayProps = {
 export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   const { user, errorMessages, setErrorMessages, updateUserProperty } =
     useSignUpStore();
-  const { isLoaded, signUp } = useSignUp();
+  const { signUp } = useSignUp();
   const verifyGlobalErrors = () => {
     let hasError = false;
     const newErrorMessages: GlobalErrorMessages = {};
@@ -123,7 +123,7 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
 
   const handleSubmitInitialStep = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded || verifyGlobalErrors()) return;
+    if (verifyGlobalErrors()) return;
 
     setErrorMessages({
       ...errorMessages,
@@ -131,10 +131,14 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
     });
 
     try {
-      await signUp.create({
+      const createResult = await signUp.create({
         emailAddress: user?.email,
         password: user?.password
       });
+      if (createResult.error) {
+        handleClerkError(createResult.error as unknown as ClerkAPIError);
+        return;
+      }
 
       handleSubmit(e);
     } catch (error: unknown) {

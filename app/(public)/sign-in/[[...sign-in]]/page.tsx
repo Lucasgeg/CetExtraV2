@@ -15,7 +15,7 @@ import { Loader } from "@/components/ui/Loader/Loader";
 
 export default function Page() {
   const { setUser } = useCurrentUserStore();
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { signIn } = useSignIn();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -37,7 +37,6 @@ export default function Page() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isLoaded) return;
     if (!email || !password) {
       setError("Veuillez remplir tous les champs");
       return;
@@ -46,15 +45,28 @@ export default function Page() {
 
     // Start the sign-in process using the email and password provided
     try {
-      const signInAttempt = await signIn.create({
-        identifier: email,
-        password
+      const createResult = await signIn.create({
+        identifier: email
       });
+      if (createResult.error) {
+        setError("Email ou mot de passe incorrect");
+        return;
+      }
+
+      const passwordResult = await signIn.password({ password });
+      if (passwordResult.error) {
+        setError("Email ou mot de passe incorrect");
+        return;
+      }
 
       // If sign-in process is complete, set the created session as active
       // and redirect the user
-      if (signInAttempt.status === "complete") {
-        await setActive({ session: signInAttempt.createdSessionId });
+      if (signIn.status === "complete") {
+        const finalizeResult = await signIn.finalize();
+        if (finalizeResult.error) {
+          setError("Email ou mot de passe incorrect");
+          return;
+        }
         const data = await getMainUserData();
         setUser(data);
         router.push("/");
