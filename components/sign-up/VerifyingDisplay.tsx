@@ -22,7 +22,7 @@ export const VerifyingDisplay = () => {
   >();
   const [apiError, setApiError] = React.useState<string | undefined>();
 
-  const { isLoaded, signUp, setActive } = useSignUp();
+  const { signUp } = useSignUp();
   const { user, extra, company, profilePhoto } = useSignUpStore();
   const router = useRouter();
 
@@ -69,22 +69,27 @@ export const VerifyingDisplay = () => {
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded || !code.trim()) return;
+    if (!code.trim()) return;
 
     setIsLoading(true);
     setVerificationError(undefined);
     setApiError(undefined);
 
     try {
-      const signUpAttempt = await signUp.attemptEmailAddressVerification({
+      const verifyResult = await signUp.verifications.verifyEmailCode({
         code
       });
 
-      if (signUpAttempt.status === "complete") {
-        if (signUpAttempt.createdUserId) {
+      if (verifyResult.error) {
+        handleClerkVerificationError(verifyResult.error as ClerkAPIError);
+        return;
+      }
+
+      if (signUp.status === "complete") {
+        if (signUp.createdUserId) {
           const userData = {
             ...user,
-            clerkId: signUpAttempt.createdUserId,
+            clerkId: signUp.createdUserId,
             extra: extra,
             company: company
           };
@@ -102,7 +107,11 @@ export const VerifyingDisplay = () => {
             });
 
             if (response.ok) {
-              await setActive({ session: signUpAttempt.createdSessionId });
+              const finalizeResult = await signUp.finalize();
+              if (finalizeResult.error) {
+                setApiError("Erreur de session après vérification");
+                return;
+              }
               router.push("/");
             } else {
               // Type safety pour la réponse d'erreur
@@ -119,7 +128,7 @@ export const VerifyingDisplay = () => {
           setVerificationError("Impossible de récupérer l'ID utilisateur");
         }
       } else {
-        console.error("Verification not complete:", signUpAttempt);
+        console.error("Verification not complete:", signUp);
         setVerificationError(
           "La vérification n'est pas complète. Veuillez réessayer"
         );
@@ -153,12 +162,12 @@ export const VerifyingDisplay = () => {
   };
 
   const handleResendCode = async () => {
-    if (!isLoaded) return;
-
     try {
-      await signUp.prepareEmailAddressVerification({
-        strategy: "email_code"
-      });
+      const sendCodeResult = await signUp.verifications.sendEmailCode();
+      if (sendCodeResult.error) {
+        handleClerkVerificationError(sendCodeResult.error as ClerkAPIError);
+        return;
+      }
       setVerificationError(undefined);
       setApiError(undefined);
       // Optionally show a success message
@@ -225,7 +234,7 @@ export const VerifyingDisplay = () => {
         <div className="flex justify-center">
           <button
             type="submit"
-            disabled={!isLoaded || isLoading || !code.trim()}
+            disabled={isLoading || !code.trim()}
             className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
