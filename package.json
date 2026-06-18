@@ -89,6 +89,6 @@
     "studio": "prisma/studio",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.0"
   }
 }
