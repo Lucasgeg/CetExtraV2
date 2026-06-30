@@ -1,15 +1,15 @@
 "use client";
-import * as React from "react";
-import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
 import Image from "next/image";
-import logo from "@/assets/cetextralogo.jpeg";
 import Link from "next/link";
-import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
-import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
-import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
-import { RoleChoiceDisplay } from "@/components/sign-up/RoleChoiceDisplay";
-import { JobSelectionDisplay } from "@/components/sign-up/JobSelectionDisplay";
+import * as React from "react";
+import logo from "@/assets/cetextralogo.jpeg";
 import { AboutYouDisplay } from "@/components/sign-up/AboutYouDisplay";
+import { InitialDisplay } from "@/components/sign-up/InitialDisplay";
+import { JobSelectionDisplay } from "@/components/sign-up/JobSelectionDisplay";
+import { MoreInformationDisplay } from "@/components/sign-up/MoreInformationDisplay";
+import { RoleChoiceDisplay } from "@/components/sign-up/RoleChoiceDisplay";
+import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
+import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
 
 enum SignUpStep {
   Initial,
@@ -78,23 +78,30 @@ export default function SignUpPage() {
   return (
     <>
       <AnimatedBG />
-      <div className="flex h-screen justify-center overflow-y-auto md:items-center">
-        <div className="flex w-4/5 flex-col rounded-lg md:grid md:w-8/12 md:grid-cols-[0.5fr_1fr] md:shadow-lg">
-          <div className="flex w-full items-center justify-center md:bg-[#30325F]">
+      <div className="flex min-h-full items-center justify-center overflow-y-auto py-8">
+        <div className="flex w-4/5 flex-col overflow-hidden rounded-xl shadow-lg md:grid md:w-1/2 md:grid-cols-2">
+          <div className="flex w-full items-center justify-center bg-[#30325F]">
             <Image
               src={logo}
               alt="logo cet-extra"
-              className="h-40 w-auto md:h-auto"
+              className="w-1/2 md:w-full"
             />
           </div>
-          <div className="flex flex-col items-center justify-center border bg-white px-6 py-3 align-middle">
-            <h1 className="flex flex-col pb-8 text-center">
-              <span className="text-5xl">Cet Extra!</span>
-              <span className="text-2xl">Inscription</span>
+          <div className="flex flex-col items-center justify-center border border-employer-border bg-white px-6 py-8">
+            <h1 className="mb-6 flex flex-col items-center gap-1 text-center">
+              <span className="font-black text-4xl text-employer-primary tracking-[-0.02em]">
+                CET<span className="text-[#F15A29]">⚡</span>EXTRA
+              </span>
+              <span className="font-medium text-employer-text-secondary text-xl">
+                Inscription
+              </span>
             </h1>
             {renderDisplay()}
-            <Link className="text-xs hover:underline" href="/sign-in">
-              Déjà un compte? Par ici!
+            <Link
+              className="mt-4 text-employer-text-secondary text-xs hover:text-employer-primary hover:underline"
+              href="/sign-in"
+            >
+              Déjà un compte ? Se connecter
             </Link>
           </div>
         </div>

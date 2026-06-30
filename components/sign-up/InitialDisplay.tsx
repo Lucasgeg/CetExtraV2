@@ -1,10 +1,12 @@
-import { FormEvent } from "react";
-import { Input } from "../ui/input";
-import { useSignUpStore } from "@/store/useSignUpstore";
-import { GlobalErrorMessages, UserSignUpSchema } from "@/store/types";
 import { useSignUp } from "@clerk/nextjs";
-import { ClerkAPIError } from "@clerk/types";
 import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
+import type { ClerkAPIError } from "@clerk/types";
+import { Eye, EyeOff } from "lucide-react";
+import type { FormEvent } from "react";
+import * as React from "react";
+import type { GlobalErrorMessages, UserSignUpSchema } from "@/store/types";
+import { useSignUpStore } from "@/store/useSignUpstore";
+import { Input } from "../ui/input";
 
 type InitialDisplayProps = {
   handleSubmit: (e: FormEvent) => void;
@@ -14,6 +16,8 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   const { user, errorMessages, setErrorMessages, updateUserProperty } =
     useSignUpStore();
   const { signUp } = useSignUp();
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirm, setShowConfirm] = React.useState(false);
   const verifyGlobalErrors = () => {
     let hasError = false;
     const newErrorMessages: GlobalErrorMessages = {};
@@ -164,59 +168,94 @@ export const InitialDisplay = ({ handleSubmit }: InitialDisplayProps) => {
   return (
     <form
       onSubmit={handleSubmitInitialStep}
-      className="xs:pl-5 flex w-3/4 flex-col items-center gap-4"
+      className="flex w-full flex-col gap-4"
     >
       {errorMessages?.clerk && (
-        <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-red-700">
+        <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-red-700 text-sm">
           {errorMessages.clerk}
         </div>
       )}
-      <div className="item flex w-full flex-col gap-1">
-        <label htmlFor="email">Entrez votre adresse email:</label>
+      <div className="flex w-full flex-col gap-1">
+        <label
+          htmlFor="email"
+          className="font-semibold text-employer-text-primary text-sm"
+        >
+          Adresse email
+        </label>
         <Input
           id="email"
           type="email"
           name="email"
-          placeholder="Email"
+          placeholder="email@exemple.fr"
           value={user?.email || ""}
           onChange={(e) => handleChange("email", e.target.value)}
           errorMessage={errorMessages?.global?.email}
         />
       </div>
       <div className="flex w-full flex-col gap-1">
-        <label htmlFor="password">Entrez votre mot de passe:</label>
-        <Input
-          id="password"
-          type="password"
-          name="password"
-          placeholder="Mot de passe"
-          value={user?.password || ""}
-          onChange={(e) => handleChange("password", e.target.value)}
-          errorMessage={errorMessages?.global?.password}
-        />
+        <label
+          htmlFor="password"
+          className="font-semibold text-employer-text-primary text-sm"
+        >
+          Mot de passe
+        </label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="••••••••"
+            value={user?.password || ""}
+            onChange={(e) => handleChange("password", e.target.value)}
+            errorMessage={errorMessages?.global?.password}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute top-0 right-3 flex h-9 items-center text-muted-foreground hover:text-employer-text-primary"
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
       </div>
       <div className="flex w-full flex-col gap-1">
-        <label htmlFor="confirmPassword">Confirmez votre mot de passe:</label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirmation mot de passe"
-          value={user?.confirmPassword || ""}
-          onChange={(e) => handleChange("confirmPassword", e.target.value)}
-          errorMessage={errorMessages?.global?.confirmPassword}
-        />
+        <label
+          htmlFor="confirmPassword"
+          className="font-semibold text-employer-text-primary text-sm"
+        >
+          Confirmer le mot de passe
+        </label>
+        <div className="relative">
+          <Input
+            id="confirmPassword"
+            type={showConfirm ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="••••••••"
+            value={user?.confirmPassword || ""}
+            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+            errorMessage={errorMessages?.global?.confirmPassword}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => setShowConfirm((v) => !v)}
+            className="absolute top-0 right-3 flex h-9 items-center text-muted-foreground hover:text-employer-text-primary"
+          >
+            {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
       </div>
       {/* CAPTCHA Widget */}
       <div id="clerk-captcha" />
-      <div className="xs:flex-row flex w-full flex-col items-center">
-        <button
-          type="submit"
-          className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        >
-          S'inscrire
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="w-full rounded-lg bg-employer-primary py-2.5 font-semibold text-white hover:bg-employer-secondary"
+      >
+        S'inscrire
+      </button>
     </form>
   );
 };

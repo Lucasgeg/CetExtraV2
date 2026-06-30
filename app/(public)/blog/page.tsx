@@ -1,11 +1,10 @@
-import prisma from "@/app/lib/prisma";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import prisma from "@/app/lib/prisma";
 
 export const metadata = {
   title: "Blog Cet Extra – Recrutement extras événementiel & actus",
   description:
-    "Découvrez toutes les actualités, conseils et nouveautés de la plateforme Cet Extra (cet extra) dédiée au recrutement d’extras pour l’événementiel et la restauration.",
+    "Découvrez toutes les actualités, conseils et nouveautés de la plateforme Cet Extra dédiée au recrutement d'extras pour l'événementiel et la restauration.",
   keywords: [
     "Cet Extra",
     "cet extra",
@@ -18,7 +17,7 @@ export const metadata = {
   openGraph: {
     title: "Blog Cet Extra – Recrutement extras événementiel & actus",
     description:
-      "Toutes les actualités et conseils sur le recrutement d’extras en événementiel avec la plateforme Cet Extra.",
+      "Toutes les actualités et conseils sur le recrutement d'extras en événementiel avec la plateforme Cet Extra.",
     url: "https://www.cetextra.fr/blog",
     type: "website",
     images: [
@@ -26,7 +25,7 @@ export const metadata = {
         url: "/cetextralogo.jpeg",
         width: 1200,
         height: 630,
-        alt: "Blog Cet Extra – Plateforme d’extras pour l’événementiel"
+        alt: "Blog Cet Extra – Plateforme d'extras pour l'événementiel"
       }
     ]
   },
@@ -34,7 +33,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Blog Cet Extra – Recrutement extras événementiel & actus",
     description:
-      "Toutes les actualités et conseils sur le recrutement d’extras en événementiel avec la plateforme Cet Extra.",
+      "Toutes les actualités et conseils sur le recrutement d'extras en événementiel avec la plateforme Cet Extra.",
     images: ["/cetextralogo.jpeg"]
   },
   alternates: {
@@ -56,42 +55,55 @@ export default async function BlogListPage() {
   });
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center overflow-y-auto px-6 py-12">
-      <section className="max-w-2xl rounded-2xl border-4 border-extra-primary bg-extra-background/90 p-8 shadow-2xl">
-        <h1 className="mb-8 text-center text-4xl font-extrabold text-extra-text-primary md:text-5xl">
+    <div className="bg-white px-6 py-16">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-4 font-black text-5xl text-employer-primary tracking-[-0.02em]">
           Le Blog
         </h1>
+        <p className="mb-12 text-employer-text-secondary text-lg">
+          Actualités, conseils et nouveautés de la plateforme.
+        </p>
 
-        <ul className="space-y-8 text-extra-text-primary">
-          {posts.map((post) => (
-            <li
-              key={post.id}
-              className="rounded-lg border border-extra-primary bg-extra-background p-6 shadow-md transition hover:border-extra-secondary hover:shadow-lg"
-            >
-              <h2 className="mb-2 text-2xl font-semibold text-extra-secondary">
+        {posts.length === 0 ? (
+          <p className="text-employer-text-secondary">
+            Aucun article publié pour l'instant. Revenez bientôt !
+          </p>
+        ) : (
+          <ul className="space-y-6">
+            {posts.map((post) => (
+              <li
+                key={post.id}
+                className="rounded-xl border border-employer-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <p className="mb-2 font-semibold text-employer-text-secondary text-xs uppercase tracking-[0.1em]">
+                  {new Date(post.createdAt).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric"
+                  })}
+                </p>
+                <h2 className="mb-3 font-bold text-2xl text-employer-primary">
+                  <Link
+                    href={`/blog/${post.shortUrl}`}
+                    className="transition-colors hover:text-employer-secondary"
+                  >
+                    {post.title}
+                  </Link>
+                </h2>
+                <p className="mb-5 text-employer-text-secondary">
+                  {post.shortDesc}
+                </p>
                 <Link
                   href={`/blog/${post.shortUrl}`}
-                  className="hover:text-extra-primary hover:underline"
+                  className="inline-flex items-center gap-1 font-semibold text-employer-primary text-sm transition-colors hover:text-employer-secondary"
                 >
-                  {post.title}
+                  Lire l'article →
                 </Link>
-              </h2>
-              <p className="mb-2 text-sm text-extra-text-secondary">
-                {new Date(post.createdAt).toLocaleDateString("fr-FR")}
-              </p>
-              <p className="mb-4 text-extra-text-primary">{post.shortDesc}</p>
-              <Button
-                asChild
-                theme="extra"
-                variant="link"
-                className="px-0 text-base"
-              >
-                <Link href={`/blog/${post.shortUrl}`}>Lire l'article →</Link>
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </section>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

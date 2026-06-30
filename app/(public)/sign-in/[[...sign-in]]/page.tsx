@@ -1,17 +1,18 @@
 "use client";
 
+import { useSignIn } from "@clerk/nextjs";
+import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import * as React from "react";
 import logo from "@/assets/cetextralogo.jpeg";
 import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
-import { useSignIn } from "@clerk/nextjs";
-import Image from "next/image";
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { getMainUserData } from "./actions";
-import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader/Loader";
+import { useCurrentUserStore } from "@/store/useCurrentUserStore";
+import { getMainUserData } from "./actions";
 
 export default function Page() {
   const { setUser } = useCurrentUserStore();
@@ -19,6 +20,7 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
 
@@ -84,8 +86,8 @@ export default function Page() {
   return (
     <>
       <AnimatedBG />
-      <div className="flex h-screen items-center justify-center">
-        <div className="relative flex w-4/5 flex-col rounded-lg shadow-lg md:grid md:w-1/2 md:grid-cols-2">
+      <div className="flex min-h-full items-center justify-center overflow-y-auto py-8">
+        <div className="flex w-4/5 flex-col overflow-hidden rounded-xl shadow-lg md:grid md:w-1/2 md:grid-cols-2">
           <div className="flex w-full items-center justify-center bg-[#30325F]">
             <Image
               src={logo}
@@ -93,70 +95,97 @@ export default function Page() {
               className="w-1/2 md:w-full"
             />
           </div>
-          <div className="flex flex-col items-center justify-center border bg-white px-6 py-3 align-middle">
-            <h1 className="flex flex-col items-center justify-center pb-8">
-              <span className="text-center text-5xl">Cet Extra!</span>
-              <span className="text-2xl">Connexion</span>
+          <div className="flex flex-col items-center justify-center border border-employer-border bg-white px-6 py-8">
+            <h1 className="mb-6 flex flex-col items-center gap-1 text-center">
+              <span className="font-black text-4xl text-employer-primary tracking-[-0.02em]">
+                CET<span className="text-[#F15A29]">⚡</span>EXTRA
+              </span>
+              <span className="font-medium text-employer-text-secondary text-xl">
+                Connexion
+              </span>
             </h1>
             <form
               onSubmit={handleSubmit}
-              className="xs:pl-5 flex w-3/4 flex-col items-center gap-4"
+              className="flex w-full flex-col gap-4"
             >
-              <div className="item flex w-full flex-col gap-1">
-                <label htmlFor="email">Entrez votre adresse email:</label>
+              <div className="flex w-full flex-col gap-1">
+                <label
+                  htmlFor="email"
+                  className="font-semibold text-employer-text-primary text-sm"
+                >
+                  Adresse email
+                </label>
                 <Input
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="Email"
+                  placeholder="email@exemple.fr"
                   value={email}
                   onChange={handleChange(setEmail)}
                 />
               </div>
               <div className="flex w-full flex-col gap-1">
-                <label htmlFor="password">Entrez votre mot de passe:</label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  placeholder="Mot de passe"
-                  value={password}
-                  onChange={handleChange(setPassword)}
-                />
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="font-semibold text-employer-text-primary text-sm"
+                  >
+                    Mot de passe
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-employer-primary text-xs hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={handleChange(setPassword)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute top-0 right-3 flex h-9 items-center text-muted-foreground hover:text-employer-text-primary"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
               {/* CAPTCHA Widget */}
               <div id="clerk-captcha" />
-              <div className="xs:flex-row flex w-full flex-col items-center">
-                {error && (
-                  <div className="w-full rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                    {error}
-                  </div>
-                )}
-                <Button
-                  type="submit"
-                  className="my-4 rounded-lg border bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Loader size="sm" variant="spinner" />
-                  ) : (
-                    "Se connecter"
-                  )}
-                </Button>
-
-                {/* 
-                //TODO: Implement OAuth 
-                <div className="flex flex-col items-center gap-2">
-                  <span>Ou bien</span>
-                  <button onClick={() => signUpWith("oauth_google")}>
-                    <GoogleLogo />
-                  </button>
+              {error && (
+                <div className="rounded-md border border-red-200 bg-red-50 p-3 text-red-700 text-sm">
+                  {error}
                 </div>
-                */}
-              </div>
+              )}
+              <Button
+                type="submit"
+                theme="company"
+                variant="default"
+                rounded="lg"
+                fullWidth
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Loader size="sm" variant="spinner" />
+                ) : (
+                  "Se connecter"
+                )}
+              </Button>
             </form>
-            <Link className="text-xs hover:underline" href="/sign-up">
-              Pas encore inscrit? Clique ici
+            <Link
+              className="mt-4 text-employer-text-secondary text-xs hover:text-employer-primary hover:underline"
+              href="/sign-up"
+            >
+              Pas encore inscrit ? S'inscrire
             </Link>
           </div>
         </div>
