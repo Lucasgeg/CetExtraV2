@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface SliderProps {
   /** Contrôle l'ouverture/fermeture du slider */
@@ -113,7 +114,7 @@ export const Slider: React.FC<SliderProps> = ({
 
       {/* Slider Panel - Modifié pour flex-col */}
       <div
-        className={`fixed right-0 top-0 flex h-full w-full max-w-md transform flex-col bg-white shadow-xl transition-transform duration-300 ease-in-out sm:max-w-xl ${
+        className={`fixed top-0 right-0 flex h-full w-full max-w-md transform flex-col bg-white shadow-xl transition-transform duration-300 ease-in-out sm:max-w-xl ${
           isAnimating ? "translate-x-0" : "translate-x-full"
         }`}
         onClick={handleContentClick}
@@ -123,7 +124,7 @@ export const Slider: React.FC<SliderProps> = ({
       >
         {/* Header - inchangé */}
         <div className="flex items-center justify-between border-b px-4 py-3">
-          <h2 id="slider-title" className="text-lg font-semibold text-gray-900">
+          <h2 id="slider-title" className="font-semibold text-gray-900 text-lg">
             {title || "Détails"}
           </h2>
           <button

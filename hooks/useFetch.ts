@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type UseFetchResult<T> = {
   data: T | null;
@@ -27,8 +27,7 @@ function useFetch<T = unknown>(url: string): UseFetchResult<T> {
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]);
+  }, [fetchData]);
 
   return { data, error, loading, refetch: fetchData };
 }

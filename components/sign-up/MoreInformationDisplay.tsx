@@ -1,15 +1,15 @@
 "use client";
-import { useSignUpStore } from "@/store/useSignUpstore";
-import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
 import {
-  CompanyErrorMessages,
-  ExtraErrorMessages,
+  type CompanyErrorMessages,
   EnumRole,
-  SignupErrorMessages,
-  UserSignUpSchema
+  type ExtraErrorMessages,
+  type SignupErrorMessages,
+  type UserSignUpSchema
 } from "@/store/types";
-import { CompanySignupDisplay } from "./CompanySignupDisplay";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { Button } from "../ui/button";
+import { CompanySignupDisplay } from "./CompanySignupDisplay";
+import { ExtraSignUpDisplay } from "./ExtraSignUpDisplay";
 
 export const MoreInformationDisplay = ({
   actionSubmitAction,
@@ -76,7 +76,7 @@ export const MoreInformationDisplay = ({
   };
 
   const handleNextAction = () => {
-    if (!user || !user.role) return;
+    if (!user?.role) return;
     const errors = verifySignupErrors(user);
     if (errors.extra && user.role === EnumRole.EXTRA) {
       setErrorMessages({ extra: errors.extra });

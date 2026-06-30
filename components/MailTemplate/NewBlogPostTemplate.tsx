@@ -1,19 +1,18 @@
-import * as React from "react";
 import {
-  Html,
-  Head,
-  Preview,
   Body,
-  Container,
-  Section,
-  Row,
-  Column,
-  Heading,
-  Text,
   Button,
+  Column,
+  Container,
+  Head,
+  Heading,
   Hr,
+  Html,
+  Img,
+  Preview,
+  Row,
+  Section,
   Tailwind,
-  Img
+  Text
 } from "@react-email/components";
 
 type NewBlogPostTemplateProps = {
@@ -44,28 +43,28 @@ export const NewBlogPostTemplate = ({
                 <Column>
                   <Heading
                     as="h1"
-                    className="mx-8 mb-2 mt-8 text-2xl font-bold text-[#22345E]"
+                    className="mx-8 mt-8 mb-2 font-bold text-2xl text-[#22345E]"
                   >
                     Un nouvel article, c’est extra !
                   </Heading>
                   <Heading
                     as="h2"
-                    className="mx-8 mb-4 text-lg font-semibold text-[#F15A29]"
+                    className="mx-8 mb-4 font-semibold text-[#F15A29] text-lg"
                   >
                     {title}
                   </Heading>
-                  <Text className="mx-8 mb-6 text-base text-[#232336]">
+                  <Text className="mx-8 mb-6 text-[#232336] text-base">
                     {shortDesc}
                   </Text>
                   <div className="my-8 text-center">
                     <Button
                       href={url}
-                      className="inline-block rounded-lg bg-[#FDBA3B] px-8 py-4 text-base font-bold text-[#22345E] no-underline shadow-md"
+                      className="inline-block rounded-lg bg-[#FDBA3B] px-8 py-4 font-bold text-[#22345E] text-base no-underline shadow-md"
                     >
                       Découvrir cet extra-ordinaire article 🚀
                     </Button>
                   </div>
-                  <Text className="mx-8 mt-6 text-base text-[#232336]">
+                  <Text className="mx-8 mt-6 text-[#232336] text-base">
                     Envie de ne rien manquer ? Reste connecté, d’autres
                     surprises extra arrivent bientôt !
                   </Text>
@@ -76,7 +75,7 @@ export const NewBlogPostTemplate = ({
             <Section>
               <Row>
                 <Column>
-                  <Text className="px-8 pb-6 text-sm text-[#5A5A7A]">
+                  <Text className="px-8 pb-6 text-[#5A5A7A] text-sm">
                     Vous recevez cet email car vous êtes abonné au blog{" "}
                     <strong>Cet Extra</strong>.<br />
                     <a

@@ -1,8 +1,8 @@
 // components/CommentsList.tsx
 "use client";
 
-import { GetCommentByPostIdType } from "@/types/api";
 import useSWR from "swr";
+import type { GetCommentByPostIdType } from "@/types/api";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -37,7 +37,7 @@ export default function CommentsList({ postId }: { postId: string }) {
               <span className="font-semibold text-[#F15A29]">
                 {comment.author}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-gray-400 text-xs">
                 {new Date(comment.createdAt).toLocaleString("fr-FR")}
               </span>
             </div>

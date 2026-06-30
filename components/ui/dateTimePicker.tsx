@@ -1,3 +1,15 @@
+import { CheckIcon } from "@heroicons/react/24/outline";
+import { add, format } from "date-fns";
+import { enUS, type Locale } from "date-fns/locale";
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Clock
+} from "lucide-react";
+import * as React from "react";
+import { useImperativeHandle, useRef } from "react";
+import { DayPicker, type DayPickerProps } from "react-day-picker";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -5,18 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { add, format } from "date-fns";
-import { type Locale, enUS } from "date-fns/locale";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react";
-import { Clock } from "lucide-react";
-import * as React from "react";
-import { useImperativeHandle, useRef } from "react";
-
 import {
   Select,
   SelectContent,
@@ -24,8 +24,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { DayPicker, DayPickerProps } from "react-day-picker";
-import { CheckIcon } from "@heroicons/react/24/outline";
+import { cn } from "@/lib/utils";
 import { ScrollArea } from "./scroll-area";
 
 // ---------- utils start ----------
@@ -330,7 +329,7 @@ function Calendar({
         day: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 rounded-1",
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 rounded-l-md rounded-r-md"
+          "h-9 w-9 rounded-r-md rounded-l-md p-0 font-normal aria-selected:opacity-100"
         ),
         range_end: "day-range-end",
         selected:
@@ -493,7 +492,8 @@ const TimePeriodSelect = React.forwardRef<
 
 TimePeriodSelect.displayName = "TimePeriodSelect";
 
-interface TimePickerInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TimePickerInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   picker: TimePickerType;
   date?: Date | null;
   onDateChange?: (date: Date | undefined) => void;
@@ -890,7 +890,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
         });
       }, 1);
       return () => clearTimeout(timeoutId);
-    }, [selectedHour, selectedMinute]);
+    }, []);
 
     const TimeItem = React.useCallback(
       ({
@@ -913,7 +913,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
             variant="ghost"
             disabled={isDisabled}
             className={cn(
-              "flex justify-center px-1 pe-2 ps-1",
+              "flex justify-center px-1 ps-1 pe-2",
               selected && "bg-accent text-accent-foreground",
               isDisabled && "cursor-not-allowed opacity-50",
               className
@@ -942,7 +942,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
 
         <div className="flex h-48 gap-2">
           <div className="flex flex-col items-center">
-            <span className="mb-1 text-sm font-medium">Heures</span>
+            <span className="mb-1 font-medium text-sm">Heures</span>
             <ScrollArea className="h-full w-16">
               <div className="flex flex-col items-stretch pb-24">
                 {hourOptions.map((option) => (
@@ -966,7 +966,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
 
           {(granularity === "minute" || granularity === "second") && (
             <div className="flex flex-col items-center">
-              <span className="mb-1 text-sm font-medium">Minutes</span>
+              <span className="mb-1 font-medium text-sm">Minutes</span>
               <ScrollArea className="h-full w-16">
                 <div className="flex flex-col items-stretch pb-24">
                   {minuteOptions.map((option) => (
@@ -993,7 +993,7 @@ const TimePicker = React.forwardRef<TimePickerRef, TimePickerProps>(
 
           {hourCycle === 12 && (
             <div className="flex flex-col items-center">
-              <span className="mb-1 text-sm font-medium">Période</span>
+              <span className="mb-1 font-medium text-sm">Période</span>
               <ScrollArea className="h-full w-16">
                 <div className="flex flex-col items-stretch">
                   {[
@@ -1270,7 +1270,7 @@ const DateTimePicker = React.forwardRef<
               {...props}
             />
             {granularity !== "day" && (
-              <div className="border-t border-border p-3">
+              <div className="border-border border-t p-3">
                 <TimePicker
                   onChange={(value) => {
                     if (value) {
@@ -1321,5 +1321,5 @@ const DateTimePicker = React.forwardRef<
 
 DateTimePicker.displayName = "DateTimePicker";
 
-export { DateTimePicker, TimePickerInput, TimePicker };
-export type { TimePickerType, DateTimePickerProps, DateTimePickerRef };
+export type { DateTimePickerProps, DateTimePickerRef, TimePickerType };
+export { DateTimePicker, TimePicker, TimePickerInput };

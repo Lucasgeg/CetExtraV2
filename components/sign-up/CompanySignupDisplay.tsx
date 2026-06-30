@@ -1,7 +1,7 @@
+import type { Company, CompanyErrorMessages } from "@/store/types";
 import { useSignUpStore } from "@/store/useSignUpstore";
-import { LabelledInput } from "../ui/atom/LabelledInput";
-import { Company, CompanyErrorMessages } from "@/store/types";
 import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
+import { LabelledInput } from "../ui/atom/LabelledInput";
 
 export const CompanySignupDisplay = ({
   errorMessages

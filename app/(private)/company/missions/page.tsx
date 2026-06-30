@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useCurrentUserStore } from "@/store/useCurrentUserStore";
-import { EnumMissionSelector, GetCompanyMission } from "@/types/api";
+import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
+import type { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import CustomTable from "@/components/CustomTable/CustomTable";
 import { Switch } from "@/components/ui/atom/Switch/Switch";
-import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader/Loader";
-import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { Modal } from "@/components/ui/Modal/Modal";
+import { ModalBody } from "@/components/ui/Modal/ModalBody";
 import {
   Pagination,
   PaginationContent,
@@ -16,11 +19,8 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/ui/Modal/Modal";
-import { ModalBody } from "@/components/ui/Modal/ModalBody";
-import { Input } from "@/components/ui/input";
+import { useCurrentUserStore } from "@/store/useCurrentUserStore";
+import { EnumMissionSelector, type GetCompanyMission } from "@/types/api";
 
 const MISSIONS_PER_PAGE = 10;
 
@@ -163,11 +163,11 @@ export default function CompanyMissionsPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [companyId, missionSelector]);
+  }, []);
 
   useEffect(() => {
     fetchMissions(currentPage);
-  }, [currentPage, companyId, missionSelector, fetchMissions]);
+  }, [currentPage, fetchMissions]);
 
   if (loading) {
     return (
@@ -265,7 +265,7 @@ export default function CompanyMissionsPage() {
           </div>
         </ModalBody>
       </Modal>
-      <h1 className="text-center text-2xl font-bold text-employer-secondary">
+      <h1 className="text-center font-bold text-2xl text-employer-secondary">
         Mes Missions
       </h1>
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
@@ -286,12 +286,12 @@ export default function CompanyMissionsPage() {
           onText="Futures"
           offText="Passées"
           size="lg"
-          className="lg:absolute lg:right-4 lg:top-4 lg:z-10"
+          className="lg:absolute lg:top-4 lg:right-4 lg:z-10"
         />
         {!loading && missions.length === 0 && !error ? (
           <div className="flex w-full items-center justify-center py-12 text-center">
             <div className="mb-4 text-6xl text-gray-400">📋</div>
-            <p className="text-lg text-gray-500">
+            <p className="text-gray-500 text-lg">
               {missionSelector === EnumMissionSelector.INCOMING
                 ? "Aucune mission à venir"
                 : missionSelector === EnumMissionSelector.PAST

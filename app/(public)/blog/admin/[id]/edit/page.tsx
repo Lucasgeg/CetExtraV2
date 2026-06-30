@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import PostEditor from "@/components/PostEditor/PostEditor";
-import { GetPostByIdType } from "@/types/api";
-import { Modal } from "@/components/ui/Modal/Modal";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/Modal/Modal";
+import type { GetPostByIdType } from "@/types/api";
 
 export default function BlogEditPage() {
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function BlogEditPage() {
   return (
     <>
       <div className="w-full max-w-4xl p-6">
-        <h1 className="mb-4 text-center text-2xl font-bold">
+        <h1 className="mb-4 text-center font-bold text-2xl">
           Modifier l'article
         </h1>
         <PostEditor
@@ -72,8 +72,8 @@ export default function BlogEditPage() {
       </div>
       <Modal onClose={() => setShowDialog(false)} isOpen={showDialog}>
         <div className="flex flex-col items-center justify-center">
-          <h2 className="text-lg font-semibold">Article édité avec succès !</h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <h2 className="font-semibold text-lg">Article édité avec succès !</h2>
+          <p className="mt-2 text-gray-500 text-sm">
             Vous allez être redirigé vers la page d'administration.
           </p>
           <Button

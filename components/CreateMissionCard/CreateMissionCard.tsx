@@ -1,11 +1,11 @@
+import type React from "react";
 import { cn } from "@/lib/utils";
+import type { Suggestion } from "@/types/api";
+import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Input } from "../ui/input";
-import React from "react";
+import MultipleSelector, { type Option } from "../ui/MultipleSelector";
 import styles from "./MissionCard.module.css";
-import MultipleSelector, { Option } from "../ui/MultipleSelector";
-import { AddressAutocomplete } from "../ui/atom/AutocompleteAdressSearch/AutocompleteAdressSearch";
-import type { Suggestion } from "@/types/api";
 
 type CreateMissionCardProps = {
   title: string;
@@ -68,7 +68,7 @@ export const MissionCard = ({
         >
           {icon}
         </div>
-        <h2 className="w-auto text-lg font-semibold text-employer-primary">
+        <h2 className="w-auto font-semibold text-employer-primary text-lg">
           {title}
         </h2>
       </CardHeader>
@@ -101,7 +101,7 @@ export const MissionCard = ({
               {...textareaProps}
             />
             {errorMessage && (
-              <div className="mt-1 max-w-56 text-justify text-sm text-red-500">
+              <div className="mt-1 max-w-56 text-justify text-red-500 text-sm">
                 {errorMessage}
               </div>
             )}

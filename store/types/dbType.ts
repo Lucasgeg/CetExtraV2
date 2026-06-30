@@ -1,4 +1,4 @@
-import { Suggestion } from "@/types/api";
+import type { Suggestion } from "@/types/api";
 
 // Enums
 export enum EnumMissionJob {

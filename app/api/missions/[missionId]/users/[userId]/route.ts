@@ -1,15 +1,15 @@
-import prisma from "@/app/lib/prisma";
-import CancelUserMision from "@/components/MailTemplate/CancelUserMission";
-import { TransactionResult } from "@/types/api";
-import { ApiError } from "@/types/ApiError";
-import { MissionRemoveUserBody } from "@/types/MissionRemoveUser.body";
-import { formatDuration } from "@/utils/date";
-import { getMissionJobValue } from "@/utils/enum";
 import { auth } from "@clerk/nextjs/server";
+import { Prisma } from "@prisma/client";
 import { render } from "@react-email/components";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { Prisma } from "@prisma/client";
+import prisma from "@/app/lib/prisma";
+import CancelUserMision from "@/components/MailTemplate/CancelUserMission";
+import { ApiError } from "@/types/ApiError";
+import type { TransactionResult } from "@/types/api";
+import type { MissionRemoveUserBody } from "@/types/MissionRemoveUser.body";
+import { formatDuration } from "@/utils/date";
+import { getMissionJobValue } from "@/utils/enum";
 
 /**
  * Endpoint pour annuler la participation d'un utilisateur à une mission

@@ -1,10 +1,10 @@
-import prisma from "@/app/lib/prisma";
-import CancelUserMision from "@/components/MailTemplate/CancelUserMission";
-import { MissionCancellationApiRequest } from "@/types/MissionCancellation";
 import { auth } from "@clerk/nextjs/server";
 import { MissionStatus } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import prisma from "@/app/lib/prisma";
+import CancelUserMision from "@/components/MailTemplate/CancelUserMission";
+import type { MissionCancellationApiRequest } from "@/types/MissionCancellation";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

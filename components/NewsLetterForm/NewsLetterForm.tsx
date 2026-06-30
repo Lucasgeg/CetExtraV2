@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
 import { Button } from "../ui/button";
 
 export default function NewsletterForm() {
@@ -59,15 +59,15 @@ export default function NewsletterForm() {
   if (hideContainer) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md rounded-lg bg-gray-100 px-4 py-3 shadow-lg sm:max-w-lg">
+    <div className="fixed right-0 bottom-0 left-0 mx-auto w-full max-w-md rounded-lg bg-gray-100 px-4 py-3 shadow-lg sm:max-w-lg">
       <div
-        className="absolute right-2 top-2 cursor-pointer"
+        className="absolute top-2 right-2 cursor-pointer"
         onClick={handleClose}
       >
         <XMarkIcon className="h-5 w-5 text-gray-500" />
       </div>
 
-      <p className="mb-3 text-center text-base font-semibold text-gray-800 sm:text-lg">
+      <p className="mb-3 text-center font-semibold text-base text-gray-800 sm:text-lg">
         Restez informé des dernières nouvelles !
       </p>
 
@@ -92,7 +92,7 @@ export default function NewsletterForm() {
               onChange={(e) => setAcceptTerms(e.target.checked)}
               disabled={status === "loading"}
             />
-            <label className="text-xs text-gray-600">
+            <label className="text-gray-600 text-xs">
               J'accepte de recevoir des emails
             </label>
           </div>
@@ -101,7 +101,7 @@ export default function NewsletterForm() {
         <Button
           type="submit"
           disabled={status === "loading" || !acceptTerms}
-          className="w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:text-base"
+          className="w-full rounded bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 sm:text-base"
         >
           {status === "loading" ? "Envoi..." : "M'inscrire"}
         </Button>

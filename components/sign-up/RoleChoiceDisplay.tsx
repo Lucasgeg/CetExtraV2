@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { EnumRole } from "@/store/types";
 import { useSignUpStore } from "@/store/useSignUpstore";
-import { useState } from "react";
-import { RadioGroup } from "../ui/RadioGroup";
 import { Button } from "../ui/button";
+import { RadioGroup } from "../ui/RadioGroup";
 
 type RoleChoiceDisplayProps = {
   handleSubmit: () => void;
@@ -30,7 +30,7 @@ export const RoleChoiceDisplay = ({ handleSubmit }: RoleChoiceDisplayProps) => {
   ];
   return (
     <div className="flex h-full w-full flex-col">
-      <h2 className="text-center text-lg font-semibold">Tu es un:</h2>
+      <h2 className="text-center font-semibold text-lg">Tu es un:</h2>
       <RadioGroup
         name="role"
         options={roleOptions}

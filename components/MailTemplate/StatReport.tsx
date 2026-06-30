@@ -1,17 +1,17 @@
 import {
-  Html,
-  Head,
-  Preview,
   Body,
-  Container,
-  Section,
-  Row,
   Column,
+  Container,
+  Head,
   Heading,
-  Text,
   Hr,
+  Html,
+  Img,
+  Preview,
+  Row,
+  Section,
   Tailwind,
-  Img
+  Text
 } from "@react-email/components";
 
 // Correction de l'importation - suppression du composant T/Table inexistant
@@ -70,7 +70,7 @@ export const StatReport = ({
                   />
                   <Heading
                     as="h1"
-                    className="mb-1 mt-4 text-2xl font-bold text-white"
+                    className="mt-4 mb-1 font-bold text-2xl text-white"
                   >
                     Rapport de chiffrement des données
                   </Heading>
@@ -87,7 +87,7 @@ export const StatReport = ({
                 <Column>
                   <Heading
                     as="h2"
-                    className="mb-4 text-xl font-bold text-[#22345E]"
+                    className="mb-4 font-bold text-[#22345E] text-xl"
                   >
                     Résumé du traitement
                   </Heading>
@@ -149,7 +149,7 @@ export const StatReport = ({
                   <Column>
                     <Heading
                       as="h2"
-                      className="mb-4 text-xl font-bold text-red-600"
+                      className="mb-4 font-bold text-red-600 text-xl"
                     >
                       Erreurs détectées ({errors.length})
                     </Heading>
@@ -193,7 +193,7 @@ export const StatReport = ({
                       </table>
                     </div>
 
-                    <Text className="mt-4 text-sm text-gray-600">
+                    <Text className="mt-4 text-gray-600 text-sm">
                       Note: Consultez les logs pour plus de détails sur les
                       erreurs.
                     </Text>
@@ -207,11 +207,11 @@ export const StatReport = ({
             <Section className="rounded-b-xl bg-gray-50 p-6">
               <Row>
                 <Column>
-                  <Text className="mb-1 text-sm text-gray-600">
+                  <Text className="mb-1 text-gray-600 text-sm">
                     <strong>Cet email est automatique.</strong> Généré par le
                     système de chiffrement périodique.
                   </Text>
-                  <Text className="mt-0 text-sm text-gray-600">
+                  <Text className="mt-0 text-gray-600 text-sm">
                     Prochain chiffrement prévu:{" "}
                     {new Date(
                       Date.now() + 30 * 24 * 60 * 60 * 1000

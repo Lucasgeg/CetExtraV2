@@ -1,10 +1,10 @@
 "use client";
+import { Loader } from "lucide-react";
+import Link from "next/link";
 import { NextMissionCard } from "@/components/NextMissionCard/NextMissionCard";
 import useStore from "@/hooks/useStore";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
-import { Loader } from "lucide-react";
 import { Button } from "../../ui/button";
-import Link from "next/link";
 
 export const CompanyHome = () => {
   const { loading, data } = useStore(useCurrentUserStore, (state) => state);

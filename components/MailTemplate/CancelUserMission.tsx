@@ -1,17 +1,17 @@
 import {
-  Html,
-  Head,
-  Preview,
   Body,
-  Container,
-  Heading,
-  Text,
-  Hr,
-  Section,
-  Row,
   Column,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Img,
+  Preview,
+  Row,
+  Section,
   Tailwind,
-  Img
+  Text
 } from "@react-email/components";
 
 export type CancelUserMisionProps = {
@@ -54,26 +54,26 @@ export const CancelUserMision = ({
                 <Column>
                   <Heading
                     as="h1"
-                    className="mb-2 mt-8 text-center text-2xl font-bold text-[#22345E]"
+                    className="mt-8 mb-2 text-center font-bold text-2xl text-[#22345E]"
                   >
                     Mission annulée chez {companyName}
                   </Heading>
                   <Heading
                     as="h2"
-                    className="mb-4 text-center text-lg font-semibold text-[#F15A29]"
+                    className="mb-4 text-center font-semibold text-[#F15A29] text-lg"
                   >
                     {missionName}
                   </Heading>
                   {firstName && lastName && (
-                    <Text className="mb-4 text-center text-base text-[#232336]">
+                    <Text className="mb-4 text-center text-[#232336] text-base">
                       Bonjour {firstName} {lastName},
                     </Text>
                   )}
-                  <Text className="mb-2 text-center text-base text-[#232336]">
+                  <Text className="mb-2 text-center text-[#232336] text-base">
                     Nous tenions à t’informer que ta participation à la mission
                     suivante a été annulée par l’employeur :
                   </Text>
-                  <ul className="mb-4 pl-6 text-base text-[#232336]">
+                  <ul className="mb-4 pl-6 text-[#232336] text-base">
                     <li>
                       <strong>Date :</strong>&nbsp;{missionDate}
                     </li>
@@ -92,11 +92,11 @@ export const CancelUserMision = ({
                     )}
                   </ul>
                   {refusalReason && (
-                    <Text className="mb-4 text-center text-base text-[#F15A29]">
+                    <Text className="mb-4 text-center text-[#F15A29] text-base">
                       <strong>Motif de l’annulation :</strong> {refusalReason}
                     </Text>
                   )}
-                  <Text className="mb-4 text-center text-base text-[#232336]">
+                  <Text className="mb-4 text-center text-[#232336] text-base">
                     Pas d’inquiétude, d’autres missions arrivent régulièrement
                     sur Cet Extra !
                     <br />
@@ -105,7 +105,7 @@ export const CancelUserMision = ({
                   </Text>
 
                   <Hr className="my-6" />
-                  <Text className="text-center text-sm text-[#5A5A7A]">
+                  <Text className="text-center text-[#5A5A7A] text-sm">
                     Une question ? L’équipe Cet Extra est là pour toi.
                     <br />
                     <span className="font-semibold">Email :</span>{" "}

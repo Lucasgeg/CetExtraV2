@@ -1,19 +1,19 @@
-import prisma from "@/app/lib/prisma";
-import MissionInvitation from "@/components/MailTemplate/MissionInvitation";
-import { EnumRole } from "@/store/types";
-import { TransactionResult } from "@/types/api";
-import { ApiError } from "@/types/ApiError";
-import { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
-import { InviteListDelete } from "@/types/InviteListDelete";
-import { MissionInviteBody } from "@/types/MissionInvite";
-import { convertToDbMissionJob } from "@/utils/enum";
-import { handlePrismaError } from "@/utils/prismaErrors.util";
-import { isEmailValid } from "@/utils/string";
 import { auth } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { render } from "@react-email/components";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import prisma from "@/app/lib/prisma";
+import MissionInvitation from "@/components/MailTemplate/MissionInvitation";
+import { EnumRole } from "@/store/types";
+import { ApiError } from "@/types/ApiError";
+import type { TransactionResult } from "@/types/api";
+import type { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
+import type { InviteListDelete } from "@/types/InviteListDelete";
+import type { MissionInviteBody } from "@/types/MissionInvite";
+import { convertToDbMissionJob } from "@/utils/enum";
+import { handlePrismaError } from "@/utils/prismaErrors.util";
+import { isEmailValid } from "@/utils/string";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -425,7 +425,7 @@ export async function POST(
  * {{baseUrl}}/api/missions/{missionId}/invites
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   props: { params: Promise<{ missionId: string }> }
 ): Promise<NextResponse<GetMissionInvitesResponse | { message: string }>> {
   const { sessionClaims, userId } = await auth();

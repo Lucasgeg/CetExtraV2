@@ -1,8 +1,8 @@
 "use server";
-import prisma from "@/app/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
 
 export async function PUT(
   req: Request,
@@ -36,7 +36,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: Request,
+  _req: Request,
   props: { params: Promise<{ postId: string }> }
 ) {
   const { userId } = await auth();
@@ -63,7 +63,7 @@ export async function DELETE(
 }
 
 export async function GET(
-  req: Request,
+  _req: Request,
   props: { params: Promise<{ postId: string }> }
 ) {
   try {

@@ -1,9 +1,9 @@
 "use client";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { type LatLngExpression, divIcon } from "leaflet";
+import { divIcon, type LatLngExpression } from "leaflet";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import styles from "./MapContainerComponent.module.css";
 import { cn } from "@/lib/utils";
+import styles from "./MapContainerComponent.module.css";
 
 type BasePoint = {
   id: string;

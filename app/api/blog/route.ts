@@ -1,7 +1,7 @@
-import prisma from "@/app/lib/prisma";
-import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import { revalidatePath } from "next/cache";
+import { NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
 
 type BlogPostApiRequest = {
   title: string;

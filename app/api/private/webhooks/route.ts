@@ -1,8 +1,8 @@
-import prisma from "@/app/lib/prisma";
-import { WebhookEvent } from "@clerk/nextjs/server";
+import type { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
+import prisma from "@/app/lib/prisma";
 
 type WebhookPayload = Omit<WebhookEvent, "data"> & {
   data: WebhookEvent["data"] & {

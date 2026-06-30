@@ -1,4 +1,4 @@
-import { PrismaMissionJob } from "@/store/types";
+import type { PrismaMissionJob } from "@/store/types";
 
 export type GetUserByIdResponse = {
   id: string;

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { calculateDistance } from "./distance.utils";
 
 interface UseMapDistanceProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: user objects carry arbitrary extra fields beyond lat/lon
   users: Array<{ lat: number; lon: number; [key: string]: any }>;
   missionLocation: { lat: number; lon: number };
   zoom: number;

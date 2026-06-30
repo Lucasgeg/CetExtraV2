@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import crypto from "crypto";
+// biome-ignore-all lint/suspicious/noExplicitAny: crypto helpers accept loosely-typed values by design
+import crypto from "node:crypto";
 import { getEncryptionKey } from "./keyCache";
 
 // Fonction pour convertir tout type de valeur en Buffer valide
@@ -54,7 +54,7 @@ export function encrypt(text: string | number, key: Buffer | unknown): string {
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   const tag = cipher.getAuthTag();
-  return iv.toString("hex") + ":" + tag.toString("hex") + ":" + encrypted;
+  return `${iv.toString("hex")}:${tag.toString("hex")}:${encrypted}`;
 }
 
 /**
@@ -89,7 +89,7 @@ export function decrypt(encrypted: string, key: Buffer | unknown): string {
 
   const [ivHex, tagHex, encryptedText] = encrypted.split(":");
   if (!ivHex || !tagHex || !encryptedText) {
-    throw new Error("Invalid encrypted payload format, received: " + encrypted);
+    throw new Error(`Invalid encrypted payload format, received: ${encrypted}`);
   }
 
   const iv = Buffer.from(ivHex, "hex");

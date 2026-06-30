@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
+import type { Suggestion } from "@/types/api";
 import { Input } from "../input";
-import { Suggestion } from "@/types/api";
 import { AddressAutocomplete } from "./AutocompleteAdressSearch/AutocompleteAdressSearch";
 
 interface LabelledInputProps {

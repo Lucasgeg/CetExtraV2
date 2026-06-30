@@ -1,9 +1,9 @@
-import prisma from "@/app/lib/prisma";
-import { NewBlogPostTemplate } from "@/components/MailTemplate/NewBlogPostTemplate";
 import { auth } from "@clerk/nextjs/server";
 import { render } from "@react-email/components";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import prisma from "@/app/lib/prisma";
+import { NewBlogPostTemplate } from "@/components/MailTemplate/NewBlogPostTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

@@ -1,8 +1,8 @@
 "use client";
-import useFetch from "@/hooks/useFetch";
-import { GetCompanyMission } from "@/types/api";
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+import useFetch from "@/hooks/useFetch";
+import type { GetCompanyMission } from "@/types/api";
 import CustomTable from "../CustomTable/CustomTable";
 import { Loader } from "../ui/Loader/Loader";
 

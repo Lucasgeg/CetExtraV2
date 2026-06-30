@@ -1,7 +1,7 @@
+import type { MissionJob } from "@prisma/client";
 import { create } from "zustand";
-import { MissionJob } from "@prisma/client";
-import { UserWithLocation } from "@/types/UserWithLocation.enum";
-import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
+import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
+import type { UserWithLocation } from "@/types/UserWithLocation.enum";
 
 // Réutiliser le type existant pour RequiredPosition
 export type RequiredPosition = MissionDetailApiResponse["requiredPositions"][0];
@@ -182,7 +182,7 @@ export const useUserResearchStore = create<
     }),
 
   resetFilters: () =>
-    set((state) => ({
+    set((_state) => ({
       filters: {
         ...initialState.filters,
         selectedJobTypes: []

@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { BlogPost } from "@prisma/client";
+import type { BlogPost } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { generateSeoData } from "./action";
 export function DeleteButton({ postId }: { postId: string }) {
   const router = useRouter();

@@ -2,7 +2,7 @@
   animation: spinningColor 1.5s ease-in-out infinite;
   border: 3px solid #f0eff5;
   border-radius: 50%;
-  aspect-ratio: 1/1;
+  aspect-ratio: 1 / 1;
   border-top: 3px solid #32325d;
   border-right: 3px solid #fbbd41;
 }

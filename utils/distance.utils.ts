@@ -2,7 +2,7 @@
  * Utilitaires de carte pour le serveur (sans dépendances client)
  */
 
-import { LatLngBounds } from "leaflet";
+import type { LatLngBounds } from "leaflet";
 
 /**
  * Calcule la distance entre deux points en kilomètres (formule de Haversine)

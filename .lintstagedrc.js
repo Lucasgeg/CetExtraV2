@@ -2,12 +2,11 @@ module.exports = {
   // Type check TypeScript files
   "**/*.(ts|tsx)": () => "bun tsc --noEmit",
 
-  // Lint & Prettify TS and JS files
+  // Lint & format TS and JS files
   "**/*.(ts|tsx|js)": (filenames) => [
-    `bun eslint ${filenames.join(" ")}`,
-    `bun prettier --write ${filenames.join(" ")}`
+    `bun biome check --write --unsafe ${filenames.join(" ")}`
   ],
 
-  // Prettify only Markdown and JSON files
-  "**/*.(md|json)": (filenames) => `bun prettier --write ${filenames.join(" ")}`
+  // Format JSON files
+  "**/*.json": (filenames) => `bun biome format --write ${filenames.join(" ")}`
 };

@@ -1,20 +1,20 @@
-import { formatDuration } from "@/utils/date";
 import {
-  Html,
-  Head,
-  Preview,
   Body,
-  Container,
-  Heading,
-  Text,
   Button,
-  Hr,
-  Section,
-  Row,
   Column,
+  Container,
+  Head,
+  Heading,
+  Hr,
+  Html,
+  Img,
+  Preview,
+  Row,
+  Section,
   Tailwind,
-  Img
+  Text
 } from "@react-email/components";
+import { formatDuration } from "@/utils/date";
 
 export type MissionInvitationProps = {
   receiverEmail: string;
@@ -68,22 +68,22 @@ export const MissionInvitation = ({
                 <Column>
                   <Heading
                     as="h1"
-                    className="mb-2 mt-8 text-center text-2xl font-bold text-[#22345E]"
+                    className="mt-8 mb-2 text-center font-bold text-2xl text-[#22345E]"
                   >
                     Invitation à une mission chez {companyName}
                   </Heading>
                   <Heading
                     as="h2"
-                    className="mb-4 text-center text-lg font-semibold text-[#F15A29]"
+                    className="mb-4 text-center font-semibold text-[#F15A29] text-lg"
                   >
                     {missionName}
                   </Heading>
-                  <Text className="mb-2 text-center text-base text-[#232336]">
+                  <Text className="mb-2 text-center text-[#232336] text-base">
                     <strong>{companyName}</strong> recherche un(e){" "}
                     <strong>{missionJob}</strong> pour une mission
                     événementielle :
                   </Text>
-                  <ul className="mb-4 pl-6 text-base text-[#232336]">
+                  <ul className="mb-4 pl-6 text-[#232336] text-base">
                     <li>
                       <strong>Date :</strong>{" "}
                       {new Date(missionDate).toLocaleString("fr-FR", {
@@ -102,13 +102,13 @@ export const MissionInvitation = ({
                       <strong>Durée :</strong> {formatDuration(duration)}
                     </li>
                   </ul>
-                  <Text className="mb-4 text-center text-base text-[#232336]">
+                  <Text className="mb-4 text-center text-[#232336] text-base">
                     {infoText}
                   </Text>
                   <Text className="mb-2 text-center font-semibold text-[#22345E]">
                     Pourquoi rejoindre cette mission via Cet Extra ?
                   </Text>
-                  <ul className="mb-4 pl-6 text-base text-[#232336]">
+                  <ul className="mb-4 pl-6 text-[#232336] text-base">
                     <li>Mise en relation rapide et directe avec l’employeur</li>
                     <li>
                       Gestion simplifiée de vos missions et disponibilités
@@ -118,13 +118,13 @@ export const MissionInvitation = ({
                   <div className="my-6 text-center">
                     <Button
                       href={buttonUrl}
-                      className="rounded-lg bg-[#FDBA3B] px-8 py-4 text-lg font-bold text-[#22345E] shadow"
+                      className="rounded-lg bg-[#FDBA3B] px-8 py-4 font-bold text-[#22345E] text-lg shadow"
                     >
                       {buttonText}
                     </Button>
                   </div>
                   <Hr className="my-6" />
-                  <Text className="text-center text-sm text-[#5A5A7A]">
+                  <Text className="text-center text-[#5A5A7A] text-sm">
                     Pour toute question, contactez l’équipe Cet Extra.
                     <br />
                     <span className="font-semibold">Email :</span>{" "}

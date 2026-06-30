@@ -1,4 +1,4 @@
-import { MissionJob } from "@prisma/client";
+import type { MissionJob } from "@prisma/client";
 
 /**
  * Type représentant un utilisateur enregistré invité à une mission

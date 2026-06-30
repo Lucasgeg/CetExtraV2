@@ -1,11 +1,11 @@
-import prisma from "@/app/lib/prisma";
-import { PrismaMissionJob } from "@/store/types";
-import { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
+import type { PrismaMissionJob } from "@/store/types";
+import type { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   props: { params: Promise<{ userId: string }> }
 ): Promise<NextResponse> {
   const { userId: currentUserId, sessionClaims } = await auth();

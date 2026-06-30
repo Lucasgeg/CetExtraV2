@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import L, { type LatLngExpression } from "leaflet";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -7,18 +8,16 @@ import {
   useMap,
   useMapEvents
 } from "react-leaflet";
-import { LatLngExpression } from "leaflet";
-import { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { useMapUsers } from "@/hooks/useMapUser";
+import { useUserResearchStore } from "@/store/useUserResearchStore";
+import type { UserWithLocation } from "@/types/UserWithLocation.enum";
 import {
   filterUsersByDistance,
   getVisibleRadius
 } from "@/utils/distance.utils";
+import { UserSlider } from "../UserSlider/UserSlider";
 import { Loader } from "../ui/Loader/Loader";
 import ExtraMarker from "../ui/Markers/ExtraMarkers";
-import L from "leaflet";
-import { UserSlider } from "../UserSlider/UserSlider";
-import { useUserResearchStore } from "@/store/useUserResearchStore";
 
 interface MapWithUserFilterProps {
   center: LatLngExpression;
@@ -86,7 +85,7 @@ const MapInfo = ({
   privacyProtected = false
 }: MapInfoProps) => {
   return (
-    <div className="absolute left-2 top-2 z-[1000] rounded bg-white p-2 text-sm shadow-md">
+    <div className="absolute top-2 left-2 z-[1000] rounded bg-white p-2 text-sm shadow-md">
       <div className="flex flex-col gap-1">
         <div>
           <strong>Rayon visible:</strong> {visibleRadius.toFixed(2)} km
@@ -96,12 +95,12 @@ const MapInfo = ({
           {loading ? "..." : `${filteredUsers}/${totalUsers}`}
         </div>
         {privacyProtected && (
-          <div className="text-xs text-blue-600">
+          <div className="text-blue-600 text-xs">
             🔒 Positions approximatives (confidentialité)
           </div>
         )}
         {loading && (
-          <div className="text-xs text-gray-500">
+          <div className="text-gray-500 text-xs">
             <Loader fullScreen size="xl" />
           </div>
         )}
@@ -149,7 +148,7 @@ const MapEventHandler = ({
       filterAndNotify(missionLocation.lat, missionLocation.lon, visibleRadius);
       hasInitiallyLoaded.current = true;
     }
-  }, [users, map, missionLocation]);
+  }, [users, map, missionLocation, filterAndNotify]);
 
   useMapEvents({
     zoomend: () => {

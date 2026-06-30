@@ -1,9 +1,9 @@
+import { auth } from "@clerk/nextjs/server";
+import { MissionStatus } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import { EnumMissionSelector } from "@/types/api";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
-import { auth } from "@clerk/nextjs/server";
-import { MissionStatus } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
 
 // Fonction pour construire l'objet de sélection
 const buildSelectObject = (fields: string[] | null) => {
@@ -23,7 +23,7 @@ const buildSelectObject = (fields: string[] | null) => {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: Prisma select shape is built dynamically per field
   const selectObj: any = {};
 
   fields.forEach((field) => {
@@ -176,10 +176,10 @@ export async function GET(
     // 4. Récupération des paramètres de requête
     const searchParams = req.nextUrl.searchParams;
     const take = searchParams.get("take")
-      ? parseInt(searchParams.get("take")!)
+      ? parseInt(searchParams.get("take")!, 10)
       : 10;
     const skip = searchParams.get("skip")
-      ? parseInt(searchParams.get("skip")!)
+      ? parseInt(searchParams.get("skip")!, 10)
       : 0;
     const sortOrder = searchParams.get("sortOrder") || "asc";
 

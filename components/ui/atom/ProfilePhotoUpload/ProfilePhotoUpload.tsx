@@ -1,7 +1,7 @@
+import Image from "next/image";
 import React, { useRef, useState } from "react";
 import { useSignUpStore } from "@/store/useSignUpstore";
 import { Button } from "../../button";
-import Image from "next/image";
 
 export const ProfilePhotoUpload = () => {
   const { profilePhoto, setProfilePhoto, clearProfilePhoto } = useSignUpStore();
@@ -68,7 +68,7 @@ export const ProfilePhotoUpload = () => {
             <button
               type="button"
               onClick={handleRemovePhoto}
-              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-sm text-white hover:bg-red-600"
+              className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-sm text-white hover:bg-red-600"
               aria-label="Supprimer la photo"
             >
               ×
@@ -77,7 +77,7 @@ export const ProfilePhotoUpload = () => {
         ) : (
           <div
             onClick={triggerFileSelect}
-            className="flex h-32 w-32 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-gray-300 bg-gray-100 transition-colors hover:bg-gray-50"
+            className="flex h-32 w-32 cursor-pointer items-center justify-center rounded-full border-2 border-gray-300 border-dashed bg-gray-100 transition-colors hover:bg-gray-50"
           >
             <div className="text-center">
               <svg
@@ -93,7 +93,7 @@ export const ProfilePhotoUpload = () => {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <p className="text-xs text-gray-500">Ajouter une photo</p>
+              <p className="text-gray-500 text-xs">Ajouter une photo</p>
             </div>
           </div>
         )}
@@ -130,7 +130,7 @@ export const ProfilePhotoUpload = () => {
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-500">
+      <p className="text-center text-gray-500 text-xs">
         Formats acceptés : JPG, PNG, GIF
         <br />
         Taille maximale : 5MB

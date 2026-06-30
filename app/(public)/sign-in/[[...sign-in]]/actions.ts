@@ -1,6 +1,6 @@
 "use server";
-import prisma from "@/app/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import prisma from "@/app/lib/prisma";
 
 export const getMainUserData = async () => {
   const { userId } = await auth();

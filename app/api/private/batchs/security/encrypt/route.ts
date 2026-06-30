@@ -1,8 +1,8 @@
+import type { Prisma } from "@prisma/client";
+import { Resend } from "resend";
 import prisma from "@/app/lib/prisma";
 import StatReport from "@/components/MailTemplate/StatReport";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
-import { Prisma } from "@prisma/client";
-import { Resend } from "resend";
 
 // Types et interfaces
 interface ProcessResult {

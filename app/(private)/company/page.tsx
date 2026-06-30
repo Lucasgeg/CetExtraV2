@@ -1,6 +1,6 @@
 "use server";
-import { CompanyHome } from "@/components/home/CompanyHome/CompanyHome";
 import { auth } from "@clerk/nextjs/server";
+import { CompanyHome } from "@/components/home/CompanyHome/CompanyHome";
 
 export default async function Home() {
   const { sessionClaims } = await auth();

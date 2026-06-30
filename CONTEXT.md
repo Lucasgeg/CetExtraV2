@@ -61,8 +61,8 @@ Plateforme **Cet Extra** (FR) pour mettre en relation des entreprises de l’év
 ### 4) Styles/imports/outillage
 
 - Alias import: `@/*` (défini dans `tsconfig.json`)
-- Format via Prettier + tri Tailwind (`prettier-plugin-tailwindcss`)
-- Hook pre-commit: `bun lint-staged`
+- Lint + format + tri Tailwind via **Biome** (`biome.jsonc`), un seul outil remplaçant ESLint et Prettier (voir [ADR 0001](./docs/adr/0001-biome-replaces-eslint-prettier.md))
+- Hook pre-commit: `.lintstagedrc.js` (tsc --noEmit + `biome check --write --unsafe` sur les fichiers stagés)
 - Hook commit-msg: message doit commencer par un gitmoji
 
 ## Flows métier clés

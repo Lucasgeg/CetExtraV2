@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import {
-  UserWithLocation,
-  NearbyUsersResponse
+import { useEffect, useState } from "react";
+import type {
+  NearbyUsersResponse,
+  UserWithLocation
 } from "@/types/UserWithLocation.enum";
 
 interface UseMapUsersProps {
@@ -52,13 +52,7 @@ export const useMapUsers = ({
 
   useEffect(() => {
     fetchUsers();
-  }, [
-    missionLocation.lat,
-    missionLocation.lon,
-    enabled,
-    radius,
-    preservePrivacy
-  ]);
+  }, [fetchUsers]);
 
   return {
     users,

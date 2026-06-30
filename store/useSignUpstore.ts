@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { SignupErrorMessages, UserSignUpSchema } from "./types/signupType";
-import { Company, Extra, EnumRole } from "./types";
+import { type Company, EnumRole, type Extra } from "./types";
+import type { SignupErrorMessages, UserSignUpSchema } from "./types/signupType";
 
 export type SignUpStore = {
   user: Partial<UserSignUpSchema> | null;

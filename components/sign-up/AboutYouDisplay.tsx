@@ -18,13 +18,13 @@ export const AboutYouDisplay = ({
       </h2>
       <div className="flex flex-col gap-2 md:flex-row md:justify-between">
         <div className="flex flex-col items-center">
-          <h3 className="mb-4 text-lg font-medium">Photo de profil</h3>
+          <h3 className="mb-4 font-medium text-lg">Photo de profil</h3>
           <ProfilePhotoUpload />
         </div>
         <div className="flex flex-1 flex-col items-center">
-          <h3 className="mb-4 text-lg font-medium">À propos de toi</h3>
+          <h3 className="mb-4 font-medium text-lg">À propos de toi</h3>
           <textarea
-            className="border-gr ay-300 w-full resize-none rounded-md border p-2"
+            className="ay-300 w-full resize-none rounded-md border border-gr p-2"
             rows={4}
             placeholder="Parle-nous de toi..."
             value={user?.description}

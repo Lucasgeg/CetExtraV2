@@ -1,8 +1,8 @@
 import {
   Tooltip,
+  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-  TooltipContent
+  TooltipTrigger
 } from "./tooltip";
 
 type RadioOption = {
@@ -56,7 +56,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
                 <span>{option.label}</span>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-sm font-medium text-black">
+                <p className="font-medium text-black text-sm">
                   {option.description}
                 </p>
               </TooltipContent>

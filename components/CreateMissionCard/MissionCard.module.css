@@ -1,6 +1,6 @@
 .iconWrapper {
   width: clamp(12px, 6vw, 32px); /* Largeur responsive */
-  aspect-ratio: 1/1; /* Carré */
+  aspect-ratio: 1 / 1; /* Carré */
   display: flex;
   align-items: center;
   justify-content: center;

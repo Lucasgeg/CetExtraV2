@@ -1,11 +1,7 @@
 "use client";
 
-import React, {
-  useEffect,
-  useRef,
-  useImperativeHandle,
-  forwardRef
-} from "react";
+import type React from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export interface ModalProps {
@@ -218,8 +214,8 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
         className={cn(
           "fixed inset-0 m-0 flex h-full max-h-none w-full max-w-none flex-col bg-transparent",
           positionClasses[position],
-          animated && "duration-200 animate-in fade-in-0",
-          !isOpen && animated && "duration-200 animate-out fade-out-0",
+          animated && "fade-in-0 animate-in duration-200",
+          !isOpen && animated && "fade-out-0 animate-out duration-200",
           backdropClassName
         )}
         aria-label={ariaLabel}
@@ -232,8 +228,8 @@ export const Modal = forwardRef<ModalRef, ModalProps>(
           className={cn(
             "relative mx-4 my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg bg-white shadow-xl",
             sizeClasses[size],
-            animated && "duration-200 animate-in zoom-in-95",
-            !isOpen && animated && "duration-200 animate-out zoom-out-95",
+            animated && "zoom-in-95 animate-in duration-200",
+            !isOpen && animated && "zoom-out-95 animate-out duration-200",
             className
           )}
           onClick={(e) => e.stopPropagation()}

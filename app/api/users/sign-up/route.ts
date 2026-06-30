@@ -1,9 +1,4 @@
 "use server";
-import prisma from "@/app/lib/prisma";
-import { EnumRole, UserSignUpSchema } from "@/store/types";
-import { TransactionResult } from "@/types/api";
-import { ApiError } from "@/types/ApiError";
-import { convertToDbMissionJob } from "@/utils/enum";
 import { createClerkClient } from "@clerk/nextjs/server";
 import {
   BusinessSector,
@@ -13,6 +8,11 @@ import {
   UserMissionStatus
 } from "@prisma/client";
 import { NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
+import { EnumRole, type UserSignUpSchema } from "@/store/types";
+import { ApiError } from "@/types/ApiError";
+import type { TransactionResult } from "@/types/api";
+import { convertToDbMissionJob } from "@/utils/enum";
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY

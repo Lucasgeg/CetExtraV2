@@ -1,8 +1,7 @@
-import prisma from "@/app/lib/prisma";
-
-import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
 import { RedirectToSignIn } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
+import prisma from "@/app/lib/prisma";
 import { DeleteButton, PublishToggle } from "@/components/PostEditor/Actions";
 
 const PAGE_SIZE = 10;
@@ -41,7 +40,7 @@ export default async function BlogAdminPage({
   return (
     <>
       <div className="mb-8 flex flex-col items-center justify-between sm:flex-row">
-        <h1 className="text-3xl font-extrabold text-gray-800">
+        <h1 className="font-extrabold text-3xl text-gray-800">
           Gestion du blog
         </h1>
         <Link
@@ -59,10 +58,10 @@ export default async function BlogAdminPage({
             className="flex flex-col items-start justify-between rounded-xl border border-gray-200 bg-white p-5 shadow sm:flex-row sm:items-center"
           >
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="font-semibold text-gray-900 text-xl">
                 {post.title}
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-gray-500 text-sm">
                 {new Date(post.createdAt).toLocaleDateString()} –{" "}
                 {post.published ? "Publié" : "Brouillon"}
               </p>

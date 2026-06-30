@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/app/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
 
 export async function POST(req: NextRequest) {
   const { postId, author, content } = await req.json();

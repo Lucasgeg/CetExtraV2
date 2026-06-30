@@ -70,7 +70,7 @@ export const Loader = ({
         {text && (
           <p
             className={cn(
-              "animate-pulse text-center text-sm text-gray-600",
+              "animate-pulse text-center text-gray-600 text-sm",
               textClassName
             )}
           >

@@ -1,10 +1,10 @@
-import React from "react";
-import { Input } from "../ui/input";
-import { useRouter } from "next/navigation";
 import { useSignUp } from "@clerk/nextjs";
-import { useSignUpStore } from "@/store/useSignUpstore";
-import { ClerkAPIError } from "@clerk/types";
 import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
+import type { ClerkAPIError } from "@clerk/types";
+import { useRouter } from "next/navigation";
+import React from "react";
+import { useSignUpStore } from "@/store/useSignUpstore";
+import { Input } from "../ui/input";
 
 // Type pour les réponses d'erreur API
 interface ApiErrorResponse {
@@ -188,11 +188,11 @@ export const VerifyingDisplay = () => {
 
   return (
     <div className="mx-auto w-full max-w-md">
-      <h1 className="mb-6 text-center text-2xl font-bold">
+      <h1 className="mb-6 text-center font-bold text-2xl">
         Vérifier votre email
       </h1>
 
-      <div className="mb-4 text-center text-sm text-gray-600">
+      <div className="mb-4 text-center text-gray-600 text-sm">
         Nous avons envoyé un code de vérification à{" "}
         <strong>{user?.email}</strong>
       </div>
@@ -215,7 +215,7 @@ export const VerifyingDisplay = () => {
         <div>
           <label
             htmlFor="code"
-            className="block text-sm font-medium text-gray-700"
+            className="block font-medium text-gray-700 text-sm"
           >
             Entrez le code de vérification
           </label>
@@ -235,12 +235,12 @@ export const VerifyingDisplay = () => {
           <button
             type="submit"
             disabled={isLoading || !code.trim()}
-            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 font-medium text-sm text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
                 <svg
-                  className="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
+                  className="mr-3 -ml-1 h-5 w-5 animate-spin text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -272,7 +272,7 @@ export const VerifyingDisplay = () => {
             type="button"
             onClick={handleResendCode}
             disabled={isLoading}
-            className="text-sm text-blue-600 hover:text-blue-500 disabled:opacity-50"
+            className="text-blue-600 text-sm hover:text-blue-500 disabled:opacity-50"
           >
             Renvoyer le code
           </button>

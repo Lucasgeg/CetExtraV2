@@ -297,7 +297,7 @@ const MultipleSelector = React.forwardRef<
         document.removeEventListener("mousedown", handleClickOutside);
         document.removeEventListener("touchend", handleClickOutside);
       };
-    }, [open]);
+    }, [open, handleClickOutside]);
 
     useEffect(() => {
       if (value) {
@@ -314,7 +314,7 @@ const MultipleSelector = React.forwardRef<
       if (JSON.stringify(newOption) !== JSON.stringify(options)) {
         setOptions(newOption);
       }
-    }, [arrayDefaultOptions, arrayOptions, groupBy, onSearch, options]);
+    }, [arrayOptions, groupBy, onSearch, options]);
 
     useEffect(() => {
       /** sync search */
@@ -337,8 +337,13 @@ const MultipleSelector = React.forwardRef<
       };
 
       void exec();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus]);
+    }, [
+      debouncedSearchTerm,
+      groupBy,
+      open,
+      triggerSearchOnFocus,
+      onSearchSync
+    ]);
 
     useEffect(() => {
       /** async search */
@@ -363,8 +368,7 @@ const MultipleSelector = React.forwardRef<
       };
 
       void exec();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus]);
+    }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus, onSearch]);
 
     const CreatableItem = () => {
       if (!creatable) return undefined;
@@ -579,7 +583,7 @@ const MultipleSelector = React.forwardRef<
           </div>
         </div>
         {errorMessage && (
-          <div className="mt-1 max-w-40 text-justify text-sm text-red-500">
+          <div className="mt-1 max-w-40 text-justify text-red-500 text-sm">
             {errorMessage}
           </div>
         )}
@@ -610,7 +614,7 @@ const MultipleSelector = React.forwardRef<
               />
 
               <CommandList
-                className="top-1 z-10 max-h-52 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
+                className="top-1 z-10 max-h-52 w-full animate-in overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md outline-none"
                 onMouseLeave={() => {
                   setOnScrollbar(false);
                 }}
@@ -622,7 +626,7 @@ const MultipleSelector = React.forwardRef<
                 }}
               >
                 {isLoading ? (
-                  <>{loadingIndicator}</>
+                  loadingIndicator
                 ) : (
                   <>
                     {EmptyItem()}
@@ -636,38 +640,36 @@ const MultipleSelector = React.forwardRef<
                         heading={key}
                         className={cn(dropdownClassName)}
                       >
-                        <>
-                          {dropdowns.map((option) => {
-                            return (
-                              <CommandItem
-                                key={option.value}
-                                value={option.label}
-                                disabled={option.disable}
-                                onMouseDown={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                onSelect={() => {
-                                  if (selected.length >= maxSelected) {
-                                    onMaxSelected?.(selected.length);
-                                    return;
-                                  }
-                                  setInputValue("");
-                                  const newOptions = [...selected, option];
-                                  setSelected(newOptions);
-                                  onChange?.(newOptions);
-                                }}
-                                className={cn(
-                                  "cursor-pointer",
-                                  option.disable &&
-                                    "cursor-default text-muted-foreground"
-                                )}
-                              >
-                                {option.label}
-                              </CommandItem>
-                            );
-                          })}
-                        </>
+                        {dropdowns.map((option) => {
+                          return (
+                            <CommandItem
+                              key={option.value}
+                              value={option.label}
+                              disabled={option.disable}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              onSelect={() => {
+                                if (selected.length >= maxSelected) {
+                                  onMaxSelected?.(selected.length);
+                                  return;
+                                }
+                                setInputValue("");
+                                const newOptions = [...selected, option];
+                                setSelected(newOptions);
+                                onChange?.(newOptions);
+                              }}
+                              className={cn(
+                                "cursor-pointer",
+                                option.disable &&
+                                  "cursor-default text-muted-foreground"
+                              )}
+                            >
+                              {option.label}
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                     ))}
                   </>

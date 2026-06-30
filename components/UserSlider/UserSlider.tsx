@@ -1,28 +1,28 @@
-import useFetch from "@/hooks/useFetch";
-import { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
-import { Loader } from "../ui/Loader/Loader";
-import { Slider, SliderProps } from "../ui/Slider/Slider";
-import { Badge } from "../ui/badge";
-import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import type { MissionJob } from "@prisma/client";
+import { fr } from "date-fns/locale";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import useFetch from "@/hooks/useFetch";
+import type { PrismaMissionJob } from "@/store/types";
+import type { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
+import type { MissionInviteBody } from "@/types/MissionInvite";
 import { convertToFrontendMissionJob } from "@/utils/enum";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { DetailsList } from "../ui/DetailsList/DetailsList";
+import { DateTimePicker } from "../ui/dateTimePicker";
+import { Loader } from "../ui/Loader/Loader";
+import { Slider, type SliderProps } from "../ui/Slider/Slider";
+import { getExperienceItems, StarRating } from "../ui/StarRating/StarRating";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from "../ui/tooltip";
-import { DetailsList } from "../ui/DetailsList/DetailsList";
-import { StarRating, getExperienceItems } from "../ui/StarRating/StarRating";
-import { useMemo, useEffect, useState } from "react";
-import { PrismaMissionJob } from "@/store/types";
-import { useAuth } from "@clerk/nextjs";
-import { Controller, useForm } from "react-hook-form";
-import { MissionInviteBody } from "@/types/MissionInvite";
-import { DateTimePicker } from "../ui/dateTimePicker";
-import { fr } from "date-fns/locale";
-import { Button } from "../ui/button";
-import { MissionJob } from "@prisma/client";
 
 type UserSliderProps = SliderProps & {
   userId: string;
@@ -155,7 +155,7 @@ export const UserSlider = ({
               <div className="relative h-60 w-60">
                 <Image
                   src={user.profilePictureUrl}
-                  alt={user.extra.firstName + " " + user.extra.lastName}
+                  alt={`${user.extra.firstName} ${user.extra.lastName}`}
                   layout="fill"
                   objectFit="cover"
                   className="rounded-full"
@@ -167,8 +167,8 @@ export const UserSlider = ({
           {/* Informations de base */}
           <div className="space-y-3">
             <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-900">
-                {user.extra.firstName + " " + user.extra.lastName}
+              <h3 className="font-semibold text-gray-900 text-xl">
+                {`${user.extra.firstName} ${user.extra.lastName}`}
               </h3>
             </div>
 
@@ -176,7 +176,7 @@ export const UserSlider = ({
               <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3">
                 <span className="text-lg">💼</span>
                 <div className="w-full">
-                  <p className="text font-medium italic text-gray-700">
+                  <p className="text font-medium text-gray-700 italic">
                     Poste{user.extra.missionJobs.length > 1 ? "s" : ""} visé
                     {user.extra.missionJobs.length > 1 ? "s" : ""}
                     &nbsp;
@@ -196,7 +196,7 @@ export const UserSlider = ({
                     {user.extra.missionJobs.map((job, index) => (
                       <p
                         key={index}
-                        className="w-full text-sm text-gray-600 even:ml-auto"
+                        className="w-full text-gray-600 text-sm even:ml-auto"
                       >
                         {convertToFrontendMissionJob(job.missionJob)}&nbsp;
                         <StarRating
@@ -213,10 +213,10 @@ export const UserSlider = ({
               <div className="flex items-center justify-start gap-2 rounded-lg bg-gray-50 p-3">
                 <span className="text-lg">📝</span>
                 <div>
-                  <p className="text- font-medium italic text-gray-700">
+                  <p className="text- font-medium text-gray-700 italic">
                     Description
                   </p>
-                  <p className="whitespace-pre-wrap text-sm text-gray-600">
+                  <p className="whitespace-pre-wrap text-gray-600 text-sm">
                     {user.description || "Aucune description renseignée"}
                   </p>
                 </div>
@@ -227,10 +227,10 @@ export const UserSlider = ({
                 <div className="flex items-start gap-2 rounded-lg bg-green-50 p-3">
                   <span className="text-lg">✅</span>
                   <div className="w-full">
-                    <p className="font-medium italic text-green-700">
+                    <p className="font-medium text-green-700 italic">
                       Postes disponibles pour cette mission
                     </p>
-                    <p className="mb-2 text-sm text-green-600">
+                    <p className="mb-2 text-green-600 text-sm">
                       Sélectionnez un poste pour inviter cet utilisateur
                     </p>
 
@@ -282,14 +282,14 @@ export const UserSlider = ({
                   <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3">
                     <span className="text-lg">❌</span>
                     <div>
-                      <p className="font-medium italic text-red-700">
+                      <p className="font-medium text-red-700 italic">
                         Aucun poste compatible
                       </p>
-                      <p className="text-sm text-red-600">
+                      <p className="text-red-600 text-sm">
                         Cet utilisateur n'est éligible à aucun des postes requis
                         pour cette mission.
                       </p>
-                      <div className="mt-2 text-xs text-red-500">
+                      <div className="mt-2 text-red-500 text-xs">
                         <p>
                           <strong>Postes utilisateur :</strong>{" "}
                           {user?.extra?.missionJobs
@@ -321,7 +321,7 @@ export const UserSlider = ({
                     <p className="font-semibold text-blue-800">
                       Invitation à la mission
                     </p>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-blue-700 text-sm">
                       Poste sélectionné :{" "}
                       <span className="font-bold text-extra-primary">
                         {selectedMissionJob}
@@ -414,7 +414,7 @@ export const UserSlider = ({
           </div>
         </form>
       )}
-      {apiError && <div className="mt-2 text-sm text-red-600">{apiError}</div>}
+      {apiError && <div className="mt-2 text-red-600 text-sm">{apiError}</div>}
     </Slider>
   );
 };

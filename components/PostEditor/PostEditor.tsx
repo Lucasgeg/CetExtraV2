@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import ReactMde, { SaveImageHandler, TextApi } from "react-mde";
+import { useEffect, useRef, useState } from "react";
+import ReactMde, { type SaveImageHandler, type TextApi } from "react-mde";
 import Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import { Input } from "@/components/ui/input";
-import { KeywordInput } from "./KeywordInput";
-import { Button } from "@/components/ui/button";
-import { GenerateButton } from "./Actions";
 import { CldUploadWidget } from "next-cloudinary";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Modal } from "../ui/Modal/Modal";
+import { GenerateButton } from "./Actions";
+import { KeywordInput } from "./KeywordInput";
 
 type PostEditorProps = {
   onSubmit: (data: {
@@ -54,7 +54,7 @@ export default function PostEditor({
   const textApiRef = useRef<TextApi | null>(null);
 
   const imageUpload: SaveImageHandler = async function* (
-    data: ArrayBuffer,
+    _data: ArrayBuffer,
     file: Blob
   ) {
     const formData = new FormData();
@@ -220,7 +220,7 @@ export default function PostEditor({
                     );
                   } else {
                     setContent(
-                      (prev) => prev + `\n![${altText}](${pendingImageUrl})`
+                      (prev) => `${prev}\n![${altText}](${pendingImageUrl})`
                     );
                   }
                 }

@@ -1,5 +1,5 @@
-import { Suggestion } from "@/types/api";
-import { Company, Extra, EnumRole } from "./dbType";
+import type { Suggestion } from "@/types/api";
+import type { Company, EnumRole, Extra } from "./dbType";
 
 export type UserSignUpSchema = {
   email: string;

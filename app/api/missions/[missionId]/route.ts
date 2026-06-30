@@ -1,16 +1,20 @@
-import prisma from "@/app/lib/prisma";
-import { EnumMissionJob, EnumRole, PrismaMissionJob } from "@/store/types";
-import { CreateMissionFormValues, Suggestion } from "@/types/api";
-import { ApiError } from "@/types/ApiError";
-import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
-import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { auth } from "@clerk/nextjs/server";
-import { MissionJob, MissionLocation } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import type { MissionJob, MissionLocation } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
+import {
+  type EnumMissionJob,
+  EnumRole,
+  type PrismaMissionJob
+} from "@/store/types";
+import { ApiError } from "@/types/ApiError";
+import type { CreateMissionFormValues, Suggestion } from "@/types/api";
+import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import {
   convertToDbMissionJob,
   convertToFrontendMissionJob
 } from "@/utils/enum";
+import { handlePrismaError } from "@/utils/prismaErrors.util";
 
 /**
  * Handles GET requests for fetching detailed information about a specific mission.
@@ -34,7 +38,7 @@ import {
 
  **/
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   props: { params: Promise<{ missionId: string }> }
 ): Promise<NextResponse<MissionDetailApiResponse | { message: string }>> {
   try {
@@ -229,7 +233,7 @@ export async function PUT(
     extraJobOptions
   } = body as CreateMissionFormValues;
 
-  if (!location || !location.lat || !location.lon || !location.display_name) {
+  if (!location?.lat || !location.lon || !location.display_name) {
     return NextResponse.json(
       { message: "Location data is incomplete" },
       { status: 400 }

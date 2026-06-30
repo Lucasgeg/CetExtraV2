@@ -1,5 +1,5 @@
-import logo from "@/assets/cetextralogo.jpeg";
 import Image from "next/image";
+import logo from "@/assets/cetextralogo.jpeg";
 import { cn } from "@/lib/utils";
 
 export const CetExtraLogo = ({ className }: { className?: string }) => {

@@ -1,12 +1,12 @@
-import { useSignUpStore } from "@/store/useSignUpstore";
 import { useState } from "react";
+import type { Extra, ExtraErrorMessages } from "@/store/types";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { DatePickerInput } from "../ui/atom/DatePickerInput/DatePickerInput";
 import { LabelledInput } from "../ui/atom/LabelledInput";
 import {
-  Items,
+  type Items,
   LabelledSelect
 } from "../ui/atom/LabelledSelect/LabelledSelect";
-import { Extra, ExtraErrorMessages } from "@/store/types";
 
 export const ExtraSignUpDisplay = ({
   errorMessages

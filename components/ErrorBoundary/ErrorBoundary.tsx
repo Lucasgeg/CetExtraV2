@@ -54,7 +54,7 @@ function DefaultErrorFallback({
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4">
       <p className="text-red-600">Erreur lors du chargement des missions</p>
-      <p className="text-sm text-gray-500">{error.message}</p>
+      <p className="text-gray-500 text-sm">{error.message}</p>
       <button
         onClick={retry}
         className="rounded bg-employer-primary px-4 py-2 text-white hover:bg-employer-secondary"

@@ -1,4 +1,4 @@
-import { EnumMissionJob } from "@/store/types";
+import type { EnumMissionJob } from "@/store/types";
 
 type Location = {
   fullName?: string;
@@ -109,6 +109,6 @@ export interface ApiErrorResponse {
 }
 
 export type TransactionResult =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: transaction payload shape varies by caller
   | { success: true; data: any }
   | { success: false; error: string; status: number };

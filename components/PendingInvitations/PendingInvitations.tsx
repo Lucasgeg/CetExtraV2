@@ -1,7 +1,10 @@
+import { InformationCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { EnveloppeClock } from "@/components/icons";
 import {
-  DetailsList,
-  DetailListItem
+  type DetailListItem,
+  DetailsList
 } from "@/components/ui/DetailsList/DetailsList";
 import {
   Dialog,
@@ -12,8 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
 import useFetch from "@/hooks/useFetch";
-import { EnumMissionJob } from "@/store/types";
-import {
+import type { EnumMissionJob } from "@/store/types";
+import type {
   GetMissionInvitesResponse,
   PendingEmployee,
   PendingInvitation
@@ -21,9 +24,6 @@ import {
 import { formatDateTimeLocal } from "@/utils/date";
 import { getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
-import { InformationCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
   Tooltip,
@@ -58,7 +58,7 @@ function InvitationCard({
   return (
     <div
       key={id}
-      className="bg-surface flex items-center justify-between rounded-lg border border-border px-4 py-2"
+      className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-2"
     >
       <div className="flex items-center space-x-3">
         {profilePictureUrl && (
@@ -70,7 +70,7 @@ function InvitationCard({
             height={32}
           />
         )}
-        <span className="text-sm font-medium text-black-soft">
+        <span className="font-medium text-black-soft text-sm">
           {displayText}
         </span>
       </div>
@@ -127,7 +127,7 @@ export function PendingInvitations({
     if (refetchTrigger > 0) {
       refetchInvites();
     }
-  }, [refetchTrigger]);
+  }, [refetchTrigger, refetchInvites]);
   const handleCancelInvitation = useCallback(
     async (invitationId: string, registered: boolean) => {
       try {

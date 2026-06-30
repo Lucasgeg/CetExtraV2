@@ -1,6 +1,6 @@
 "use server";
 
-import { PpxApiResponse } from "@/types/api";
+import type { PpxApiResponse } from "@/types/api";
 
 export async function generateSeoData(article: string) {
   const PROMPT = `Je veux que tu répondes uniquement avec un objet JSON valide. Ta réponse doit être de la forme suivante :

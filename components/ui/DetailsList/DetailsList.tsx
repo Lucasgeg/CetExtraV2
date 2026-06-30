@@ -1,5 +1,5 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
 
 export type DetailListItem = {
   label: string | ReactNode;
@@ -21,12 +21,12 @@ export const DetailsList = ({
         <dl
           key={index}
           className={
-            "flex items-center justify-between gap-8 border-b border-employer-border pb-2 last:border-b-0"
+            "flex items-center justify-between gap-8 border-employer-border border-b pb-2 last:border-b-0"
           }
         >
           <dt
             className={cn(
-              "text-sm font-bold",
+              "font-bold text-sm",
               theme === "company"
                 ? "text-employer-primary"
                 : "text-extra-primary"

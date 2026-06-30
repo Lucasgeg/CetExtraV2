@@ -1,7 +1,7 @@
-import prisma from "@/app/lib/prisma";
-import { NominatimResponse, Suggestion } from "@/types/api";
 import axios from "axios";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
+import type { NominatimResponse, Suggestion } from "@/types/api";
 
 const getLocationFromNominatim = async (q: string): Promise<Suggestion[]> => {
   try {
@@ -39,8 +39,8 @@ const getLocationFromNominatim = async (q: string): Promise<Suggestion[]> => {
 
       return {
         display_name:
-          `${building ? building + "," : ""}${houseNumber} ${road}, ${postcode} ${city}, ${country}`
-            .replace(/  +/g, " ")
+          `${building ? `${building},` : ""}${houseNumber} ${road}, ${postcode} ${city}, ${country}`
+            .replace(/ {2,}/g, " ")
             .trim(),
         lat: Number(suggestion.lat),
         lon: Number(suggestion.lon),

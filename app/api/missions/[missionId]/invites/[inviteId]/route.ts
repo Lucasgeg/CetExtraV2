@@ -1,9 +1,9 @@
+import { auth } from "@clerk/nextjs/server";
+import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import { EnumRole } from "@/store/types";
 import { ApiError } from "@/types/ApiError";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
-import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
 
 /**
  * Handles PATCH requests to update the status of a mission invite or user mission.

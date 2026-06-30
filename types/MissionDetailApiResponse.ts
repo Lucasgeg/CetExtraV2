@@ -1,4 +1,8 @@
-import { MissionJob, MissionStatus, UserMissionStatus } from "@prisma/client";
+import type {
+  MissionJob,
+  MissionStatus,
+  UserMissionStatus
+} from "@prisma/client";
 
 export interface MissionDetailApiResponse {
   // Champs de base de la mission

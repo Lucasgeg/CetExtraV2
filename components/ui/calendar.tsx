@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from "react";
-import { DayPicker, DropdownProps } from "react-day-picker";
-
-import { cn } from "@/lib/utils";
+import { fr } from "date-fns/locale";
+import type * as React from "react";
+import { DayPicker, type DropdownProps } from "react-day-picker";
 import { buttonVariants } from "@/components/ui/button";
 
 import {
@@ -14,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { fr } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -40,11 +39,11 @@ function Calendar({
         chevron: "h-4 w-4",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute left-1"
+          "absolute left-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute right-1"
+          "absolute right-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
         month_grid: "w-full border-collapse space-y-1 ",
         weekdays: "flex",

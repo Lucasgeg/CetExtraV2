@@ -1,10 +1,10 @@
+import { auth } from "@clerk/nextjs/server";
+import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import {
   calculateDistance,
   randomizeCoordinatesAdvanced
 } from "@/utils/distance.utils";
-import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     const lon = parseFloat(searchParams.get("lon") || "0");
     const radius = parseFloat(searchParams.get("radius") || "50");
     const preservePrivacy = searchParams.get("privacy") !== "false"; // Par défaut true
-    const limit = parseInt(searchParams.get("limit") || "100"); // Limite de résultats
-    const page = parseInt(searchParams.get("page") || "1"); // Page pour pagination
+    const limit = parseInt(searchParams.get("limit") || "100", 10); // Limite de résultats
+    const page = parseInt(searchParams.get("page") || "1", 10); // Page pour pagination
     const skip = (page - 1) * limit;
 
     if (!lat || !lon) {

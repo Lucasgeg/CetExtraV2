@@ -1,4 +1,4 @@
-import { PpxApiResponse } from "@/types/api";
+import type { PpxApiResponse } from "@/types/api";
 
 export const blogPostStub: PpxApiResponse = {
   id: "b51b0a49-f7e7-4c57-9149-f481779f8bf4",

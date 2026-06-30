@@ -1,9 +1,9 @@
 import { fr } from "date-fns/locale";
+import type { DayPickerProps } from "react-day-picker";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { DateTimePicker } from "../ui/dateTimePicker";
-import { cn } from "@/lib/utils";
 import styles from "./MissionCard.module.css";
-import { DayPickerProps } from "react-day-picker";
 
 type CreateMissionCardDatePickerProps = {
   title: string;
@@ -44,7 +44,7 @@ export const CreateMissionCardDatePicker = ({
         >
           {icon}
         </div>
-        <h2 className="w-auto text-lg font-semibold text-employer-primary">
+        <h2 className="w-auto font-semibold text-employer-primary text-lg">
           {title}
         </h2>
       </CardHeader>
@@ -61,7 +61,7 @@ export const CreateMissionCardDatePicker = ({
           {...pickerProps}
         />
         {errorMessage && (
-          <div className="mt-1 max-w-40 text-justify text-sm text-red-500">
+          <div className="mt-1 max-w-40 text-justify text-red-500 text-sm">
             {errorMessage}
           </div>
         )}

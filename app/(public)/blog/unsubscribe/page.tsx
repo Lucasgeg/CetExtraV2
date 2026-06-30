@@ -1,6 +1,6 @@
 // app/unsubscribe/page.tsx
 
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import prisma from "@/app/lib/prisma";
@@ -72,7 +72,7 @@ export default async function UnsubscribePage({
   return (
     <main className="flex min-h-[60vh] flex-col items-center justify-center p-8">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-        <h1 className="mb-6 text-center text-3xl font-bold text-[#22345E]">
+        <h1 className="mb-6 text-center font-bold text-3xl text-[#22345E]">
           Se désinscrire
         </h1>
 
@@ -91,7 +91,7 @@ export default async function UnsubscribePage({
                 />
               </svg>
             </div>
-            <p className="mb-6 text-lg text-gray-700">
+            <p className="mb-6 text-gray-700 text-lg">
               Vous êtes maintenant désinscrit(e) ! Vous ne recevrez plus les
               notifications du blog Cet Extra. Merci de votre confiance !
             </p>
@@ -113,7 +113,7 @@ export default async function UnsubscribePage({
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block font-medium text-gray-700 text-sm"
                 >
                   Adresse e-mail
                 </label>

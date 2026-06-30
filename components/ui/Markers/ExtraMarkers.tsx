@@ -1,7 +1,8 @@
 // MarkerWithPhoto.tsx
-import { Marker } from "react-leaflet";
+
 import L from "leaflet";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import { Marker } from "react-leaflet";
 
 type ExtraMarkerProps = PropsWithChildren & {
   position: [number, number]; // Latitude, Longitude

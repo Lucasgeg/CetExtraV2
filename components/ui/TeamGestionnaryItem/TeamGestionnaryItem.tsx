@@ -1,28 +1,28 @@
 "use client";
-import { Input } from "../input";
-import { Button } from "../button";
+import { useAuth } from "@clerk/nextjs";
 import {
   CalendarDateRangeIcon,
   EnvelopeIcon,
   QuestionMarkCircleIcon,
   TrashIcon
 } from "@heroicons/react/24/outline";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { fr } from "date-fns/locale";
+import { type ReactNode, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import type { EnumMissionJob } from "@/store/types";
+import type { MissionInviteBody } from "@/types/MissionInvite";
+import type { MissionRemoveUserBody } from "@/types/MissionRemoveUser.body";
+import { isEmailValid } from "@/utils/string";
+import { Button } from "../button";
+import { DateTimePicker } from "../dateTimePicker";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle
 } from "../dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
-import { ReactNode, useState, useEffect } from "react";
-import { DateTimePicker } from "../dateTimePicker";
-import { Controller, useForm } from "react-hook-form";
-import { isEmailValid } from "@/utils/string";
-import { fr } from "date-fns/locale";
-import { MissionInviteBody } from "@/types/MissionInvite";
-import { EnumMissionJob } from "@/store/types";
-import { useAuth } from "@clerk/nextjs";
-import { MissionRemoveUserBody } from "@/types/MissionRemoveUser.body";
+import { Input } from "../input";
 
 type TeamGestionnaryItemProps = {
   tipNumber: number;
@@ -186,7 +186,7 @@ export const TeamGestionnaryItem = ({
         }`}
       >
         <span
-          className={`flex aspect-square h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+          className={`flex aspect-square h-7 w-7 items-center justify-center rounded-full font-bold text-xs ${
             isOccupied
               ? "bg-green-500/40 text-black-soft"
               : "bg-extra-surface text-black-soft"
@@ -219,16 +219,16 @@ export const TeamGestionnaryItem = ({
                   <DialogTitle>Supprimer l'extra</DialogTitle>
                   <form onSubmit={rmSubmit(onRemoveUser)}>
                     <div className="mt-2">
-                      <strong className="text-sm text-black-soft">
+                      <strong className="text-black-soft text-sm">
                         Vous êts sur le point de retirer cet extra de votre
                         équipe pour la mission.
                       </strong>
-                      <p className="text-sm text-black-soft">
+                      <p className="text-black-soft text-sm">
                         Vous pouvez si vous le souhaitez, indiquer un motif de
                         suppression destiné à l'extra.
                       </p>
                       <div className="mt-4">
-                        <label className="block text-sm font-medium text-black-soft">
+                        <label className="block font-medium text-black-soft text-sm">
                           Motif de suppression (optionnel)
                         </label>
                         <Controller
@@ -268,7 +268,7 @@ export const TeamGestionnaryItem = ({
                     </div>
                   </form>
                   {apiError && (
-                    <div className="mt-2 text-sm text-red-600">{apiError}</div>
+                    <div className="mt-2 text-red-600 text-sm">{apiError}</div>
                   )}
                 </DialogContent>
               </Dialog>
@@ -312,7 +312,7 @@ export const TeamGestionnaryItem = ({
                   <DialogDescription>Formulaire d'invitation</DialogDescription>
                   <DialogTitle>Inviter une personne</DialogTitle>
                   <div className="mt-2">
-                    <p className="text-sm text-black-soft">
+                    <p className="text-black-soft text-sm">
                       Vous pouvez inviter une personne à rejoindre votre équipe
                       pour ce poste{" "}
                       <strong>pour toute la durée de votre mission</strong>. Si
@@ -344,7 +344,7 @@ export const TeamGestionnaryItem = ({
                         )}
                       />
                       {apiError && (
-                        <div className="mt-2 text-sm text-red-600">
+                        <div className="mt-2 text-red-600 text-sm">
                           {apiError}
                         </div>
                       )}
@@ -385,7 +385,7 @@ export const TeamGestionnaryItem = ({
                   <form onSubmit={handleSubmit(onInvite)}>
                     <DialogTitle>Inviter une personne</DialogTitle>
                     <div className="mt-2">
-                      <p className="text-sm text-black-soft">
+                      <p className="text-black-soft text-sm">
                         Vous pouvez inviter une personne à rejoindre votre
                         équipe pour ce poste&nbsp;
                         <strong>
@@ -421,7 +421,7 @@ export const TeamGestionnaryItem = ({
                       />
 
                       <div className="mt-4 space-y-2">
-                        <label className="text-sm font-medium">
+                        <label className="font-medium text-sm">
                           Date et heure de début
                         </label>
                         <div className="relative">
@@ -455,7 +455,7 @@ export const TeamGestionnaryItem = ({
                         </div>
                       </div>
                       <div className="mt-4 space-y-2">
-                        <label className="text-sm font-medium">
+                        <label className="font-medium text-sm">
                           Date et heure de fin
                         </label>
                         <div className="relative">
@@ -510,7 +510,7 @@ export const TeamGestionnaryItem = ({
                         </Button>
                       </div>
                       {apiError && (
-                        <div className="mt-2 text-sm text-red-600">
+                        <div className="mt-2 text-red-600 text-sm">
                           {apiError}
                         </div>
                       )}
@@ -531,7 +531,7 @@ export const TeamGestionnaryItem = ({
           <DialogDescription>
             L'extra a été retiré de la mission avec succès.
           </DialogDescription>
-          <Button onClick={handleCloseRmDialog} className="ml-auto mt-4">
+          <Button onClick={handleCloseRmDialog} className="mt-4 ml-auto">
             Fermer
           </Button>
         </DialogContent>

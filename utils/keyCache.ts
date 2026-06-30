@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { getCryptoVariable } from "@/utils/security";
+// biome-ignore-all lint/suspicious/noExplicitAny: key cache accepts loosely-typed values by design
+
 import { unstable_cache } from "next/cache";
+import { getCryptoVariable } from "@/utils/security";
 
 // Fonction pour authentifier avec Infisical
 async function authenticateWithInfisical() {

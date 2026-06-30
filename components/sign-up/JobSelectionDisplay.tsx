@@ -1,12 +1,12 @@
-import { Button } from "../ui/button";
+import { useSignUp } from "@clerk/nextjs";
+import { StarIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { EnumMissionJob } from "@/store/types/dbType";
+import { useSignUpStore } from "@/store/useSignUpstore";
 import { getJobLabel, getJobOptionsForSelector } from "@/utils/enum";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { Modal } from "../ui/Modal/Modal";
-import { useSignUpStore } from "@/store/useSignUpstore";
-import { EnumMissionJob } from "@/store/types/dbType";
-import { useState } from "react";
-import { StarIcon } from "@heroicons/react/24/outline";
-import { useSignUp } from "@clerk/nextjs";
 
 type JobSelectionDisplayProps = {
   actionSubmitAction: () => void;
@@ -122,7 +122,7 @@ export const JobSelectionDisplay = ({
       onSubmit={handleSubmitAction}
       className="flex w-full flex-1 flex-col gap-4"
     >
-      <h2 className="text-xl font-bold">Sélection des postes</h2>
+      <h2 className="font-bold text-xl">Sélection des postes</h2>
 
       {/* Modal pour sélectionner le niveau d'expérience */}
       <Modal
@@ -132,12 +132,12 @@ export const JobSelectionDisplay = ({
         ariaLabel="Sélection du niveau d'expérience"
       >
         <div className="p-6">
-          <h3 className="mb-4 text-lg font-semibold">
+          <h3 className="mb-4 font-semibold text-lg">
             Niveau d'expérience pour{" "}
             {selectedJob ? getJobLabel(selectedJob) : ""}
           </h3>
           <div className="flex flex-col items-center gap-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-gray-600 text-sm">
               Cliquez sur les étoiles pour indiquer votre niveau d'expérience :
             </p>
             <div className="flex items-center justify-around gap-2 space-x-1">
@@ -164,7 +164,7 @@ export const JobSelectionDisplay = ({
                 </button>
               ))}
             </div>
-            <span className="flex justify-center text-sm text-gray-600">
+            <span className="flex justify-center text-gray-600 text-sm">
               {generateInformationSwitch(experienceLevel)}
             </span>
             {experienceLevel !== 0 && (
@@ -197,7 +197,7 @@ export const JobSelectionDisplay = ({
       {/* Jobs sélectionnés */}
       {extra?.missionJob && extra.missionJob.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-lg font-semibold">Postes sélectionnés :</h3>
+          <h3 className="mb-2 font-semibold text-lg">Postes sélectionnés :</h3>
           <div className="flex flex-wrap gap-2">
             {extra.missionJob.map((job) => (
               <Badge
@@ -218,7 +218,7 @@ export const JobSelectionDisplay = ({
       <div className="flex-1 space-y-4 overflow-auto">
         {Object.entries(jobByCategory).map(([category, jobs]) => (
           <div key={category}>
-            <h3 className="mb-2 text-lg font-medium">{category}</h3>
+            <h3 className="mb-2 font-medium text-lg">{category}</h3>
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {jobs.map((job) => (
                 <li key={job.value}>

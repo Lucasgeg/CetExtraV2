@@ -1,10 +1,10 @@
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Popover, PopoverAnchor, PopoverContent } from "../../popover";
-import { Input } from "../../input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
-import { Suggestion } from "@/types/api";
-import { X } from "lucide-react";
+import type { Suggestion } from "@/types/api";
+import { Input } from "../../input";
+import { Popover, PopoverAnchor, PopoverContent } from "../../popover";
 
 type AdressAutocompleteProps = {
   inputclassName?: string;
@@ -103,22 +103,20 @@ export const AddressAutocomplete = ({
                 disabled={!!selectedAddress || disabled}
               />
               {selectedAddress && (
-                <>
-                  <button
-                    type="button"
-                    aria-label="Supprimer l'adresse sélectionnée"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-                    onClick={() => {
-                      setSelectedAddress(undefined);
-                      setQuery("");
-                      setSuggestions([]);
-                      handleClick(undefined);
-                    }}
-                    disabled={disabled}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </>
+                <button
+                  type="button"
+                  aria-label="Supprimer l'adresse sélectionnée"
+                  className="absolute top-1/2 right-2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                  onClick={() => {
+                    setSelectedAddress(undefined);
+                    setQuery("");
+                    setSuggestions([]);
+                    handleClick(undefined);
+                  }}
+                  disabled={disabled}
+                >
+                  <X className="h-4 w-4" />
+                </button>
               )}
             </div>
           </PopoverAnchor>

@@ -1,4 +1,4 @@
-import { EnumMissionJob } from "@/store/types";
+import type { EnumMissionJob } from "@/store/types";
 
 // Type de base avec les champs communs
 type BaseMissionInviteBody = {

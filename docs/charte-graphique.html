@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CET⚡EXTRA — Charte Graphique</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0E0E1C;
+      color: #f0f0f8;
+      line-height: 1.6;
+    }
+
+    /* ─── LAYOUT ─── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 48px 32px; }
+    section { margin-bottom: 80px; }
+    h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; }
+    h2 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #9090b0; margin-bottom: 32px; padding-bottom: 12px; border-bottom: 1px solid #2a2a45; }
+    h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: #c0c0d8; }
+    .label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #6060a0; margin-bottom: 6px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    /* ─── COVER ─── */
+    .cover {
+      min-height: 320px;
+      background: linear-gradient(135deg, #06041B 0%, #33335E 50%, #F15A29 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 48px 64px;
+      margin-bottom: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '⚡';
+      position: absolute;
+      font-size: 280px;
+      opacity: 0.05;
+      right: 80px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .cover-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.03em; color: white; }
+    .cover-title span { color: #FDBA3B; }
+    .cover-sub { color: rgba(255,255,255,0.6); font-size: 1rem; margin-top: 8px; }
+    .cover-badge {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 16px 28px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    .cover-badge .version { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+    .cover-badge .date { font-size: 1rem; font-weight: 600; color: white; }
+
+    /* ─── SPACE TAGS ─── */
+    .space-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+    .tag-pro { background: #33335E; color: #a0b4e0; border: 1px solid #4a4a8a; }
+    .tag-extra { background: #503C1B; color: #FDBA3B; border: 1px solid #8a6a2a; }
+    .tag-public { background: #1a1a3a; color: #9090d0; border: 1px solid #3a3a6a; }
+
+    /* ─── CARD ─── */
+    .card {
+      background: #14142a;
+      border: 1px solid #2a2a45;
+      border-radius: 16px;
+      padding: 28px;
+    }
+    .card-pro { border-color: #33335E; }
+    .card-extra { border-color: #503C1B; }
+    .card-public { border-color: #2a2a55; }
+
+    /* ─── BRAND GRADIENT ─── */
+    .gradient-bar {
+      height: 12px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #22345E 0%, #33335E 20%, #FDBA3B 60%, #F15A29 100%);
+      margin-bottom: 40px;
+    }
+
+    /* ─── COLOR SWATCHES ─── */
+    .swatch {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .swatch-color {
+      height: 80px;
+      width: 100%;
+    }
+    .swatch-info {
+      background: #1a1a2e;
+      padding: 10px 14px;
+    }
+    .swatch-name { font-size: 0.8rem; font-weight: 600; color: #e0e0f0; }
+    .swatch-hex { font-size: 0.7rem; color: #6060a0; font-family: 'Courier New', monospace; }
+    .swatch-var { font-size: 0.65rem; color: #4a4a70; font-family: 'Courier New', monospace; margin-top: 2px; }
+
+    /* ─── PALETTE GROUPS ─── */
+    .palette-group { margin-bottom: 40px; }
+    .palette-group-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .palette-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── TYPOGRAPHY ─── */
+    .type-sample {
+      background: #14142a;
+      border: 1px solid #2a2a45;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 12px;
+    }
+    .type-meta { font-size: 0.7rem; color: #5050a0; font-family: monospace; margin-bottom: 8px; }
+
+    /* ─── SPACE SECTIONS ─── */
+    .space-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 32px;
+      border-radius: 16px 16px 0 0;
+      border: 1px solid transparent;
+    }
+    .space-body {
+      border: 1px solid transparent;
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      padding: 32px;
+    }
+
+    /* PRO SPACE */
+    .space-pro .space-header {
+      background: linear-gradient(135deg, #06041B 0%, #33335E 100%);
+      border-color: #33335E;
+    }
+    .space-pro .space-body {
+      background: #F4F7FA;
+      border-color: #C9D6E2;
+      color: #232336;
+    }
+
+    /* EXTRA SPACE */
+    .space-extra .space-header {
+      background: linear-gradient(135deg, #503C1B 0%, #8a6a2a 100%);
+      border-color: #8a6a2a;
+    }
+    .space-extra .space-body {
+      background: #FFF8ED;
+      border-color: #EFD08C;
+      color: #503C1B;
+    }
+
+    /* PUBLIC SPACE */
+    .space-public .space-header {
+      background: linear-gradient(135deg, #06041B 0%, #33335E 40%, #FDBA3B 80%, #F15A29 100%);
+      border-color: #3a3a6a;
+    }
+    .space-public .space-body {
+      background: #ffffff;
+      border-color: #e0e0f0;
+      color: #232336;
+    }
+
+    .space-name { font-size: 1.4rem; font-weight: 800; color: white; }
+    .space-desc { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+    .space-routes { font-size: 0.75rem; font-family: monospace; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+    /* MOCK UI COMPONENTS */
+    .mock-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid;
+      margin-bottom: 20px;
+    }
+    .mock-logo { font-weight: 800; font-size: 0.9rem; }
+    .mock-link { font-size: 0.8rem; opacity: 0.6; }
+    .mock-btn {
+      margin-left: auto;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: none;
+      cursor: default;
+    }
+    .mock-card {
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .mock-card-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+    .mock-card-sub { font-size: 0.75rem; opacity: 0.6; }
+    .mock-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .mock-input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid;
+      font-size: 0.8rem;
+      background: transparent;
+      margin-bottom: 8px;
+      outline: none;
+    }
+
+    /* PRO MOCKS */
+    .pro-nav { border-color: #C9D6E2; color: #232336; }
+    .pro-logo { color: #33335E; }
+    .pro-btn { background: #33335E; color: white; }
+    .pro-card { background: #E6ECF3; border: 1px solid #C9D6E2; color: #232336; }
+    .pro-badge-active { background: #d4edda; color: #1a7a2e; }
+    .pro-badge-pending { background: #fff3cd; color: #856404; }
+    .pro-input { border-color: #C9D6E2; color: #232336; }
+
+    /* EXTRA MOCKS */
+    .extra-nav { border-color: #EFD08C; color: #503C1B; }
+    .extra-logo { color: #503C1B; }
+    .extra-btn { background: #F7B742; color: #503C1B; }
+    .extra-card { background: #FFF3D6; border: 1px solid #EFD08C; color: #503C1B; }
+    .extra-badge-active { background: #d4edda; color: #1a7a2e; }
+    .extra-badge-open { background: #FFF3D6; color: #8a5a00; border: 1px solid #EFD08C; }
+    .extra-input { border-color: #EFD08C; color: #503C1B; }
+
+    /* PUBLIC MOCKS */
+    .pub-nav { border-color: #e0e0f0; color: #232336; }
+    .pub-logo { background: linear-gradient(90deg, #33335E, #F15A29); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .pub-btn { background: linear-gradient(90deg, #33335E, #F15A29); color: white; }
+    .pub-card { background: #F4F7FA; border: 1px solid #e0e0f0; color: #232336; }
+    .pub-badge { background: linear-gradient(90deg, #33335E22, #F15A2922); color: #33335E; border: 1px solid #33335E44; }
+
+    /* ─── ICON SYSTEM ─── */
+    .icon-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px;
+      background: #14142a;
+      border: 1px solid #2a2a45;
+      border-radius: 10px;
+      min-width: 80px;
+    }
+    .icon-symbol { font-size: 1.5rem; }
+    .icon-name { font-size: 0.65rem; color: #5050a0; text-align: center; }
+
+    /* ─── SPACING ─── */
+    .spacing-grid { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+    .spacing-item { text-align: center; }
+    .spacing-box { background: #33335E; border-radius: 4px; margin: 0 auto 6px; }
+    .spacing-label { font-size: 0.65rem; color: #6060a0; font-family: monospace; }
+
+    /* ─── RADIUS ─── */
+    .radius-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+    .radius-item { text-align: center; }
+    .radius-box { width: 80px; height: 80px; background: #33335E; margin: 0 auto 8px; }
+    .radius-label { font-size: 0.65rem; color: #6060a0; font-family: monospace; }
+
+    /* ─── MOTION ─── */
+    .motion-demo {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .motion-item {
+      text-align: center;
+    }
+    .motion-box {
+      width: 60px; height: 60px;
+      background: #33335E;
+      border-radius: 10px;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FDBA3B;
+      font-size: 1.2rem;
+      transition: transform 0.2s ease-out, background 0.2s ease-out;
+      cursor: pointer;
+    }
+    .motion-box:hover { transform: scale(1.08); background: #4a4a8a; }
+    .motion-label { font-size: 0.65rem; color: #6060a0; font-family: monospace; }
+
+    /* ─── LOGO SECTION ─── */
+    .logo-variants { display: flex; gap: 24px; flex-wrap: wrap; }
+    .logo-variant {
+      flex: 1;
+      min-width: 200px;
+      border-radius: 12px;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo-dark { background: linear-gradient(135deg, #06041B 0%, #33335E 100%); color: white; }
+    .logo-dark span { color: #FDBA3B; }
+    .logo-light { background: #F4F7FA; color: #33335E; border-color: #C9D6E2; }
+    .logo-light span { color: #F15A29; }
+    .logo-gradient { background: linear-gradient(135deg, #06041B 0%, #33335E 40%, #FDBA3B 80%, #F15A29 100%); color: white; }
+    .logo-gradient span { color: #06041B; }
+
+    /* separator */
+    .sep { height: 1px; background: #2a2a45; margin: 48px 0; }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+      .cover { flex-direction: column; gap: 24px; padding: 32px; }
+      .cover-title { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div>
+      <div class="cover-title">CET<span>⚡</span>EXTRA</div>
+      <div class="cover-title" style="font-size:1.6rem; font-weight:400; color:rgba(255,255,255,0.5);">Charte Graphique</div>
+      <div class="cover-sub" style="margin-top:16px;">Identité visuelle · Couleurs · Typographie · Composants</div>
+    </div>
+    <div class="cover-badge">
+      <div class="version">Version</div>
+      <div class="date">1.0 — 2026</div>
+      <div style="margin-top:12px; font-size:0.75rem; color:rgba(255,255,255,0.4);">3 espaces</div>
+      <div style="font-size:0.8rem; color:rgba(255,255,255,0.7);">Pro · Extra · Public</div>
+    </div>
+  </div>
+
+  <!-- 1. IDENTITÉ -->
+  <section>
+    <h2>01 — Identité & Logo</h2>
+
+    <p style="color:#8080b0; margin-bottom:32px; max-width:640px;">
+      CetExtra connecte des <strong style="color:#2E7BA6;">entreprises événementielles</strong> avec des <strong style="color:#F7B742;">extras</strong> pour des missions ponctuelles. Le logo traduit cette dualité : bleu professionnel à gauche, orange énergie à droite, unis par l'éclair de la connexion instantanée.
+    </p>
+
+    <div class="logo-variants">
+      <div class="logo-variant logo-dark">CET<span>⚡</span>EXTRA
+        <div style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.4);position:absolute;margin-top:72px;">Sur fond sombre</div>
+      </div>
+      <div class="logo-variant logo-light">CET<span>⚡</span>EXTRA
+        <div style="font-size:0.7rem;font-weight:400;color:#9090a0;position:absolute;margin-top:72px;">Sur fond clair</div>
+      </div>
+      <div class="logo-variant logo-gradient">CET<span>⚡</span>EXTRA
+        <div style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.5);position:absolute;margin-top:72px;">Sur gradient</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <h3>Symboles & Iconographie</h3>
+    <div class="icon-grid">
+      <div class="icon-item"><div class="icon-symbol">⚡</div><div class="icon-name">Connexion<br/>instantanée</div></div>
+      <div class="icon-item"><div class="icon-symbol">🤝</div><div class="icon-name">Mission<br/>acceptée</div></div>
+      <div class="icon-item"><div class="icon-symbol">🏢</div><div class="icon-name">Entreprise<br/>Pro</div></div>
+      <div class="icon-item"><div class="icon-symbol">👤</div><div class="icon-name">Extra<br/>candidat</div></div>
+      <div class="icon-item"><div class="icon-symbol">📍</div><div class="icon-name">Localisation<br/>mission</div></div>
+      <div class="icon-item"><div class="icon-symbol">📅</div><div class="icon-name">Planning<br/>mission</div></div>
+      <div class="icon-item"><div class="icon-symbol">✉️</div><div class="icon-name">Invitation<br/>envoyée</div></div>
+      <div class="icon-item"><div class="icon-symbol">🔒</div><div class="icon-name">Sécurité<br/>RGPD</div></div>
+    </div>
+  </section>
+
+  <!-- 2. COULEURS -->
+  <section>
+    <h2>02 — Palette de couleurs</h2>
+
+    <!-- Brand -->
+    <div class="palette-group">
+      <div class="palette-group-header">
+        <div class="palette-dot" style="background: linear-gradient(90deg, #22345E, #FDBA3B, #F15A29);"></div>
+        <h3 style="margin:0; color:#e0e0f0;">Couleurs de marque — Gradient principal</h3>
+      </div>
+      <div class="gradient-bar"></div>
+      <div class="grid-3">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#22345E;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Brand Start</div>
+            <div class="swatch-hex">#22345E</div>
+            <div class="swatch-var">brand-gradient-start</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FDBA3B;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Brand Mid</div>
+            <div class="swatch-hex">#FDBA3B</div>
+            <div class="swatch-var">brand-gradient-mid</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F15A29;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Brand End</div>
+            <div class="swatch-hex">#F15A29</div>
+            <div class="swatch-var">brand-gradient-end</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro -->
+    <div class="palette-group">
+      <div class="palette-group-header">
+        <div class="palette-dot" style="background:#33335E;"></div>
+        <h3 style="margin:0; color:#e0e0f0;">Espace Pro — Bleu institutionnel</h3>
+        <span class="space-tag tag-pro">Entreprise</span>
+      </div>
+      <div class="grid-4">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#33335E;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Primary</div>
+            <div class="swatch-hex">#33335E</div>
+            <div class="swatch-var">employer.primary</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#2E7BA6;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Secondary</div>
+            <div class="swatch-hex">#2E7BA6</div>
+            <div class="swatch-var">employer.secondary</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EA5F3E;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Accent</div>
+            <div class="swatch-hex">#EA5F3E</div>
+            <div class="swatch-var">employer.accent</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F4F7FA; border-bottom: 1px solid #e0e0f0;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Background</div>
+            <div class="swatch-hex">#F4F7FA</div>
+            <div class="swatch-var">employer.background</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#E6ECF3;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Surface</div>
+            <div class="swatch-hex">#E6ECF3</div>
+            <div class="swatch-var">employer.surface</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#C9D6E2;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Border</div>
+            <div class="swatch-hex">#C9D6E2</div>
+            <div class="swatch-var">employer.border</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#232336;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Text primary</div>
+            <div class="swatch-hex">#232336</div>
+            <div class="swatch-var">employer.text.primary</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#5A5A7A;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Text secondary</div>
+            <div class="swatch-hex">#5A5A7A</div>
+            <div class="swatch-var">employer.text.secondary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extra -->
+    <div class="palette-group">
+      <div class="palette-group-header">
+        <div class="palette-dot" style="background:#F7B742;"></div>
+        <h3 style="margin:0; color:#e0e0f0;">Espace Extra — Ambre énergie</h3>
+        <span class="space-tag tag-extra">Extra</span>
+      </div>
+      <div class="grid-4">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F7B742;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Primary</div>
+            <div class="swatch-hex">#F7B742</div>
+            <div class="swatch-var">extra.primary</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EA5F3E;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Secondary</div>
+            <div class="swatch-hex">#EA5F3E</div>
+            <div class="swatch-var">extra.secondary</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#2E7BA6;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Accent</div>
+            <div class="swatch-hex">#2E7BA6</div>
+            <div class="swatch-var">extra.accent</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FFF8ED; border-bottom: 1px solid #EFD08C;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Background</div>
+            <div class="swatch-hex">#FFF8ED</div>
+            <div class="swatch-var">extra.background</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FFF3D6;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Surface</div>
+            <div class="swatch-hex">#FFF3D6</div>
+            <div class="swatch-var">extra.surface</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EFD08C;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Border</div>
+            <div class="swatch-hex">#EFD08C</div>
+            <div class="swatch-var">extra.border</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#503C1B;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Text primary</div>
+            <div class="swatch-hex">#503C1B</div>
+            <div class="swatch-var">extra.text.primary</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#9A7B3F;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Text secondary</div>
+            <div class="swatch-hex">#9A7B3F</div>
+            <div class="swatch-var">extra.text.secondary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sémantique -->
+    <div class="palette-group">
+      <div class="palette-group-header">
+        <div class="palette-dot" style="background:#4BB543;"></div>
+        <h3 style="margin:0; color:#e0e0f0;">Couleurs sémantiques — Partagées</h3>
+      </div>
+      <div class="grid-4">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#4BB543;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Success</div>
+            <div class="swatch-hex">#4BB543</div>
+            <div class="swatch-var">*.success</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F7B742;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Warning</div>
+            <div class="swatch-hex">#F7B742</div>
+            <div class="swatch-var">*.warning</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#EA5F3E;"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Error</div>
+            <div class="swatch-hex">#EA5F3E</div>
+            <div class="swatch-var">*.error</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:linear-gradient(135deg, #06041B, #0E0E1C);"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Main gradient</div>
+            <div class="swatch-hex">#06041B → #33335E</div>
+            <div class="swatch-var">bg-main-gradient</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TYPOGRAPHIE -->
+  <section>
+    <h2>03 — Typographie</h2>
+    <p style="color:#8080b0; margin-bottom:32px;">Police système — <code style="color:#FDBA3B;">Segoe UI / system-ui / -apple-system</code>. Pas de font externe pour maximiser la performance.</p>
+
+    <div class="type-sample">
+      <div class="type-meta">Display — 900 — 2.5rem — tracking: -0.03em</div>
+      <div style="font-size:2.5rem; font-weight:900; letter-spacing:-0.03em; color:white;">Trouvez votre prochain extra</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Heading 1 — 700 — 1.875rem — tracking: -0.02em</div>
+      <div style="font-size:1.875rem; font-weight:700; letter-spacing:-0.02em; color:white;">Missions disponibles ce week-end</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Heading 2 — 700 — 1.25rem</div>
+      <div style="font-size:1.25rem; font-weight:700; color:white;">Serveur en salle · Paris 8e</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Body — 400 — 1rem — line-height: 1.6</div>
+      <div style="font-size:1rem; color:#c0c0d8;">La plateforme qui connecte les entreprises événementielles avec des extras qualifiés pour des missions ponctuelles.</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Caption / Label — 600 — 0.7rem — tracking: 0.12em — UPPERCASE</div>
+      <div style="font-size:0.7rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:#6060a0;">Statut de la mission</div>
+    </div>
+    <div class="type-sample">
+      <div class="type-meta">Code — Courier New monospace — 0.8rem</div>
+      <div style="font-family:'Courier New',monospace; font-size:0.8rem; color:#FDBA3B;">employer.primary / extra.surface / brand-gradient-start</div>
+    </div>
+  </section>
+
+  <!-- 4. ESPACES -->
+  <section>
+    <h2>04 — Les trois espaces</h2>
+
+    <!-- PRO -->
+    <div class="space-pro" style="margin-bottom:32px;">
+      <div class="space-header">
+        <div>
+          <div class="space-name">Espace Pro</div>
+          <div class="space-desc">Gestion des missions, équipes, invitations</div>
+          <div class="space-routes">/company · /company/missions · /company/missions/[id]</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:2rem;">🏢</div>
+          <div style="color:rgba(255,255,255,0.4); font-size:0.75rem; margin-top:4px;">Bleu institutionnel</div>
+        </div>
+      </div>
+      <div class="space-body">
+        <div class="mock-nav pro-nav">
+          <span class="mock-logo pro-logo">CET⚡EXTRA</span>
+          <span class="mock-link">Mes missions</span>
+          <span class="mock-link">Mon équipe</span>
+          <button class="mock-btn pro-btn">+ Créer une mission</button>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div class="mock-card pro-card">
+              <div class="mock-card-title">Soirée gala — Hôtel Lutetia</div>
+              <div class="mock-card-sub">Sam. 15 mars 2026 · 18h–02h</div>
+              <div style="margin-top:8px;">
+                <span class="mock-badge pro-badge-active">✓ Confirmée</span>
+              </div>
+            </div>
+            <div class="mock-card pro-card">
+              <div class="mock-card-title">Salon professionnel — Paris Expo</div>
+              <div class="mock-card-sub">Mar. 18 mars 2026 · 08h–18h</div>
+              <div style="margin-top:8px;">
+                <span class="mock-badge pro-badge-pending">⏳ En cours</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="margin-bottom:8px; font-size:0.8rem; font-weight:600; color:#232336;">Inviter un extra</div>
+            <input class="mock-input pro-input" placeholder="Nom ou email..." />
+            <button class="mock-btn pro-btn" style="width:100%; padding:8px;">Envoyer l'invitation ⚡</button>
+          </div>
+        </div>
+        <div style="margin-top:16px; font-size:0.7rem; color:#5A5A7A;">
+          <strong>Palette utilisée :</strong> employer.primary (#33335E) · employer.secondary (#2E7BA6) · employer.background (#F4F7FA) · employer.surface (#E6ECF3)
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTRA -->
+    <div class="space-extra" style="margin-bottom:32px;">
+      <div class="space-header">
+        <div>
+          <div class="space-name">Espace Extra</div>
+          <div class="space-desc">Recherche de missions, profil, candidatures</div>
+          <div class="space-routes">/extra · /extra/missions · /extra/profile</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:2rem;">⚡</div>
+          <div style="color:rgba(255,255,255,0.4); font-size:0.75rem; margin-top:4px;">Ambre énergie</div>
+        </div>
+      </div>
+      <div class="space-body">
+        <div class="mock-nav extra-nav">
+          <span class="mock-logo extra-logo">CET⚡EXTRA</span>
+          <span class="mock-link">Missions</span>
+          <span class="mock-link">Mon profil</span>
+          <button class="mock-btn extra-btn">Mes candidatures</button>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div class="mock-card extra-card">
+              <div class="mock-card-title">Serveur en salle · Paris 8e</div>
+              <div class="mock-card-sub">Ven. 14 mars · 19h–01h · 6h · 13€/h</div>
+              <div style="margin-top:8px;">
+                <span class="mock-badge extra-badge-open">🔓 Ouvert</span>
+              </div>
+            </div>
+            <div class="mock-card extra-card">
+              <div class="mock-card-title">Agent d'accueil · Salon du livre</div>
+              <div class="mock-card-sub">Sam. 15 mars · 09h–18h · 9h · 12€/h</div>
+              <div style="margin-top:8px;">
+                <span class="mock-badge extra-badge-active">✓ Confirmé</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="margin-bottom:8px; font-size:0.8rem; font-weight:600; color:#503C1B;">Rechercher une mission</div>
+            <input class="mock-input extra-input" placeholder="Poste, ville..." />
+            <button class="mock-btn extra-btn" style="width:100%; padding:8px;">Rechercher ⚡</button>
+          </div>
+        </div>
+        <div style="margin-top:16px; font-size:0.7rem; color:#9A7B3F;">
+          <strong>Palette utilisée :</strong> extra.primary (#F7B742) · extra.secondary (#EA5F3E) · extra.background (#FFF8ED) · extra.surface (#FFF3D6)
+        </div>
+      </div>
+    </div>
+
+    <!-- PUBLIC -->
+    <div class="space-public">
+      <div class="space-header">
+        <div>
+          <div class="space-name">Espace Public</div>
+          <div class="space-desc">Landing, blog, à propos, inscription, connexion</div>
+          <div class="space-routes">/ · /about · /blog · /sign-in · /sign-up</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:2rem;">🌐</div>
+          <div style="color:rgba(255,255,255,0.4); font-size:0.75rem; margin-top:4px;">Gradient de marque</div>
+        </div>
+      </div>
+      <div class="space-body">
+        <div class="mock-nav pub-nav">
+          <span class="mock-logo pub-logo" style="font-weight:900;">CET⚡EXTRA</span>
+          <span class="mock-link">À propos</span>
+          <span class="mock-link">Blog</span>
+          <button class="mock-btn pub-btn">Commencer</button>
+        </div>
+        <div class="grid-2">
+          <div>
+            <div style="font-size:1.4rem; font-weight:800; color:#232336; line-height:1.2; margin-bottom:12px;">La plateforme qui <span style="background:linear-gradient(90deg,#33335E,#F15A29);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">connecte</span> vos événements</div>
+            <div style="font-size:0.85rem; color:#5A5A7A; margin-bottom:16px;">Pour les entreprises et les extras, en quelques clics.</div>
+            <div style="display:flex; gap:8px;">
+              <button class="mock-btn" style="background:#33335E;color:white;padding:8px 16px;">Je suis employeur</button>
+              <button class="mock-btn" style="background:#F7B742;color:#503C1B;padding:8px 16px;">Je suis extra</button>
+            </div>
+          </div>
+          <div>
+            <div class="mock-card pub-card">
+              <div class="mock-card-title">5 000+ extras disponibles</div>
+              <div class="mock-card-sub">Île-de-France · PACA · Nouvelle-Aquitaine</div>
+              <span class="mock-badge pub-badge" style="margin-top:8px; display:inline-block;">Rejoindre le réseau</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px; font-size:0.7rem; color:#5A5A7A;">
+          <strong>Palette utilisée :</strong> Gradient #06041B→#33335E sur les hero · Fond blanc #ffffff · employer.primary + extra.primary pour les deux CTAs
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. COMPOSANTS -->
+  <section>
+    <h2>05 — Composants & tokens</h2>
+
+    <!-- Bordures -->
+    <h3>Border radius</h3>
+    <div class="radius-grid" style="margin-bottom:40px;">
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:4px;"></div>
+        <div class="radius-label">sm — 4px<br/>calc(var(--radius) - 4px)</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:6px;"></div>
+        <div class="radius-label">md — 6px<br/>calc(var(--radius) - 2px)</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:8px;"></div>
+        <div class="radius-label">lg — 8px<br/>var(--radius)</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:16px;"></div>
+        <div class="radius-label">Cards — 16px</div>
+      </div>
+      <div class="radius-item">
+        <div class="radius-box" style="border-radius:99px; width:120px; height:40px;"></div>
+        <div class="radius-label">Badges / Pills — 99px</div>
+      </div>
+    </div>
+
+    <!-- Spacing -->
+    <h3>Espacement — base 4px</h3>
+    <div class="spacing-grid" style="margin-bottom:40px;">
+      <div class="spacing-item"><div class="spacing-box" style="width:4px; height:4px;"></div><div class="spacing-label">4px<br/>space-1</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:8px; height:8px;"></div><div class="spacing-label">8px<br/>space-2</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:12px; height:12px;"></div><div class="spacing-label">12px<br/>space-3</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:16px; height:16px;"></div><div class="spacing-label">16px<br/>space-4</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:24px; height:24px;"></div><div class="spacing-label">24px<br/>space-6</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:32px; height:32px;"></div><div class="spacing-label">32px<br/>space-8</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:48px; height:48px;"></div><div class="spacing-label">48px<br/>space-12</div></div>
+      <div class="spacing-item"><div class="spacing-box" style="width:64px; height:64px;"></div><div class="spacing-label">64px<br/>space-16</div></div>
+    </div>
+
+    <!-- Motion -->
+    <h3>Motion — Survol & transition (hover pour démo)</h3>
+    <div class="motion-demo">
+      <div class="motion-item">
+        <div class="motion-box">⚡</div>
+        <div class="motion-label">scale(1.08)<br/>0.2s ease-out</div>
+      </div>
+      <div class="motion-item">
+        <div class="motion-box" style="transition: background 0.2s ease-out;">🤝</div>
+        <div class="motion-label">bg change<br/>0.2s ease-out</div>
+      </div>
+      <div class="motion-item">
+        <div class="motion-box" style="transition: border-color 0.2s, box-shadow 0.2s;">📍</div>
+        <div class="motion-label">ring focus<br/>0.2s ease-out</div>
+      </div>
+      <div class="motion-item" style="text-align:center;">
+        <div style="width:120px; height:24px; border-radius:99px; background:linear-gradient(90deg,#33335E,#FDBA3B,#F15A29,#33335E); background-size:200%; margin:0 auto 8px; animation:gradientHover 2s ease infinite;"></div>
+        <div class="motion-label">gradient hover<br/>2s ease infinite</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. RÈGLES D'USAGE -->
+  <section>
+    <h2>06 — Règles d'usage</h2>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="label">Règle 1</div>
+        <h3>Séparation des espaces</h3>
+        <p style="font-size:0.85rem; color:#8080b0; margin-top:8px;">Ne pas mélanger les couleurs <code style="color:#2E7BA6;">employer.*</code> et <code style="color:#F7B742;">extra.*</code> dans un même espace. Le gradient de marque est réservé à l'espace public et aux éléments transversaux.</p>
+      </div>
+      <div class="card">
+        <div class="label">Règle 2</div>
+        <h3>CTA primaire</h3>
+        <p style="font-size:0.85rem; color:#8080b0; margin-top:8px;">Espace Pro → bouton <strong style="color:#33335E; background:#e6ecf3; padding:1px 6px; border-radius:4px;">employer.primary</strong>. Espace Extra → bouton <strong style="color:#503C1B; background:#FFF3D6; padding:1px 6px; border-radius:4px;">extra.primary</strong>. Un seul CTA primaire par vue.</p>
+      </div>
+      <div class="card">
+        <div class="label">Règle 3</div>
+        <h3>Accessibilité</h3>
+        <p style="font-size:0.85rem; color:#8080b0; margin-top:8px;">Ratio de contraste minimum 4.5:1 pour le texte de corps. Ne pas utiliser <code style="color:#FDBA3B;">#F7B742</code> sur fond blanc sans texte sombre (#503C1B). L'ambre seul est un fond, pas un texte sur blanc.</p>
+      </div>
+      <div class="card">
+        <div class="label">Règle 4</div>
+        <h3>Gradient — usage restreint</h3>
+        <p style="font-size:0.85rem; color:#8080b0; margin-top:8px;">Le gradient <code>#22345E → #FDBA3B → #F15A29</code> est réservé aux zones hero, aux dividers, et aux éléments de marque. Pas sur les boutons internes.</p>
+      </div>
+      <div class="card">
+        <div class="label">Règle 5</div>
+        <h3>Icones Lucide</h3>
+        <p style="font-size:0.85rem; color:#8080b0; margin-top:8px;">Utiliser exclusivement la lib <code style="color:#FDBA3B;">lucide-react</code> (déjà en dépendance). Taille par défaut : 16px inline, 20px dans les boutons, 24px standalone.</p>
+      </div>
+      <div class="card">
+        <div class="label">Règle 6</div>
+        <h3>Mode sombre</h3>
+        <p style="font-size:0.85rem; color:#8080b0; margin-top:8px;">Le dark mode via <code style="color:#FDBA3B;">darkMode: ["class"]</code> est configuré. L'espace public supporte les deux modes. Les espaces Pro et Extra sont actuellement en mode clair uniquement.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div style="text-align:center; padding:40px 0 20px; color:#3a3a6a; font-size:0.8rem;">
+    CET⚡EXTRA — Charte Graphique v1.0 — 2026<br/>
+    <span style="color:#2a2a55;">tailwind.config.ts · biome.jsonc · /docs/charte-graphique.html</span>
+  </div>
+
+</div>
+
+<style>
+  @keyframes gradientHover {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+</style>
+</body>
+</html>

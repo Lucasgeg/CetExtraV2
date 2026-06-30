@@ -1,7 +1,7 @@
+import { auth } from "@clerk/nextjs/server";
+import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import { EnumMissionSelector } from "@/types/api";
-import { auth } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
 
 /**
  *
@@ -38,13 +38,13 @@ export async function GET(
     (searchParams.get("missionSelector") as EnumMissionSelector) ||
     EnumMissionSelector.INCOMING;
   const take = searchParams.get("take")
-    ? parseInt(searchParams.get("take")!)
+    ? parseInt(searchParams.get("take")!, 10)
     : 10;
   const skip = searchParams.get("skip")
-    ? parseInt(searchParams.get("skip")!)
+    ? parseInt(searchParams.get("skip")!, 10)
     : 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: Prisma where clause shape varies by query branch
   const whereCondition: any = {
     userId,
     mission: {

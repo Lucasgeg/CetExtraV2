@@ -1,9 +1,9 @@
 "use client";
-import { Modal } from "@/components/ui/Modal/Modal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import PostEditor from "@/components/PostEditor/PostEditor";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/Modal/Modal";
 
 export default function BlogCreatePage() {
   const router = useRouter();
@@ -41,15 +41,15 @@ export default function BlogCreatePage() {
   return (
     <>
       <div className="w-full max-w-4xl p-6">
-        <h1 className="mb-4 text-center text-2xl font-bold">
+        <h1 className="mb-4 text-center font-bold text-2xl">
           Créer un nouvel article
         </h1>
         <PostEditor onSubmit={handleSubmit} initialKeywords={[]} />
       </div>
       <Modal onClose={() => setShowDialog(false)} isOpen={showDialog}>
         <div className="flex flex-col items-center justify-center">
-          <h2 className="text-lg font-semibold">Article créé avec succès !</h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <h2 className="font-semibold text-lg">Article créé avec succès !</h2>
+          <p className="mt-2 text-gray-500 text-sm">
             Vous allez être redirigé vers la page d'administration.
           </p>
           <Button

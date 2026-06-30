@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ScreenSize, ScreenInfo } from "@/types/Screen.enum";
+import { useEffect, useState } from "react";
+import { type ScreenInfo, ScreenSize } from "@/types/Screen.enum";
 
 // Breakpoints Tailwind CSS
 const BREAKPOINTS = {

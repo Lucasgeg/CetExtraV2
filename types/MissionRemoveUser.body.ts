@@ -1,4 +1,4 @@
-import { EnumMissionJob } from "@/store/types";
+import type { EnumMissionJob } from "@/store/types";
 
 export type MissionRemoveUserBody = {
   message?: string;

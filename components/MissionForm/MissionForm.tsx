@@ -1,31 +1,31 @@
 "use client";
 import {
-  DocumentTextIcon,
-  SparklesIcon,
   CalendarDaysIcon,
-  MapPinIcon,
+  DocumentTextIcon,
   MagnifyingGlassIcon,
+  MapPinIcon,
+  SparklesIcon,
   UsersIcon
 } from "@heroicons/react/24/outline";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Fragment, type ReactNode, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { EnumMissionJob, PrismaMissionJob } from "@/store/types";
-import { Fragment, ReactNode, useEffect, useMemo, useState } from "react";
-import { CreateMissionFormValues, Suggestion } from "@/types/api";
-import Link from "next/link";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import dynamic from "next/dynamic";
-import { Option } from "../ui/MultipleSelector";
-import { useParams } from "next/navigation";
-import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
-import { Loader } from "../ui/Loader/Loader";
-import { InviteListDelete } from "@/types/InviteListDelete";
+import { EnumMissionJob, type PrismaMissionJob } from "@/store/types";
+import type { CreateMissionFormValues, Suggestion } from "@/types/api";
+import type { InviteListDelete } from "@/types/InviteListDelete";
+import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { convertToFrontendMissionJob, getMissionJobKey } from "@/utils/enum";
+import { Loader } from "../ui/Loader/Loader";
+import type { Option } from "../ui/MultipleSelector";
 
 const MissionCard = dynamic(
   () =>
@@ -200,8 +200,9 @@ export default function MissionForm({
   const hasInvitations =
     (invitationsData && invitationsData.invites.length > 0) ||
     (invitationsData && invitationsData.employees.length > 0);
-  const hasEngagedEmployees =
-    employees && employees.some((emp) => emp.status === "accepted");
+  const hasEngagedEmployees = employees?.some(
+    (emp) => emp.status === "accepted"
+  );
   const selectedJobOptions = watch("extraJobOptions", []);
   const teamCounts = watch("teamCounts", {}) as Record<string, number>;
   const startDate = watch("missionStartDate");
@@ -396,18 +397,18 @@ export default function MissionForm({
         <div className="flex items-center justify-center gap-2">
           <div className="flex flex-col gap-0">
             <div className="bg-extra-surface px-2 leading-3">
-              <span className="text-xs text-red-500">
+              <span className="text-red-500 text-xs">
                 Attention, cette mission a des invitations en attente de
                 réponse.
               </span>
               <br />
-              <span className="text-xs text-red-500">
+              <span className="text-red-500 text-xs">
                 Vous ne pourrez pas modifier la mission tant que les invitations
                 sont en attente.
               </span>
             </div>
             {deleteInvitationsError && (
-              <span className="text-xs text-red-500">
+              <span className="text-red-500 text-xs">
                 {deleteInvitationsError}
               </span>
             )}
@@ -428,12 +429,12 @@ export default function MissionForm({
       return (
         <div className="flex items-center justify-center gap-2">
           <div className="space-y-0.5 leading-3">
-            <span className="text-xs text-red-500">
+            <span className="text-red-500 text-xs">
               Attention, cette mission a des extras ayant validé leur
               participation.
             </span>
             <br />
-            <span className="text-xs text-red-500">
+            <span className="text-red-500 text-xs">
               Vous ne pourrez modifier que certains champs de la mission.
             </span>
           </div>
@@ -444,7 +445,7 @@ export default function MissionForm({
 
   return (
     <div className="flex h-full flex-col pb-6">
-      <h1 className="col-span-3 text-center text-2xl font-bold text-employer-secondary">
+      <h1 className="col-span-3 text-center font-bold text-2xl text-employer-secondary">
         {renderTitle()}
         {renderAlert()}
       </h1>
@@ -525,7 +526,8 @@ export default function MissionForm({
                     icon={<CalendarDaysIcon />}
                     pickerProps={{
                       value:
-                        field.value && !isNaN(new Date(field.value).getTime())
+                        field.value &&
+                        !Number.isNaN(new Date(field.value).getTime())
                           ? new Date(field.value)
                           : undefined,
                       onChange: (date) => {
@@ -556,7 +558,8 @@ export default function MissionForm({
                     disabled={!startDate || { before: new Date(startDate) }}
                     pickerProps={{
                       value:
-                        field.value && !isNaN(new Date(field.value).getTime())
+                        field.value &&
+                        !Number.isNaN(new Date(field.value).getTime())
                           ? new Date(field.value)
                           : undefined,
                       onChange: (date) => {
@@ -667,7 +670,7 @@ export default function MissionForm({
 
               {/* Affichage - avec scroll limité à ce conteneur */}
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-employer-background shadow-md">
-                <h2 className="flex-shrink-0 px-4 py-2 text-center text-lg font-semibold text-employer-primary">
+                <h2 className="flex-shrink-0 px-4 py-2 text-center font-semibold text-employer-primary text-lg">
                   Gestion de l'équipe:
                 </h2>
 
@@ -683,7 +686,7 @@ export default function MissionForm({
                           <Fragment key={jobValue}>
                             <li className="flex justify-between text-employer-secondary">
                               <div className="flex items-center gap-2">
-                                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 text-xs font-semibold text-[#9A7B3F]">
+                                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 font-semibold text-[#9A7B3F] text-xs">
                                   {index + 1}
                                 </span>
                                 <span className="text-sm">{jobValue}</span>
@@ -712,7 +715,7 @@ export default function MissionForm({
                               </div>
                             </li>
                             {index < selectedJobOptions.length - 1 && (
-                              <hr className="border-t-1 mx-auto w-1/2 border border-employer-secondary" />
+                              <hr className="mx-auto w-1/2 border border-employer-secondary border-t-1" />
                             )}
                           </Fragment>
                         );
@@ -753,7 +756,7 @@ export default function MissionForm({
                   disabled={isSubmitting || hasInvitations}
                   onClick={checkFormValidity}
                 >
-                  <span className="absolute inset-0 z-0 bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] bg-[length:300%_300%] transition-all duration-500 group-hover:animate-gradientHover" />
+                  <span className="absolute inset-0 z-0 bg-[length:300%_300%] bg-gradient-to-r from-[#22345E] via-[#FDBA3B] to-[#F15A29] transition-all duration-500 group-hover:animate-gradientHover" />
                   <span className="relative z-10 transition-all duration-200 group-hover:scale-105">
                     {submitButtonText || "Créer"}
                   </span>

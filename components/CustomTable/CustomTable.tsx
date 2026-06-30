@@ -1,5 +1,5 @@
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable
@@ -54,7 +54,7 @@ export default function CustomTable<T>({
     >
       {title && (
         <div className="mb-1">
-          <h2 className="text-xs font-bold text-gray-800 sm:text-lg">
+          <h2 className="font-bold text-gray-800 text-xs sm:text-lg">
             {title}
           </h2>
         </div>
@@ -62,7 +62,7 @@ export default function CustomTable<T>({
 
       <div className="flex h-full flex-col overflow-hidden">
         <div className="flex-1 overflow-auto pb-5">
-          <table className="min-w-full text-xs text-gray-800 sm:text-sm">
+          <table className="min-w-full text-gray-800 text-xs sm:text-sm">
             <thead className="sticky top-0 z-10 bg-gradient-to-r from-blue-100 to-purple-100">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -70,7 +70,7 @@ export default function CustomTable<T>({
                     <th
                       key={header.id}
                       className={classNames(
-                        "border-b border-gray-200 px-2 font-semibold uppercase tracking-wide sm:px-6 sm:py-3",
+                        "border-gray-200 border-b px-2 font-semibold uppercase tracking-wide sm:px-6 sm:py-3",
                         "text-xs sm:text-xs",
                         idx === 0 ? "text-left" : "text-right",
                         "text-gray-700"
@@ -98,7 +98,7 @@ export default function CustomTable<T>({
                     <td
                       key={cell.id}
                       className={classNames(
-                        "border-b border-gray-100 px-2 py-1 sm:px-6 sm:py-5",
+                        "border-gray-100 border-b px-2 py-1 sm:px-6 sm:py-5",
                         "text-xs sm:text-sm",
                         idx === 0 ? "text-left" : "text-right"
                       )}

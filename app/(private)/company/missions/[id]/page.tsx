@@ -1,6 +1,9 @@
 "use client";
 
-import { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
+import type { LatLngExpression } from "leaflet";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
 import MapContainerComponent from "@/components/MapContainerComponent/MapContainerComponent";
 import { MapWithUserFilter } from "@/components/MapWithUserFilter";
 import MissionForm from "@/components/MissionForm/MissionForm";
@@ -8,30 +11,27 @@ import { PendingInvitations } from "@/components/PendingInvitations/PendingInvit
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
-  DetailListItem,
+  type DetailListItem,
   DetailsList
 } from "@/components/ui/DetailsList/DetailsList";
 import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-  DialogTrigger,
-  Dialog
+  DialogTrigger
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
 import useFetch from "@/hooks/useFetch";
-import { PrismaMissionJob } from "@/store/types";
+import type { PrismaMissionJob } from "@/store/types";
 import { useUserResearchStore } from "@/store/useUserResearchStore";
-import { Suggestion } from "@/types/api";
-import { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
-import { UserWithLocation } from "@/types/UserWithLocation.enum";
+import type { Suggestion } from "@/types/api";
+import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
+import type { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
-import { getJobLabel, convertToFrontendMissionJob } from "@/utils/enum";
+import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
 import { capitalizeFirstLetter } from "@/utils/string";
-import { LatLngExpression } from "leaflet";
-import { useParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +46,6 @@ export default function MissionDetailPage() {
   ] = useState(0);
 
   const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_filteredUsers, setFilteredUsers] = useState<UserWithLocation[]>([]);
 
   // Stabiliser la fonction callback
@@ -184,14 +183,14 @@ export default function MissionDetailPage() {
 
   return (
     <div className="relative flex h-auto flex-col lg:h-full">
-      <h1 className="text-center text-2xl font-bold text-employer-secondary">
+      <h1 className="text-center font-bold text-2xl text-employer-secondary">
         <span className="text-extra-primary">Détails&nbsp;</span>de la
         mission&nbsp;<span className="underline">{data.name}</span>
       </h1>
       <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
         <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
           <div className="flex flex-1 flex-col p-4">
-            <h2 className="text-lg font-bold text-employer-primary">
+            <h2 className="font-bold text-employer-primary text-lg">
               Détails de la mission
             </h2>
             <DetailsList items={items} />
@@ -201,7 +200,7 @@ export default function MissionDetailPage() {
                 points={points}
                 height="100%"
               />
-              <span className="text-lg font-bold italic text-employer-primary">
+              <span className="font-bold text-employer-primary text-lg italic">
                 {data.missionLocation?.fullName}
               </span>
             </div>
@@ -217,7 +216,7 @@ export default function MissionDetailPage() {
         </div>
         <div className="flex flex-1 flex-col items-center justify-between gap-5 rounded-lg bg-employer-background p-4 shadow-md">
           <Card className="h-full w-full">
-            <CardTitle className="text-lg font-bold text-employer-primary">
+            <CardTitle className="font-bold text-employer-primary text-lg">
               Description de la mission
             </CardTitle>
             <CardContent className="overflow-y-auto">
@@ -225,7 +224,7 @@ export default function MissionDetailPage() {
             </CardContent>
           </Card>
           <Card className="h-full w-full">
-            <CardTitle className="text-lg font-bold text-employer-primary">
+            <CardTitle className="font-bold text-employer-primary text-lg">
               Information destinées aux extras
             </CardTitle>
             <CardContent className="overflow-y-auto">

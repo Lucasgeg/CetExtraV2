@@ -1,6 +1,6 @@
 "use client";
+import type { LatLngExpression } from "leaflet";
 import dynamic from "next/dynamic";
-import { type LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 type MapContainerComponentProps = {
