@@ -1,3 +1,8 @@
+import type {
+  BusinessSector,
+  CollectiveAgreement,
+  LegalRepresentativeFunction
+} from "@prisma/client";
 import type { Suggestion } from "@/types/api";
 
 // Enums
@@ -75,6 +80,11 @@ export type Company = {
   company_name: string;
   contactFirstName: string;
   contactLastName: string;
+  siret?: string;
+  businessSector?: BusinessSector;
+  collectiveAgreement?: CollectiveAgreement;
+  legalRepresentativeFunction?: LegalRepresentativeFunction;
+  headOfficeAddress?: string;
   logoId?: string;
   company_phone?: string;
 };

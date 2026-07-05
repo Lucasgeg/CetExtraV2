@@ -31,16 +31,20 @@ export function DatePickerInput({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex flex-col items-center justify-between gap-1 lg:flex-row">
-        {label && <span className="text-left">{label}</span>}
-        <div className="flex max-w-40 flex-col lg:max-w-none">
+      <div className="flex w-full flex-col gap-1.5">
+        {label && (
+          <span className="font-semibold text-employer-text-primary text-sm">
+            {label}
+          </span>
+        )}
+        <div className="flex w-full flex-col">
           <PopoverTrigger asChild>
             <Button
               type="button"
               variant={"outline"}
               onClick={() => setIsOpen(true)}
               className={cn(
-                "flex h-9 w-full max-w-40 rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm lg:max-w-max",
+                "flex h-9 w-full justify-start rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
                 !date && "text-muted-foreground",
                 errorMessage && "border-red-500"
               )}
@@ -54,9 +58,7 @@ export function DatePickerInput({
             </Button>
           </PopoverTrigger>
           {errorMessage && (
-            <div className="mt-1 max-w-40 text-justify text-red-500 text-sm">
-              {errorMessage}
-            </div>
+            <div className="mt-1 text-red-500 text-sm">{errorMessage}</div>
           )}
         </div>
       </div>

@@ -18,8 +18,14 @@ export const MoreInformationDisplay = ({
   actionSubmitAction: () => void;
   actionPreviousAction: () => void;
 }) => {
-  const { user, company, extra, setErrorMessages, errorMessages } =
-    useSignUpStore();
+  const {
+    user,
+    company,
+    extra,
+    setErrorMessages,
+    errorMessages,
+    companySiretVerified
+  } = useSignUpStore();
 
   const verifySignupErrors = (user: Partial<UserSignUpSchema>) => {
     const errors: SignupErrorMessages = {};
@@ -55,13 +61,26 @@ export const MoreInformationDisplay = ({
       if (!location) {
         extraErrors.location = "Merci de sélectionner une adresse proposée";
       }
-      errorMessages.extra = extraErrors;
+      errors.extra = extraErrors;
     }
 
     if (user.role === EnumRole.COMPANY) {
       const companyErrors: CompanyErrorMessages = {};
+      if (!company.siret) {
+        companyErrors.siret = "Ce champ est obligatoire";
+      } else if (!/^\d{14}$/.test(company.siret.replace(/\s/g, ""))) {
+        companyErrors.siret = "Le SIRET doit contenir 14 chiffres";
+      } else if (!companySiretVerified) {
+        companyErrors.siret = "Merci de vérifier votre SIRET auprès de l'INSEE";
+      }
       if (!company.company_name) {
         companyErrors.companyName = "Ce champ est obligatoire";
+      }
+      if (!company.businessSector) {
+        companyErrors.businessSector = "Ce champ est obligatoire";
+      }
+      if (!company.collectiveAgreement) {
+        companyErrors.collectiveAgreement = "Ce champ est obligatoire";
       }
       if (!company.contactFirstName) {
         companyErrors.contactFirstName = "Ce champ est obligatoire";
@@ -69,7 +88,13 @@ export const MoreInformationDisplay = ({
       if (!company.contactLastName) {
         companyErrors.contactLastName = "Ce champ est obligatoire";
       }
-      errorMessages.company = companyErrors;
+      if (!company.legalRepresentativeFunction) {
+        companyErrors.legalRepresentativeFunction = "Ce champ est obligatoire";
+      }
+      if (!user.location) {
+        companyErrors.location = "Merci de sélectionner une adresse proposée";
+      }
+      errors.company = companyErrors;
     }
 
     return errors;
@@ -78,11 +103,19 @@ export const MoreInformationDisplay = ({
   const handleNextAction = () => {
     if (!user?.role) return;
     const errors = verifySignupErrors(user);
-    if (errors.extra && user.role === EnumRole.EXTRA) {
+    if (
+      user.role === EnumRole.EXTRA &&
+      errors.extra &&
+      Object.keys(errors.extra).length > 0
+    ) {
       setErrorMessages({ extra: errors.extra });
       return;
     }
-    if (errors.company && user.role === EnumRole.COMPANY) {
+    if (
+      user.role === EnumRole.COMPANY &&
+      errors.company &&
+      Object.keys(errors.company).length > 0
+    ) {
       setErrorMessages({ company: errors.company });
       return;
     }
@@ -96,7 +129,7 @@ export const MoreInformationDisplay = ({
         ton compte:
       </h2>
       <div className="w-full">
-        <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:items-start md:gap-x-5">
           {user?.role === EnumRole.EXTRA ? (
             <ExtraSignUpDisplay errorMessages={errorMessages.extra} />
           ) : (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type UseFetchResult<T> = {
   data: T | null;
@@ -12,9 +12,12 @@ function useFetch<T = unknown>(url: string): UseFetchResult<T> {
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  // `fetchData` doit être stable (mémoïsé sur `url`) : sinon il change de
+  // référence à chaque render et l'effet ci-dessous se relance en boucle.
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await fetch(url);
       const result = await response.json();
       setData(result);
@@ -23,7 +26,7 @@ function useFetch<T = unknown>(url: string): UseFetchResult<T> {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchData();

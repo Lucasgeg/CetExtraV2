@@ -100,7 +100,7 @@ const buildSelectObject = (fields: string[] | null) => {
         };
         break;
       case "invitations":
-        selectObj.Invitation = {
+        selectObj.invitations = {
           select: {
             id: true,
             email: true,
@@ -226,7 +226,7 @@ export async function GET(
       if (
         !mission.requiredPositions &&
         !mission.employees &&
-        !mission.Invitation
+        !mission.invitations
       ) {
         return mission;
       }

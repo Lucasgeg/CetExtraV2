@@ -2,7 +2,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
-import { getEncryptionKey } from "./utils/keyCache";
 
 // Définition des routes publiques selon l'environnement
 const basePublicRoutes = [
@@ -12,6 +11,7 @@ const basePublicRoutes = [
   "/sign-in(.*)", // Connexion et sous-routes
   "/api/blog(.*)", // API du blog et sous-routes
   "/api/address(.*)", // API du blog et sous-routes
+  "/api/companies/verify-siret(.*)", // Vérification SIRET INSEE (inscription, non authentifié)
   "/public(.*)", // Ressources publiques
   "/sitemap(.*)", // Sitemap
   "/robots.txt",

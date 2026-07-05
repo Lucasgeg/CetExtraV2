@@ -28,13 +28,15 @@ export const LabelledSelect = ({
   defaultValue
 }: LabelledSelectProps) => {
   return (
-    <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
+    <div className="flex w-full flex-col gap-1.5">
+      <span className="font-semibold text-employer-text-primary text-sm">
+        {label}
+      </span>
       <Select onValueChange={onValueChange} defaultValue={defaultValue}>
-        <span>{label}</span>
-        <SelectTrigger className="w-full max-w-40 border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary">
+        <SelectTrigger className="w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="w-full max-w-40 border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary">
+        <SelectContent className="border-extra-border bg-extra-background">
           {items.map((item) => (
             <SelectItem value={item.value} key={item.value}>
               {item.label}

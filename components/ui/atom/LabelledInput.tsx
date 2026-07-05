@@ -30,13 +30,10 @@ export const LabelledInput = ({
   inputProps
 }: LabelledInputProps) => {
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-between gap-1 lg:flex-row",
-        containerClassName
-      )}
-    >
-      <span>{label}</span>
+    <div className={cn("flex w-full flex-col gap-1.5", containerClassName)}>
+      <span className="font-semibold text-employer-text-primary text-sm">
+        {label}
+      </span>
       {variant === "location" && locationProps && (
         <AddressAutocomplete
           missionlocation
@@ -50,7 +47,10 @@ export const LabelledInput = ({
         <Input
           value={inputProps?.value}
           onChange={inputProps?.onChange}
-          className={`w-full max-w-40 border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary ${inputClassName}`}
+          className={cn(
+            "w-full border-extra-border bg-extra-background focus:border-extra-secondary focus:ring-extra-secondary",
+            inputClassName
+          )}
           errorMessage={inputProps?.errorMessage}
         />
       )}

@@ -84,9 +84,9 @@ export const AddressAutocomplete = ({
     }
   };
   return (
-    <div>
+    <div className="w-full">
       <Popover open={suggestions?.length > 0}>
-        <div className="relative flex flex-col items-center justify-between lg:flex-row">
+        <div className="relative flex w-full flex-col items-center justify-between lg:flex-row">
           <PopoverAnchor asChild>
             <div className="relative w-full">
               <Input
@@ -122,7 +122,10 @@ export const AddressAutocomplete = ({
           </PopoverAnchor>
         </div>
         <PopoverContent
-          className={cn("w-full p-0", popOverClassName)}
+          className={cn(
+            "w-[var(--radix-popover-trigger-width)] p-0",
+            popOverClassName
+          )}
           align="start"
           sideOffset={4}
         >

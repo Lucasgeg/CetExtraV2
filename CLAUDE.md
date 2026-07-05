@@ -51,7 +51,7 @@ There is no test runner configured in `package.json` — no unit/integration tes
 - **Signup (company/extra)**: form state in `store/useSignUpstore.ts` → `app/api/users/sign-up/route.ts` creates `User` + linked `Company`/`Extra` → Clerk `publicMetadata.role` is updated → for an `extra`, existing `Invitation`s are transferred to `UserMission`.
 - **Missions (company)**: create via `app/api/missions/route.ts`; list for a company via `app/api/companies/[companyId]/missions/route.ts`; cancellation (with email notifications) via `app/api/missions/[missionId]/cancel/route.ts`.
 - **Blog & email**: CRUD under `app/api/blog/**`; newsletter sending via `app/api/blog/send-mails/route.ts` (Resend).
-- **Monthly security batch**: triggered by the GitHub Actions workflow `.github/workflows/preview-cron.yml`, which calls `/api/private/batchs/security/encrypt` (secured by `X-Cron-Secret`) to rotate/reprocess sensitive data and email an admin report.
+- **Monthly security batch (currently disabled/no-op)**: `.github/workflows/preview-cron.yml` still calls `/api/private/batchs/security/encrypt` (secured by `X-Cron-Secret`) monthly, and it still emails an admin report, but the actual encryption logic was removed (see `2a199cc`) — `app/api/private/encrypt` and `app/api/private/decrypt` are now no-op passthroughs, so the batch just rewrites sensitive fields unchanged rather than re-encrypting them. To be reworked; don't assume data is actually being re-encrypted today.
 
 ## Critical environment variables
 

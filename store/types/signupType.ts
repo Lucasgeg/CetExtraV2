@@ -29,6 +29,10 @@ export type CompanyErrorMessages = {
   companyName?: string;
   contactFirstName?: string;
   contactLastName?: string;
+  siret?: string;
+  businessSector?: string;
+  collectiveAgreement?: string;
+  legalRepresentativeFunction?: string;
   location?: string;
 };
 

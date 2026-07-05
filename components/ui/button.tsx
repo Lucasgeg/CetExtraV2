@@ -58,7 +58,7 @@ const getThemeClasses = (
   if (theme === EnumRole.COMPANY) {
     switch (variant) {
       case "default":
-        return "bg-employer-primary text-employer-warning border border-employer-border hover:bg-employer-secondary hover:text-employer-primary";
+        return "bg-employer-primary text-white-soft border border-employer-primary hover:bg-employer-primary/90";
       case "destructive":
         return "bg-employer-accent text-white-soft border border-employer-accent hover:bg-employer-accent/90";
       case "outline":

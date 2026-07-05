@@ -9,6 +9,8 @@ export type SignUpStore = {
   errorMessages: SignupErrorMessages;
   extra?: Partial<Extra>;
   company: Partial<Company>;
+  /** Le SIRET saisi a été vérifié comme actif auprès de l'INSEE */
+  companySiretVerified: boolean;
   profilePhoto?: File | Blob | null;
 };
 
@@ -31,6 +33,7 @@ export type Actions = {
   setErrorMessages: (errors: SignupErrorMessages) => void;
   setProfilePhoto: (photo: File | Blob | null) => void;
   clearProfilePhoto: () => void;
+  setCompanySiretVerified: (verified: boolean) => void;
 };
 
 const initialState: UserSignUpSchema = {
@@ -51,6 +54,7 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
     max_travel_distance: 5
   },
   company: {},
+  companySiretVerified: false,
   profilePhoto: null, // Initialisation
   setUser: (newUser: Partial<UserSignUpSchema>) =>
     set((state) => ({
@@ -69,12 +73,16 @@ export const useSignUpStore = create<SignUpStore & Actions>((set) => ({
     set((state) => ({
       company: state.company
         ? { ...state.company, [key]: value }
-        : { [key]: value }
+        : { [key]: value },
+      // Toute modification du SIRET invalide la vérification INSEE précédente.
+      companySiretVerified: key === "siret" ? false : state.companySiretVerified
     })),
   setPassword: (password: string) => set({ password }),
   setConfirmPassword: (confirmPassword: string) => set({ confirmPassword }),
   setErrorMessages: (errors) =>
     set((prev) => ({ ...prev, errorMessages: errors })),
   setProfilePhoto: (photo: File | Blob | null) => set({ profilePhoto: photo }),
-  clearProfilePhoto: () => set({ profilePhoto: null })
+  clearProfilePhoto: () => set({ profilePhoto: null }),
+  setCompanySiretVerified: (verified: boolean) =>
+    set({ companySiretVerified: verified })
 }));
