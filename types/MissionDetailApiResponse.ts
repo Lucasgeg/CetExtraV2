@@ -35,7 +35,7 @@ export interface MissionDetailApiResponse {
     status: UserMissionStatus;
     startDate: string; // ISO format date string
     duration: number; // in hours
-    hourlyRate: number;
+    hourlyRate: number | null; // null = taux pas encore convenu
     user: {
       id: string;
       email: string;

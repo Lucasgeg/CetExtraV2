@@ -137,7 +137,8 @@ model UserMission {
   missionStartDate DateTime
   missionEndDate   DateTime
   missionJob       MissionJob
-  hourlyRate       Float
+  // null = taux pas encore convenu ; requis applicativement au passage à accepted
+  hourlyRate       Float?
   createdAt        DateTime          @default(now())
   status           UserMissionStatus
   updatedAt        DateTime          @updatedAt
@@ -154,7 +155,8 @@ model Invitation {
   missionStartDate DateTime
   missionEndDate   DateTime
   missionJob       MissionJob
-  hourlyRate       Float
+  // null = taux pas encore convenu ; requis applicativement au passage à accepted
+  hourlyRate       Float?
   status           UserMissionStatus @default(pending)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt

@@ -689,14 +689,14 @@ const createUserMissionFromDb = async (
         missionStartDate: new Date(body.missionStartDate),
         missionJob: convertToDbMissionJob(body.missionJob), // body.missionJob.toLowerCase() as MissionJob
         missionEndDate: new Date(body.missionEndDate),
-        hourlyRate: 0,
+        hourlyRate: null,
         status: "pending"
       },
       update: {
         missionStartDate: new Date(body.missionStartDate),
         missionJob: convertToDbMissionJob(body.missionJob), // body.missionJob.toLowerCase() as MissionJob
         missionEndDate: new Date(body.missionEndDate),
-        hourlyRate: 0,
+        hourlyRate: null,
         status: "pending"
       }
     });
@@ -728,7 +728,7 @@ const createUserInvitation = async (
         missionEndDate: new Date(body.missionEndDate),
         missionJob: convertToDbMissionJob(body.missionJob),
         missionStartDate: new Date(body.missionStartDate),
-        hourlyRate: 0,
+        hourlyRate: null,
         status: "pending"
       },
       update: {
@@ -737,7 +737,7 @@ const createUserInvitation = async (
         missionEndDate: new Date(body.missionEndDate),
         missionJob: convertToDbMissionJob(body.missionJob),
         missionStartDate: new Date(body.missionStartDate),
-        hourlyRate: 0,
+        hourlyRate: null,
         status: "pending"
       }
     });
