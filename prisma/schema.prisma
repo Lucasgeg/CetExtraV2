@@ -91,6 +91,13 @@ model Mission {
   additionalInfo    String?
   missionStartDate  DateTime
   missionEndDate    DateTime
+  // Intention d'opt-out, pas « est publiée » : la visibilité publique est
+  // toujours recalculée au listing (voir docs/adr/0002)
+  isPublic          Boolean            @default(true)
+  // Fourchette indicative affichée sur l'annonce publique (JSON-LD baseSalary) ;
+  // règle applicative : les deux bornes ou aucune, min <= max
+  hourlyRateMin     Float?
+  hourlyRateMax     Float?
   creatorId         String
   missionLocationId String?
   creator           Company            @relation(fields: [creatorId], references: [id])
@@ -226,6 +233,7 @@ enum Role {
 
 enum UserMissionStatus {
   pending
+  requested
   accepted
   refused
   cancelled

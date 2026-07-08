@@ -4,6 +4,32 @@
 
 Plateforme **Cet Extra** (FR) pour mettre en relation des entreprises de l’évènementiel (**company**) et des extras (**extra**) autour de missions.
 
+## Language
+
+**Invitation (à une mission)** :
+Proposition initiée par l’employeur vers un extra ; c’est à l’extra de répondre. État d’attente : `pending`.
+_Avoid_ : candidature, demande
+
+**Candidature (à une mission)** :
+Demande initiée par l’extra sur une mission visible publiquement ; c’est à l’employeur de répondre. État d’attente : `requested`. Si l’employeur veut inviter un extra déjà candidat, cela vaut acceptation directe de la candidature.
+_Avoid_ : invitation, postulation
+
+**Mission publique** :
+Mission que l’employeur n’a pas retirée de la diffusion publique (intention, opt-out possible mission par mission).
+_Avoid_ : mission publiée, mission visible
+
+**Fourchette de taux horaire** :
+Plage indicative (min–max) affichée sur l’annonce publique d’une mission. Optionnelle (les deux bornes ou aucune, min ≤ max) ; n’engage pas le taux contractuel.
+_Avoid_ : salaire, taux de la mission
+
+**Taux horaire (contractuel)** :
+Taux réellement convenu pour un extra donné sur une mission donnée, porté par l’engagement individuel.
+_Avoid_ : fourchette
+
+**Mission visible (au listing public)** :
+Mission effectivement affichée sur la partie publique du site. Toujours calculée, jamais stockée : publique **et** localisée **et** postes non tous pourvus **et** non annulée/terminée.
+_Avoid_ : mission publique (l’intention seule ne suffit pas)
+
 ## Stack technique
 
 - **Next.js 16** (App Router) + **React 19** + TypeScript strict
