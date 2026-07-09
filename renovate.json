@@ -1,4 +1,15 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "group:allNonMajor", ":dependencyDashboard"]
+  "extends": [
+    "config:recommended",
+    "group:allNonMajor",
+    ":dependencyDashboard"
+  ],
+  "packageRules": [
+    {
+      "description": "TypeScript 7 (tsgo) n'expose plus l'API JS du compilateur, requise par Next.js au build (vercel/next.js#95490). Débloquer quand TS 7.1 (nouvelle API) et le fix Next seront sortis.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7.0.0"
+    }
+  ]
 }
