@@ -1,8 +1,11 @@
-import type { MissionJob } from "@prisma/client";
-import { MissionStatus, UserMissionStatus } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import { calculateDistance } from "@/utils/distance.utils";
+import {
+  getOpenPositions,
+  publicMissionSelect,
+  publicMissionVisibilityWhere
+} from "@/utils/missionVisibility.util";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 
 const DEFAULT_RADIUS_KM = 50;
@@ -94,34 +97,8 @@ export async function GET(req: NextRequest) {
 
     // 3. Partie SQL-exprimable du prédicat de visibilité
     const missions = await prisma.mission.findMany({
-      where: {
-        isPublic: true,
-        status: MissionStatus.pending,
-        missionLocationId: { not: null },
-        missionStartDate: { gt: new Date() }
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        missionStartDate: true,
-        missionEndDate: true,
-        hourlyRateMin: true,
-        hourlyRateMax: true,
-        missionLocation: {
-          select: { fullName: true, lat: true, lon: true }
-        },
-        creator: {
-          select: { company_name: true, businessSector: true, logoId: true }
-        },
-        requiredPositions: {
-          select: { jobType: true, quantity: true }
-        },
-        employees: {
-          where: { status: UserMissionStatus.accepted },
-          select: { missionJob: true }
-        }
-      },
+      where: publicMissionVisibilityWhere(),
+      select: publicMissionSelect,
       orderBy: { missionStartDate: "asc" }
     });
 
@@ -135,17 +112,7 @@ export async function GET(req: NextRequest) {
         return [];
       }
 
-      const acceptedByJob = new Map<MissionJob, number>();
-      for (const { missionJob } of employees) {
-        acceptedByJob.set(missionJob, (acceptedByJob.get(missionJob) ?? 0) + 1);
-      }
-
-      const openPositions = requiredPositions
-        .map(({ jobType, quantity }) => ({
-          jobType,
-          remaining: quantity - (acceptedByJob.get(jobType) ?? 0)
-        }))
-        .filter(({ remaining }) => remaining > 0);
+      const openPositions = getOpenPositions(requiredPositions, employees);
 
       if (openPositions.length === 0) {
         return [];

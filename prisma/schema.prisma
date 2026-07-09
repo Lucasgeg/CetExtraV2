@@ -98,6 +98,8 @@ model Mission {
   // règle applicative : les deux bornes ou aucune, min <= max
   hourlyRateMin     Float?
   hourlyRateMax     Float?
+  // Exposé publiquement comme datePosted (JSON-LD JobPosting)
+  createdAt         DateTime           @default(now())
   creatorId         String
   missionLocationId String?
   creator           Company            @relation(fields: [creatorId], references: [id])
