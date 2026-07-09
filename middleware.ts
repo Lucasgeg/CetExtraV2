@@ -12,6 +12,7 @@ const basePublicRoutes = [
   "/api/blog(.*)", // API du blog et sous-routes
   "/api/address(.*)", // API du blog et sous-routes
   "/api/companies/verify-siret(.*)", // Vérification SIRET INSEE (inscription, non authentifié)
+  "/api/missions/public(.*)", // Listing public des missions (non authentifié)
   "/public(.*)", // Ressources publiques
   "/sitemap(.*)", // Sitemap
   "/robots.txt",

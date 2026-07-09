@@ -27,8 +27,12 @@ Taux réellement convenu pour un extra donné sur une mission donnée, porté pa
 _Avoid_ : fourchette
 
 **Mission visible (au listing public)** :
-Mission effectivement affichée sur la partie publique du site. Toujours calculée, jamais stockée : publique **et** localisée **et** postes non tous pourvus **et** non annulée/terminée.
+Mission effectivement affichée sur la partie publique du site. Toujours calculée, jamais stockée : publique **et** localisée **et** pas encore commencée **et** au moins un poste non pourvu **et** non annulée/terminée.
 _Avoid_ : mission publique (l’intention seule ne suffit pas)
+
+**Poste pourvu** :
+Poste requis (jobType, quantité) dont le nombre d’engagements `accepted` atteint la quantité. Les invitations et candidatures en attente ne réservent pas de place.
+_Avoid_ : poste réservé, poste invité
 
 ## Stack technique
 
