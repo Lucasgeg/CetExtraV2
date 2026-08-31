@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type {
   NearbyUsersResponse,
   UserWithLocation
@@ -22,7 +22,7 @@ export const useMapUsers = ({
   const [error, setError] = useState<string | null>(null);
   const [privacyProtected, setPrivacyProtected] = useState(preservePrivacy);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!enabled || !missionLocation.lat || !missionLocation.lon) return;
 
     setLoading(true);
@@ -48,7 +48,13 @@ export const useMapUsers = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    enabled,
+    missionLocation.lat,
+    missionLocation.lon,
+    radius,
+    preservePrivacy
+  ]);
 
   useEffect(() => {
     fetchUsers();
