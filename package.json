@@ -75,7 +75,7 @@
     "lint-staged": "^17.0.0",
     "postcss": "^8",
     "prisma": "^7.0.0",
-    "react-email": "6.6.3",
+    "react-email": "6.9.5",
     "studio": "prisma/studio",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.2",
