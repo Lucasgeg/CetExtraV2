@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LatLngExpression } from "leaflet";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
-import useFetch from "@/hooks/useFetch";
 import type { PrismaMissionJob } from "@/store/types";
 import { useUserResearchStore } from "@/store/useUserResearchStore";
 import type { Suggestion } from "@/types/api";
@@ -34,21 +34,22 @@ import type {
   MissionDetailEmployeeWithContact
 } from "@/types/MissionDetailApiResponse";
 import type { UserWithLocation } from "@/types/UserWithLocation.enum";
+import { apiFetch, isNotFoundOrForbidden } from "@/utils/apiFetch";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { queryKeys } from "@/utils/queryKeys";
 import { capitalizeFirstLetter } from "@/utils/string";
 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
-    `/api/missions/${id}`
-  );
+  const queryClient = useQueryClient();
+  const { data, error, isPending, isError } = useQuery({
+    queryKey: queryKeys.missions.detail(id),
+    queryFn: ({ signal }) =>
+      apiFetch<MissionDetailApiResponse>(`/api/missions/${id}`, { signal })
+  });
   const { setRequiredPositions, setMissionData } = useUserResearchStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [
-    pendingInvitationsRefetchTrigger,
-    setPendingInvitationsRefetchTrigger
-  ] = useState(0);
 
   const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
   const [_filteredUsers, setFilteredUsers] = useState<UserWithLocation[]>([]);
@@ -77,7 +78,7 @@ export default function MissionDetailPage() {
     [data?.missionLocation?.lat, data?.missionLocation?.lon]
   );
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader
@@ -89,29 +90,31 @@ export default function MissionDetailPage() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-red-500">
-          Erreur lors du chargement des détails de la mission: {error.message}
+        <p role="alert" className="text-red-500">
+          {isNotFoundOrForbidden(error)
+            ? "Mission introuvable ou inaccessible."
+            : `Erreur lors du chargement des détails de la mission : ${error.message}`}
         </p>
       </div>
     );
   }
 
-  if (!data) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-red-500">
-          Aucune donnée trouvée pour cette mission.
-        </p>
-      </div>
-    );
-  }
+  // Retrait d'un membre : l'équipe (détail) et les postes disponibles
+  // (candidatures) changent, on invalide tout ce qui concerne la mission
+  const invalidateMission = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.missions.byId(id) });
+  const invalidateInvites = () =>
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.missions.invites(id)
+      }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
+    ]);
 
   const createTeamGestionnaryItems = () => {
-    if (!data) return [];
-
     const items: Array<{
       job: PrismaMissionJob;
       employee?: MissionDetailEmployeeWithContact;
@@ -238,15 +241,7 @@ export default function MissionDetailPage() {
               {data.additionalInfo || "Aucune description fournie."}
             </CardContent>
           </Card>
-          <Dialog
-            open={fullScreenMapOpen}
-            onOpenChange={(open) => {
-              setFullScreenMapOpen(open);
-              if (!open) {
-                setPendingInvitationsRefetchTrigger((prev) => prev + 1);
-              }
-            }}
-          >
+          <Dialog open={fullScreenMapOpen} onOpenChange={setFullScreenMapOpen}>
             <DialogTrigger asChild>
               <Button
                 theme="company"
@@ -320,18 +315,13 @@ export default function MissionDetailPage() {
                 </DialogContent>
               </Dialog>
               <div className="w-24">
-                <PendingInvitations
-                  missionId={id}
-                  refetchTrigger={pendingInvitationsRefetchTrigger}
-                />
+                <PendingInvitations missionId={id} />
               </div>
             </div>
           </div>
-          {/* Pas de déclencheur de rechargement : les invitations ne touchent
-              pas aux candidatures, et tout `refetch` de la mission (retrait
-              d'un membre, décision) démonte puis remonte ce composant via
-              l'état `loading`, ce qui recharge déjà les candidatures */}
-          <MissionApplications missionId={id} onDecision={refetch} />
+          {/* Une décision invalide elle-même les candidatures et le détail de
+              la mission (équipe ci-dessous) : aucun rechargement à câbler */}
+          <MissionApplications missionId={id} />
           <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {
               return (
@@ -374,10 +364,8 @@ export default function MissionDetailPage() {
                   minDateStart={data.missionStartDate}
                   missionId={id}
                   userId={item.employee?.user.id}
-                  onDeleteFetch={refetch}
-                  onInviteSuccess={() =>
-                    setPendingInvitationsRefetchTrigger((prev) => prev + 1)
-                  }
+                  onDeleteFetch={invalidateMission}
+                  onInviteSuccess={invalidateInvites}
                 />
               );
             })}

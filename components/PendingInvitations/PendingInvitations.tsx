@@ -1,6 +1,7 @@
 import { InformationCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { EnveloppeClock } from "@/components/icons";
 import {
   type DetailListItem,
@@ -14,15 +15,16 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
-import useFetch from "@/hooks/useFetch";
 import type { EnumMissionJob } from "@/store/types";
 import type {
   GetMissionInvitesResponse,
   PendingEmployee,
   PendingInvitation
 } from "@/types/GetMissionIdInvites";
+import { apiFetch } from "@/utils/apiFetch";
 import { formatDateTimeLocal } from "@/utils/date";
 import { getJobLabel } from "@/utils/enum";
+import { queryKeys } from "@/utils/queryKeys";
 import { capitalizeFirstLetter, formatFullName } from "@/utils/string";
 import { Button } from "../ui/button";
 import {
@@ -34,7 +36,12 @@ import {
 
 type PendingInvitationsProps = {
   missionId: string;
-  refetchTrigger: number; // Pour forcer le rechargement si nécessaire
+};
+
+type CancelInvitationVariables = {
+  invitationId: string;
+  /** `true` : extra inscrit (UserMission) ; `false` : invitation par email */
+  registered: boolean;
 };
 
 // Type commun pour les deux types d'invitations
@@ -43,6 +50,7 @@ type InvitationCardProps = {
   displayText: string;
   detailsItems: DetailListItem[];
   profilePictureUrl?: string | null;
+  isCancelling: boolean;
   onCancel: () => void;
 };
 
@@ -52,6 +60,7 @@ function InvitationCard({
   displayText,
   detailsItems,
   profilePictureUrl,
+  isCancelling,
   onCancel
 }: InvitationCardProps) {
   const [openTooltip, setOpenTooltip] = useState(false);
@@ -102,8 +111,12 @@ function InvitationCard({
               Cette action est irréversible. Êtes-vous sûr de vouloir annuler
               l'invitation ?
             </DialogDescription>
-            <Button variant="destructive" onClick={onCancel}>
-              Annuler l'invitation
+            <Button
+              variant="destructive"
+              onClick={onCancel}
+              disabled={isCancelling}
+            >
+              {isCancelling ? "Annulation..." : "Annuler l'invitation"}
             </Button>
           </DialogContent>
         </Dialog>
@@ -112,47 +125,48 @@ function InvitationCard({
   );
 }
 
-export function PendingInvitations({
-  missionId,
-  refetchTrigger
-}: PendingInvitationsProps) {
+export function PendingInvitations({ missionId }: PendingInvitationsProps) {
+  const queryClient = useQueryClient();
+  // Rafraîchie par invalidation de `missions.invites(missionId)` : annulation
+  // ci-dessous, invitation depuis le profil d'un extra (carte) ou depuis une
+  // place libre de l'équipe
   const {
     data: invitesData,
-    error: invitesError,
-    loading: invitesLoading,
-    refetch: refetchInvites
-  } = useFetch<GetMissionInvitesResponse>(`/api/missions/${missionId}/invites`);
+    isPending: invitesPending,
+    isError: invitesIsError
+  } = useQuery({
+    queryKey: queryKeys.missions.invites(missionId),
+    queryFn: ({ signal }) =>
+      apiFetch<GetMissionInvitesResponse>(
+        `/api/missions/${missionId}/invites`,
+        { signal }
+      )
+  });
 
-  useEffect(() => {
-    if (refetchTrigger > 0) {
-      refetchInvites();
+  const cancelInvitation = useMutation({
+    mutationFn: ({ invitationId, registered }: CancelInvitationVariables) =>
+      apiFetch(`/api/missions/${missionId}/invites/${invitationId}`, {
+        method: "PATCH",
+        json: { registered }
+      }),
+    // Promesse renvoyée : la mutation reste « en cours » jusqu'à ce que la
+    // liste rafraîchie soit arrivée (pas de carte fantôme réactivée)
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.missions.invites(missionId)
+        }),
+        // Compteur « Invitations en attente » du tableau de bord
+        queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
+      ]),
+    onError: (error) => {
+      console.error("Erreur lors de l'annulation de l'invitation :", error);
     }
-  }, [refetchTrigger, refetchInvites]);
-  const handleCancelInvitation = useCallback(
-    async (invitationId: string, registered: boolean) => {
-      try {
-        const response = await fetch(
-          `/api/missions/${missionId}/invites/${invitationId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ registered })
-          }
-        );
+  });
 
-        if (!response.ok) {
-          throw new Error("Erreur lors de l'annulation de l'invitation");
-        }
-
-        refetchInvites();
-      } catch (error) {
-        console.error("Erreur:", error);
-      }
-    },
-    [missionId, refetchInvites]
-  );
+  const isCancelling = (invitationId: string) =>
+    cancelInvitation.isPending &&
+    cancelInvitation.variables?.invitationId === invitationId;
 
   // Fonction utilitaire pour générer les détails communs
   const createDetailsItems = (
@@ -177,14 +191,13 @@ export function PendingInvitations({
   };
 
   const renderInvitationCount = () => {
-    if (invitesLoading) return <Loader variant="spinner" size="sm" />;
-    if (invitesError)
+    if (invitesPending) return <Loader variant="spinner" size="sm" />;
+    if (invitesIsError)
       return (
         <p className="text-red-500">
           Erreur lors du chargement des invitations
         </p>
       );
-    if (!invitesData) return null;
 
     return (
       <DialogTrigger asChild>
@@ -225,7 +238,13 @@ export function PendingInvitations({
             )}
             profilePictureUrl={employee.user.profilePictureUrl}
             detailsItems={createDetailsItems(employee)}
-            onCancel={() => handleCancelInvitation(employee.id, true)}
+            isCancelling={isCancelling(employee.id)}
+            onCancel={() =>
+              cancelInvitation.mutate({
+                invitationId: employee.id,
+                registered: true
+              })
+            }
           />
         ))}
 
@@ -236,7 +255,13 @@ export function PendingInvitations({
             id={invitation.id}
             displayText={invitation.email}
             detailsItems={createDetailsItems(invitation)}
-            onCancel={() => handleCancelInvitation(invitation.id, false)}
+            isCancelling={isCancelling(invitation.id)}
+            onCancel={() =>
+              cancelInvitation.mutate({
+                invitationId: invitation.id,
+                registered: false
+              })
+            }
           />
         ))}
       </div>
@@ -248,6 +273,11 @@ export function PendingInvitations({
       {renderInvitationCount()}
       <DialogContent className="max-h-[50vh] overflow-y-auto bg-employer-surface">
         <DialogTitle>Invitations en attente</DialogTitle>
+        {cancelInvitation.isError && (
+          <p role="alert" className="text-red-500 text-sm">
+            Erreur lors de l'annulation de l'invitation, veuillez réessayer.
+          </p>
+        )}
         {renderInvitationList()}
       </DialogContent>
     </Dialog>

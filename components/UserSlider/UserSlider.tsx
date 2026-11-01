@@ -1,15 +1,17 @@
 import { useAuth } from "@clerk/nextjs";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import type { MissionJob } from "@prisma/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fr } from "date-fns/locale";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import useFetch from "@/hooks/useFetch";
 import type { PrismaMissionJob } from "@/store/types";
 import type { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
 import type { MissionInviteBody } from "@/types/MissionInvite";
+import { apiFetch, isHttpError } from "@/utils/apiFetch";
 import { convertToFrontendMissionJob } from "@/utils/enum";
+import { queryKeys } from "@/utils/queryKeys";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { DetailsList } from "../ui/DetailsList/DetailsList";
@@ -44,29 +46,52 @@ export const UserSlider = ({
   requiredPositions,
   ...sliderProps
 }: UserSliderProps) => {
-  const [apiError, setApiError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const {
     data: user,
     error,
-    loading
-  } = useFetch<GetUserByIdResponse>(`/api/users/${userId}`);
+    isPending,
+    isError
+  } = useQuery({
+    queryKey: queryKeys.users.profile(userId),
+    queryFn: ({ signal }) =>
+      apiFetch<GetUserByIdResponse>(`/api/users/${userId}`, { signal })
+  });
+
+  const invite = useMutation({
+    mutationFn: (body: MissionInviteBody) =>
+      apiFetch(`/api/missions/${missionId}/invites`, {
+        method: "POST",
+        json: body
+      }),
+    // Remplace l'ancien rechargement des invitations à la fermeture de la
+    // carte : le compteur se met à jour dès l'invitation envoyée
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.missions.invites(missionId)
+        }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
+      ])
+  });
+  const apiError = invite.error
+    ? isHttpError(invite.error)
+      ? invite.error.message || "Une erreur est survenue"
+      : "Une erreur inattendue est survenue"
+    : null;
 
   const { userId: authUserId } = useAuth();
 
-  const {
-    watch,
-    control,
-    formState: { isSubmitting },
-    handleSubmit,
-    setValue
-  } = useForm<MissionInviteBody>({
-    defaultValues: {
-      expeditorUserId: authUserId || "",
-      missionJob: undefined,
-      missionEndDate: missionEndDate,
-      missionStartDate: missionStartDate
+  const { watch, control, handleSubmit, setValue } = useForm<MissionInviteBody>(
+    {
+      defaultValues: {
+        expeditorUserId: authUserId || "",
+        missionJob: undefined,
+        missionEndDate: missionEndDate,
+        missionStartDate: missionStartDate
+      }
     }
-  });
+  );
   const selectedMissionJob = watch("missionJob");
   const selectedStartTime = watch("missionStartDate");
   const selectedEndTime = watch("missionEndDate");
@@ -116,38 +141,19 @@ export const UserSlider = ({
     setValue("missionJob", convertToFrontendMissionJob(jobType));
   };
 
-  const onInvite = async (data: MissionInviteBody) => {
-    try {
-      setApiError(null);
-
-      const response = await fetch(`/api/missions/${missionId}/invites`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Une erreur est survenue");
-      }
-      sliderProps.onClose?.();
-    } catch (error) {
-      setApiError(
-        error instanceof Error
-          ? error.message
-          : "Une erreur inattendue est survenue"
-      );
-    }
-  };
+  const onInvite = (data: MissionInviteBody) =>
+    invite.mutate(data, { onSuccess: () => sliderProps.onClose?.() });
 
   return (
     <Slider {...sliderProps}>
-      {loading && <Loader variant="spinner" />}
-      {error && <div>Error: {error.message}</div>}
-      {!user && !loading && <div>No user data found</div>}
+      {isPending && <Loader variant="spinner" />}
+      {isError && (
+        <p role="alert" className="text-red-600 text-sm">
+          {isHttpError(error) && error.status === 404
+            ? "Profil introuvable : cet extra n'existe plus ou n'est pas accessible."
+            : "Impossible de charger le profil de cet extra, veuillez réessayer."}
+        </p>
+      )}
       {user?.extra && (
         <form className="space-y-4" onSubmit={handleSubmit(onInvite)}>
           {user.profilePictureUrl && (
@@ -404,9 +410,9 @@ export const UserSlider = ({
                   fullWidth
                   type="submit"
                   className="flex-1"
-                  disabled={isSubmitting}
+                  disabled={invite.isPending}
                 >
-                  {isSubmitting ? "Envoi..." : "Envoyer l'invitation"}
+                  {invite.isPending ? "Envoi..." : "Envoyer l'invitation"}
                 </Button>
               </>
             )}

@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from "@tanstack/react-query";
 import Image from "next/image";
 import { type FormEvent, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,13 +17,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader/Loader";
-import useFetch from "@/hooks/useFetch";
 import type { PrismaMissionJob } from "@/store/types";
 import type {
   GetMissionApplicationsResponse,
   MissionApplication,
+  MissionApplicationDecisionBody,
   MissionApplicationsPosition
 } from "@/types/MissionApplications";
+import { apiFetch, isHttpError } from "@/utils/apiFetch";
 import {
   type DecisionBlocker,
   getHourlyRateWarningThreshold,
@@ -26,12 +33,11 @@ import {
   validateAgreedHourlyRate
 } from "@/utils/engagement.util";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { queryKeys } from "@/utils/queryKeys";
 import { capitalizeFirstLetter } from "@/utils/string";
 
 type MissionApplicationsProps = {
   missionId: string;
-  /** Appelé après une décision enregistrée (rafraîchir l'équipe de la page). */
-  onDecision: () => void;
 };
 
 type PendingDecision = {
@@ -142,25 +148,38 @@ function ApplicationRow({
   );
 }
 
+/**
+ * Invalide ce qu'une décision modifie : les candidatures (liste et postes
+ * pourvus), le détail de la mission (équipe affichée par la page) et les
+ * listes de missions de l'entreprise (tableau de bord).
+ */
+const invalidateAfterDecision = (queryClient: QueryClient, missionId: string) =>
+  Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.missions.applications(missionId)
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.missions.detail(missionId)
+    }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
+  ]);
+
 function DecisionDialog({
   missionId,
   pending,
   hourlyRateMin,
   hourlyRateMax,
-  onClose,
-  onDone,
-  onConflict
+  onClose
 }: {
   missionId: string;
   pending: PendingDecision;
   hourlyRateMin: number | null;
   hourlyRateMax: number | null;
   onClose: () => void;
-  onDone: () => void;
-  onConflict: () => void;
 }) {
   const { decision, application, position } = pending;
   const isAccept = decision === "accept";
+  const queryClient = useQueryClient();
   const [rate, setRate] = useState(
     hourlyRateMin !== null ? String(hourlyRateMin) : ""
   );
@@ -170,16 +189,35 @@ function DecisionDialog({
   // prochain envoi de ce même taux vaut confirmation. Remis à null à chaque
   // modification du taux pour redemander la confirmation.
   const [warnedRate, setWarnedRate] = useState<number | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const fieldId = useId();
+
+  const decide = useMutation({
+    mutationFn: (body: MissionApplicationDecisionBody) =>
+      apiFetch(`/api/missions/${missionId}/applications/${application.id}`, {
+        method: "PATCH",
+        json: body
+      }),
+    // Promesse renvoyée : le bouton reste désactivé jusqu'à l'arrivée des
+    // données rafraîchies, puis la modale se ferme (cf. `mutate` ci-dessous)
+    onSuccess: () => invalidateAfterDecision(queryClient, missionId),
+    onError: (mutationError) => {
+      const status = isHttpError(mutationError) ? mutationError.status : 0;
+      setError(errorMessageFor(status));
+      // La situation a changé côté serveur : on recharge sans fermer la
+      // modale pour que le message reste lisible
+      if (status === 409 || status === 404) {
+        void invalidateAfterDecision(queryClient, missionId);
+      }
+    }
+  });
 
   const candidateName = `${application.extra.firstName} ${application.extra.lastName}`;
 
-  const handleSubmit = async (event: FormEvent) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setError(null);
 
-    let body: Record<string, unknown>;
+    let body: MissionApplicationDecisionBody;
     if (isAccept) {
       const hourlyRate = Number(rate.replace(",", "."));
       if (
@@ -200,34 +238,12 @@ function DecisionDialog({
         setWarnedRate(hourlyRate);
         return;
       }
-      body = { decision, hourlyRate };
+      body = { decision: "accept", hourlyRate };
     } else {
-      body = { decision, reason: reason.trim() || undefined };
+      body = { decision: "refuse", reason: reason.trim() || undefined };
     }
 
-    setSubmitting(true);
-    try {
-      const response = await fetch(
-        `/api/missions/${missionId}/applications/${application.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        }
-      );
-
-      if (!response.ok) {
-        setError(errorMessageFor(response.status));
-        if (response.status === 409 || response.status === 404) onConflict();
-        return;
-      }
-
-      onDone();
-    } catch {
-      setError(errorMessageFor(0));
-    } finally {
-      setSubmitting(false);
-    }
+    decide.mutate(body, { onSuccess: onClose });
   };
 
   return (
@@ -316,7 +332,7 @@ function DecisionDialog({
               type="submit"
               theme="company"
               variant={isAccept ? "default" : "destructive"}
-              disabled={submitting}
+              disabled={decide.isPending}
             >
               {!isAccept
                 ? "Refuser la candidature"
@@ -336,20 +352,25 @@ function DecisionDialog({
  * `requested` groupées par poste, avec acceptation (taux saisi) ou refus
  * (motif facultatif). Ne s'affiche pas s'il n'y a aucune candidature.
  */
-export function MissionApplications({
-  missionId,
-  onDecision
-}: MissionApplicationsProps) {
-  const { data, error, refetch } = useFetch<
-    GetMissionApplicationsResponse | { message: string }
-  >(`/api/missions/${missionId}/applications`);
+export function MissionApplications({ missionId }: MissionApplicationsProps) {
+  // Rafraîchie par invalidation (décision, conflit, retrait d'un membre) :
+  // les données restent affichées pendant le rafraîchissement (`isFetching`),
+  // seul le premier chargement (`isPending`) affiche le loader
+  const { data, isPending, isError, isFetching } = useQuery({
+    queryKey: queryKeys.missions.applications(missionId),
+    queryFn: ({ signal }) =>
+      apiFetch<GetMissionApplicationsResponse>(
+        `/api/missions/${missionId}/applications`,
+        { signal }
+      )
+  });
   const [pending, setPending] = useState<PendingDecision | null>(null);
 
-  if (!data && !error) {
+  if (isPending) {
     return <Loader variant="spinner" size="sm" />;
   }
 
-  if (error || !data || !("positions" in data)) {
+  if (isError) {
     return (
       <p className="text-red-500 text-sm">
         Erreur lors du chargement des candidatures.
@@ -357,19 +378,25 @@ export function MissionApplications({
     );
   }
 
-  if (data.total === 0) return null;
+  // Section masquée sans candidature, sauf si une modale de décision est
+  // ouverte (ex. 409 ayant vidé la liste) : son message d'erreur doit rester
+  if (data.total === 0 && !pending) return null;
 
   return (
     <section
       aria-labelledby="mission-applications-title"
+      aria-busy={isFetching}
       className="flex flex-col gap-3 rounded-lg bg-employer-background p-3 shadow-md"
     >
-      <h2
-        id="mission-applications-title"
-        className="font-bold text-employer-primary text-lg"
-      >
-        Candidatures reçues ({data.total})
-      </h2>
+      <div className="flex items-center gap-2">
+        <h2
+          id="mission-applications-title"
+          className="font-bold text-employer-primary text-lg"
+        >
+          Candidatures reçues ({data.total})
+        </h2>
+        {isFetching && <Loader variant="spinner" size="sm" />}
+      </div>
       {data.positions.map((position) => (
         <div key={position.jobType} className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
@@ -411,12 +438,6 @@ export function MissionApplications({
           hourlyRateMin={data.hourlyRateMin}
           hourlyRateMax={data.hourlyRateMax}
           onClose={() => setPending(null)}
-          onConflict={refetch}
-          onDone={() => {
-            setPending(null);
-            refetch();
-            onDecision();
-          }}
         />
       )}
     </section>
