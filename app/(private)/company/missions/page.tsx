@@ -209,6 +209,11 @@ export default function CompanyMissionsPage() {
     );
   }
 
+  const closeCancelModal = () => {
+    setMissionToCancel(null);
+    setCancelMessage(null);
+  };
+
   const handleCancelMission = async (missionId: string) => {
     setLoading(true);
     setWarning(null);
@@ -225,22 +230,23 @@ export default function CompanyMissionsPage() {
         );
       }
 
-      // La mission est annulée en base : un échec d'envoi d'email n'est
-      // qu'un avertissement, à ne pas présenter comme une erreur
-      const result: MissionCancellationApiResponse = await response.json();
-      if (result.emailFailures > 0) {
+      // Recharger les missions après annulation, même si le corps de la
+      // réponse est illisible : la mission est annulée en base
+      fetchMissions(currentPage);
+
+      // Un échec d'envoi d'email n'est qu'un avertissement, à ne pas
+      // présenter comme une erreur
+      const result: MissionCancellationApiResponse | null = await response
+        .json()
+        .catch(() => null);
+      const emailFailures = result?.emailFailures ?? 0;
+      if (emailFailures > 0) {
         setWarning(
-          `Mission annulée, mais ${result.emailFailures} extra${
-            result.emailFailures > 1 ? "s n'ont" : " n'a"
-          } pas pu être prévenu${result.emailFailures > 1 ? "s" : ""} par email.`
+          `Mission annulée, mais ${emailFailures} extra${
+            emailFailures > 1 ? "s n'ont" : " n'a"
+          } pas pu être prévenu${emailFailures > 1 ? "s" : ""} par email.`
         );
       }
-
-      // Le motif ne doit pas être pré-rempli pour la prochaine annulation
-      setCancelMessage(null);
-
-      // Recharger les missions après annulation
-      fetchMissions(currentPage);
     } catch (error) {
       console.error("Erreur annulation mission:", error);
       setError(
@@ -248,13 +254,9 @@ export default function CompanyMissionsPage() {
       );
     } finally {
       setLoading(false);
-      setMissionToCancel(null);
+      // Le motif ne doit jamais rester pré-rempli pour la mission suivante
+      closeCancelModal();
     }
-  };
-
-  const closeCancelModal = () => {
-    setMissionToCancel(null);
-    setCancelMessage(null);
   };
 
   const handleSelectorChange = () => {

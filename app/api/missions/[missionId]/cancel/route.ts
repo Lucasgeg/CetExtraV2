@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { MissionStatus, UserMissionStatus } from "@prisma/client";
+import { MissionStatus, Prisma, UserMissionStatus } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import prisma from "@/app/lib/prisma";
@@ -200,16 +200,41 @@ export async function PATCH(
           };
         }
 
-        // Lu avant la mise à jour : après, tous les statuts valent `cancelled`
+        // Verrou des engagements visés, lus avant la mise à jour (après, tous
+        // valent `cancelled`). Une décision concurrente sur une candidature
+        // (applications/[applicationId], qui verrouille la UserMission) se
+        // termine avant cette lecture : on voit son statut final, ce qui évite
+        // d'écrire à un extra refusé entre-temps ou de se tromper de variante.
+        // Ordre Mission → UserMission ; l'autre route fait UserMission →
+        // RequiredPosition sans prendre Mission : pas de cycle.
+        const locked = await tx.$queryRaw<
+          { id: string; status: UserMissionStatus }[]
+        >`
+          SELECT id, status FROM "UserMission"
+          WHERE "missionId" = ${missionId}
+            AND status IN (${Prisma.join(
+              ENGAGEMENT_STATUSES_CANCELLED_WITH_MISSION.map(
+                (status) => Prisma.sql`${status}::"UserMissionStatus"`
+              )
+            )})
+          ORDER BY id
+          FOR UPDATE`;
+
+        const statusById = new Map(
+          locked.map((engagement) => [engagement.id, engagement.status])
+        );
+        const notifiedIds = locked
+          .filter((engagement) =>
+            (
+              ENGAGEMENT_STATUSES_NOTIFIED_ON_MISSION_CANCELLATION as readonly UserMissionStatus[]
+            ).includes(engagement.status)
+          )
+          .map((engagement) => engagement.id);
+
         const recipients = await tx.userMission.findMany({
-          where: {
-            missionId,
-            status: {
-              in: [...ENGAGEMENT_STATUSES_NOTIFIED_ON_MISSION_CANCELLATION]
-            }
-          },
+          where: { id: { in: notifiedIds } },
           select: {
-            status: true,
+            id: true,
             missionStartDate: true,
             missionEndDate: true,
             missionJob: true,
@@ -258,7 +283,7 @@ export async function PATCH(
               // Candidat en attente : l'email parle de sa candidature, pas
               // d'une participation qui n'a jamais été confirmée
               kind:
-                recipient.status === UserMissionStatus.requested
+                statusById.get(recipient.id) === UserMissionStatus.requested
                   ? "application"
                   : "engagement",
               companyName: mission.creator.company_name,

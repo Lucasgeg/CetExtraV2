@@ -188,7 +188,11 @@ export const ENGAGEMENT_STATUSES_CANCELLED_WITH_MISSION = [
   "accepted"
 ] as const satisfies readonly UserMissionStatus[];
 
-/** Vrai si un engagement dans ce statut est annulé avec sa mission. */
+/**
+ * Vrai si un engagement dans ce statut est annulé avec sa mission.
+ * Sans appelant pour l'instant : conservé pour le ticket sur les transitions
+ * de statut (la route d'annulation filtre en SQL sur la constante ci-dessus).
+ */
 export const isEngagementCancelledWithMission = (
   status: UserMissionStatus
 ): boolean =>
