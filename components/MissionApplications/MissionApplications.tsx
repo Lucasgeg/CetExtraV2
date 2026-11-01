@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader/Loader";
+import { RefreshErrorBanner } from "@/components/ui/RefreshErrorBanner/RefreshErrorBanner";
 import type { PrismaMissionJob } from "@/store/types";
 import type {
   GetMissionApplicationsResponse,
@@ -24,7 +25,7 @@ import type {
   MissionApplicationDecisionBody,
   MissionApplicationsPosition
 } from "@/types/MissionApplications";
-import { apiFetch, isHttpError } from "@/utils/apiFetch";
+import { apiFetch, isHttpError, isNotFoundOrForbidden } from "@/utils/apiFetch";
 import {
   type DecisionBlocker,
   getHourlyRateWarningThreshold,
@@ -356,13 +357,18 @@ export function MissionApplications({ missionId }: MissionApplicationsProps) {
   // Rafraîchie par invalidation (décision, conflit, retrait d'un membre) :
   // les données restent affichées pendant le rafraîchissement (`isFetching`),
   // seul le premier chargement (`isPending`) affiche le loader
-  const { data, isPending, isError, isFetching } = useQuery({
+  const { data, error, isPending, isError, isFetching, refetch } = useQuery({
     queryKey: queryKeys.missions.applications(missionId),
     queryFn: ({ signal }) =>
       apiFetch<GetMissionApplicationsResponse>(
         `/api/missions/${missionId}/applications`,
         { signal }
-      )
+      ),
+    // Toujours revalidé au montage (le cache s'affiche pendant ce temps) :
+    // création, édition et annulation de mission ne passent pas encore par
+    // TanStack Query et n'invalident donc pas ces candidatures. À retirer
+    // quand elles invalideront le cache
+    staleTime: 0
   });
   const [pending, setPending] = useState<PendingDecision | null>(null);
 
@@ -370,17 +376,21 @@ export function MissionApplications({ missionId }: MissionApplicationsProps) {
     return <Loader variant="spinner" size="sm" />;
   }
 
-  if (isError) {
+  // L'erreur ne remplace la section que sans données, ou si la mission a
+  // disparu / n'est plus accessible (403/404). Un rafraîchissement en échec
+  // garde la liste (et une éventuelle modale ouverte) avec une bannière
+  if (data === undefined || isNotFoundOrForbidden(error)) {
     return (
-      <p className="text-red-500 text-sm">
+      <p role="alert" className="text-red-500 text-sm">
         Erreur lors du chargement des candidatures.
       </p>
     );
   }
 
   // Section masquée sans candidature, sauf si une modale de décision est
-  // ouverte (ex. 409 ayant vidé la liste) : son message d'erreur doit rester
-  if (data.total === 0 && !pending) return null;
+  // ouverte (ex. 409 ayant vidé la liste) : son message d'erreur doit rester ;
+  // ou si le rafraîchissement a échoué : la bannière doit rester visible
+  if (data.total === 0 && !pending && !isError) return null;
 
   return (
     <section
@@ -397,6 +407,9 @@ export function MissionApplications({ missionId }: MissionApplicationsProps) {
         </h2>
         {isFetching && <Loader variant="spinner" size="sm" />}
       </div>
+      {isError && (
+        <RefreshErrorBanner onRetry={() => refetch()} retrying={isFetching} />
+      )}
       {data.positions.map((position) => (
         <div key={position.jobType} className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">

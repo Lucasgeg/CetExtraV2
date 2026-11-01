@@ -63,11 +63,18 @@ export const Loader = ({
     variant === "dots" && styles.dots
   );
 
+  // `role="status"` : annoncé poliment par les lecteurs d'écran. Le texte
+  // visible sert d'annonce quand il existe ; sinon un libellé `sr-only`
+  // (jamais les deux, pour éviter une double annonce)
   return (
-    <div className={containerClasses}>
+    <div role="status" className={containerClasses}>
       <div className="flex flex-col items-center justify-center gap-3">
-        <div className={loaderClasses} style={getInlineStyle()} />
-        {text && (
+        <div
+          aria-hidden="true"
+          className={loaderClasses}
+          style={getInlineStyle()}
+        />
+        {text ? (
           <p
             className={cn(
               "animate-pulse text-center text-gray-600 text-sm",
@@ -76,6 +83,8 @@ export const Loader = ({
           >
             {text}
           </p>
+        ) : (
+          <span className="sr-only">Chargement…</span>
         )}
       </div>
     </div>

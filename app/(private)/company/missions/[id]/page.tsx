@@ -24,6 +24,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
+import { RefreshErrorBanner } from "@/components/ui/RefreshErrorBanner/RefreshErrorBanner";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
 import type { PrismaMissionJob } from "@/store/types";
 import { useUserResearchStore } from "@/store/useUserResearchStore";
@@ -43,10 +44,15 @@ import { capitalizeFirstLetter } from "@/utils/string";
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
-  const { data, error, isPending, isError } = useQuery({
+  const { data, error, isPending, isError, isFetching, refetch } = useQuery({
     queryKey: queryKeys.missions.detail(id),
     queryFn: ({ signal }) =>
-      apiFetch<MissionDetailApiResponse>(`/api/missions/${id}`, { signal })
+      apiFetch<MissionDetailApiResponse>(`/api/missions/${id}`, { signal }),
+    // Toujours revalidé au montage (le cache s'affiche pendant ce temps) :
+    // création, édition et annulation de mission ne passent pas encore par
+    // TanStack Query et n'invalident donc pas ce détail. À retirer quand
+    // elles invalideront le cache
+    staleTime: 0
   });
   const { setRequiredPositions, setMissionData } = useUserResearchStore();
   const [isEditing, setIsEditing] = useState(false);
@@ -90,13 +96,17 @@ export default function MissionDetailPage() {
     );
   }
 
-  if (isError) {
+  // L'erreur ne remplace l'écran que sans données, ou si la mission a
+  // disparu / n'est plus accessible (403/404). Un rafraîchissement en échec
+  // (ex. 5xx après une décision) garde l'écran et affiche une bannière
+  // (après `isPending`, `data === undefined` implique un état d'erreur)
+  if (data === undefined || isNotFoundOrForbidden(error)) {
     return (
       <div className="flex h-full items-center justify-center">
         <p role="alert" className="text-red-500">
           {isNotFoundOrForbidden(error)
             ? "Mission introuvable ou inaccessible."
-            : `Erreur lors du chargement des détails de la mission : ${error.message}`}
+            : `Erreur lors du chargement des détails de la mission : ${error?.message ?? "erreur inconnue"}`}
         </p>
       </div>
     );
@@ -116,6 +126,9 @@ export default function MissionDetailPage() {
 
   const createTeamGestionnaryItems = () => {
     const items: Array<{
+      /** Clé React stable : un item ne doit pas hériter de l'état local
+       * (dialogues, formulaire) de son voisin après un rafraîchissement */
+      key: string;
       job: PrismaMissionJob;
       employee?: MissionDetailEmployeeWithContact;
       isOccupied: boolean;
@@ -123,6 +136,9 @@ export default function MissionDetailPage() {
 
     // Pour chaque type de poste requis
     data.requiredPositions.forEach((position) => {
+      // Rang parmi les places libres de ce poste (indépendant des places
+      // occupées, pour qu'un départ ne décale pas les clés existantes)
+      let freeSlotIndex = 0;
       // Créer autant d'items que de quantity
       for (let i = 0; i < position.quantity; i++) {
         // Chercher un employé correspondant qui n'est pas encore assigné
@@ -136,6 +152,9 @@ export default function MissionDetailPage() {
         );
 
         items.push({
+          key: assignedEmployee
+            ? `employee-${assignedEmployee.id}`
+            : `free-${position.jobType}-${freeSlotIndex++}`,
           job: position.jobType as PrismaMissionJob,
           employee: assignedEmployee,
           isOccupied: !!assignedEmployee
@@ -197,6 +216,13 @@ export default function MissionDetailPage() {
         <span className="text-extra-primary">Détails&nbsp;</span>de la
         mission&nbsp;<span className="underline">{data.name}</span>
       </h1>
+      {isError && (
+        <RefreshErrorBanner
+          className="mt-2"
+          onRetry={() => refetch()}
+          retrying={isFetching}
+        />
+      )}
       <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
         <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
           <div className="flex flex-1 flex-col p-4">
@@ -326,7 +352,7 @@ export default function MissionDetailPage() {
             {teamItems.map((item, index) => {
               return (
                 <TeamGestionnaryItem
-                  key={`${item.job}-${index}`}
+                  key={item.key}
                   tipNumber={index + 1}
                   value={
                     item.employee
