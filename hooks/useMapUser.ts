@@ -8,19 +8,20 @@ interface UseMapUsersProps {
   missionLocation: { lat: number; lon: number };
   enabled?: boolean;
   radius?: number;
-  preservePrivacy?: boolean; // Nouveau paramètre
 }
 
+/**
+ * Récupère les extras autour de la mission. Les positions renvoyées par l'API
+ * sont toujours approximatives (grille ~1 km, brouillage côté serveur).
+ */
 export const useMapUsers = ({
   missionLocation,
   enabled = true,
-  radius = 50,
-  preservePrivacy = true // Par défaut protégé
+  radius = 50
 }: UseMapUsersProps) => {
   const [users, setUsers] = useState<UserWithLocation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [privacyProtected, setPrivacyProtected] = useState(preservePrivacy);
 
   const fetchUsers = useCallback(async () => {
     if (!enabled || !missionLocation.lat || !missionLocation.lon) return;
@@ -30,7 +31,7 @@ export const useMapUsers = ({
 
     try {
       const response = await fetch(
-        `/api/users/nearby?lat=${missionLocation.lat}&lon=${missionLocation.lon}&radius=${radius}&privacy=${preservePrivacy}`
+        `/api/users/nearby?lat=${missionLocation.lat}&lon=${missionLocation.lon}&radius=${radius}`
       );
 
       if (!response.ok) {
@@ -39,7 +40,6 @@ export const useMapUsers = ({
 
       const data: NearbyUsersResponse = await response.json();
       setUsers(data.users || []);
-      setPrivacyProtected(data.privacyProtected || false);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Erreur inconnue";
@@ -48,13 +48,7 @@ export const useMapUsers = ({
     } finally {
       setLoading(false);
     }
-  }, [
-    enabled,
-    missionLocation.lat,
-    missionLocation.lon,
-    radius,
-    preservePrivacy
-  ]);
+  }, [enabled, missionLocation.lat, missionLocation.lon, radius]);
 
   useEffect(() => {
     fetchUsers();
@@ -64,7 +58,6 @@ export const useMapUsers = ({
     users,
     loading,
     error,
-    privacyProtected,
     refetch: fetchUsers
   };
 };

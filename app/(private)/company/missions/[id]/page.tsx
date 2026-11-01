@@ -266,7 +266,6 @@ export default function MissionDetailPage() {
                 showInfo={true}
                 autoFetch={true}
                 initialRadius={2.5}
-                preservePrivacy={true}
               />
             </DialogContent>
           </Dialog>
