@@ -19,8 +19,10 @@ import { handlePrismaError } from "@/utils/prismaErrors.util";
 /**
  * Handles GET requests for fetching detailed information about a specific mission.
  *
- * This endpoint is restricted to users with the `COMPANY` role. It retrieves the mission details,
- * including location, required positions, and accepted employees, from the database using Prisma.
+ * This endpoint is restricted to users with the `COMPANY` role and to the company that created
+ * the mission (ownership check on `mission.creator.user.clerkId`). It retrieves the mission details,
+ * including location, required positions, accepted/pending employees (with email and names) and
+ * pending invitations, from the database using Prisma.
  * The response is formatted as a `MissionDetailApiResponse` object.
  *
  * @param req - The incoming Next.js request object.
@@ -31,6 +33,8 @@ import { handlePrismaError } from "@/utils/prismaErrors.util";
  * @throws 401 Unauthorized - If the user is not authenticated or does not have the COMPANY role.
  * @throws 400 Bad Request - If the `missionId` parameter is missing or invalid.
  * @throws 404 Not Found - If the mission with the specified ID does not exist.
+ * @throws 403 Forbidden - If the mission belongs to another company.
+ * @throws 500 Internal Server Error - On unexpected errors (generic message, details logged server-side only).
  *
  * @example
  * {{baseUrl}}/api/missions/{missionId}
@@ -60,6 +64,7 @@ export async function GET(
     const mission = await prisma.mission.findUnique({
       where: { id: missionId },
       include: {
+        creator: { select: { user: { select: { clerkId: true } } } },
         missionLocation: true,
         requiredPositions: true,
         employees: {
@@ -100,6 +105,12 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    // Seule l'entreprise créatrice peut consulter le détail (employés, emails, invitations)
+    if (mission.creator.user.clerkId !== userId) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
     const response: MissionDetailApiResponse = {
       id: mission.id,
       name: mission.name,
