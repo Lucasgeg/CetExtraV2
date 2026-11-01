@@ -419,6 +419,7 @@ export async function POST(
  * - Returns a 401 Unauthorized response if the user is not authorized.
  * - Returns a 400 Bad Request response if the missionId parameter is invalid.
  * - Returns a 404 Not Found response if the mission does not exist.
+ * - Returns a 403 Forbidden response if the mission belongs to another company.
  * - On success, returns a 200 OK response with counts and details of pending employees and invitations.
  *
  * @example
@@ -445,6 +446,7 @@ export async function GET(
   const pendingInvites = await prisma.mission.findUnique({
     where: { id: missionId },
     select: {
+      creator: { select: { user: { select: { clerkId: true } } } },
       employees: {
         where: {
           status: "pending"
@@ -503,6 +505,13 @@ export async function GET(
     return NextResponse.json({ message: "Mission not found" }, { status: 404 });
   }
 
+  if (pendingInvites.creator.user.clerkId !== userId) {
+    return NextResponse.json(
+      { message: "You are not authorized to view invites for this mission" },
+      { status: 403 }
+    );
+  }
+
   const response: GetMissionInvitesResponse = {
     counts: {
       employees: pendingInvites._count.employees,
@@ -545,17 +554,30 @@ export async function GET(
  *
  * @param request - The incoming Next.js request object.
  * @param props - An object containing route parameters, specifically the missionId.
+ * IDs that do not exist or do not belong to this mission are ignored.
+ *
+ * @param request - The incoming Next.js request object.
+ * @param props - An object containing route parameters, specifically the missionId.
  * @returns A NextResponse object with a JSON payload indicating the result of the operation.
+ *   On success (200): `{ message, success: true, cancelled: { employees, invites } }`,
+ *   where `cancelled` holds the number of rows actually cancelled.
  *
  * @throws {401} If the user is not authorized or not a company.
  * @throws {400} If the missionId parameter or request body is invalid.
- * @throws {404} If the creator's company is not found.
+ * @throws {403} If the mission belongs to another company.
+ * @throws {404} If the mission is not found.
  * @throws {500} For unexpected errors or database failures.
  */
 export async function DELETE(
   request: NextRequest,
   props: { params: Promise<{ missionId: string }> }
-): Promise<NextResponse<{ message: string }>> {
+): Promise<
+  NextResponse<{
+    message: string;
+    success?: boolean;
+    cancelled?: { employees: number; invites: number };
+  }>
+> {
   const { sessionClaims, userId } = await auth();
 
   if (sessionClaims?.publicMetadata?.role !== EnumRole.COMPANY || !userId) {
@@ -585,75 +607,70 @@ export async function DELETE(
     );
   }
 
-  const creator = await prisma.user.findUnique({
-    where: {
-      clerkId: userId
-    },
+  const mission = await prisma.mission.findUnique({
+    where: { id: missionId },
     select: {
-      company: {
-        select: {
-          id: true,
-          user: {
-            select: {
-              clerkId: true
-            }
-          }
-        }
-      }
+      creator: { select: { user: { select: { clerkId: true } } } }
     }
   });
 
-  if (!creator?.company?.id) {
-    return new NextResponse(JSON.stringify({ message: "Creator not found" }), {
-      status: 404,
-      headers: { "Content-Type": "application/json" }
-    });
+  if (!mission) {
+    return NextResponse.json({ message: "Mission not found" }, { status: 404 });
   }
 
-  if (creator.company.user.clerkId !== userId) {
+  if (mission.creator.user.clerkId !== userId) {
     return NextResponse.json(
       { message: "You are not authorized to delete invites for this mission" },
-      { status: 401 }
+      { status: 403 }
     );
   }
 
+  const employeeIds = [...new Set(body.employees)];
+  const inviteIds = [...new Set(body.invites)];
+
   try {
-    const response = await prisma.$transaction(async (tx) => {
-      if (body.employees.length > 0) {
-        await tx.userMission.updateMany({
+    // Le filtre missionId ferme l'IDOR : un id absent ou rattaché à une autre
+    // mission est simplement ignoré (non compté dans `cancelled`).
+    const cancelled = await prisma.$transaction(async (tx) => {
+      let employees = 0;
+      let invites = 0;
+      if (employeeIds.length > 0) {
+        const { count } = await tx.userMission.updateMany({
           where: {
             missionId,
             id: {
-              in: body.employees
+              in: employeeIds
             }
           },
           data: {
             status: "cancelled"
           }
         });
+        employees = count;
       }
-      if (body.invites.length > 0) {
-        await tx.invitation.updateMany({
+      if (inviteIds.length > 0) {
+        const { count } = await tx.invitation.updateMany({
           where: {
             missionId,
             id: {
-              in: body.invites
+              in: inviteIds
             }
           },
           data: {
             status: "cancelled"
           }
         });
+        invites = count;
       }
-      return { success: true };
+      return { employees, invites };
     });
     return NextResponse.json(
       {
-        message: response.success
-          ? "Invites deleted successfully"
-          : "Failed to delete invites"
+        message: "Invites deleted successfully",
+        success: true,
+        cancelled
       },
-      { status: response.success ? 200 : 500 }
+      { status: 200 }
     );
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
