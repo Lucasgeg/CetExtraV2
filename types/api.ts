@@ -10,6 +10,8 @@ export type GetCompanyMission = {
   missionStartDate: Date;
   missionEndDate: Date;
   missionLocation: Location;
+  /** Présent seulement si `employees` est demandé dans `fields`. */
+  employees?: { status: string }[];
 };
 
 export interface PpxApiResponse {

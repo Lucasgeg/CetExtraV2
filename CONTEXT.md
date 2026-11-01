@@ -19,7 +19,7 @@ Mission que l’employeur n’a pas retirée de la diffusion publique (intention
 _Avoid_ : mission publiée, mission visible
 
 **Fourchette de taux horaire** :
-Plage indicative (min–max) affichée sur l’annonce publique d’une mission. Optionnelle (les deux bornes ou aucune, min ≤ max) ; n’engage pas le taux contractuel.
+Plage indicative (min–max) affichée sur l’annonce publique d’une mission. Optionnelle (les deux bornes ou aucune, min ≤ max) ; n’engage pas le taux contractuel. Exception : à l’acceptation d’une **candidature**, le minimum est un plancher pour le taux contractuel (l’extra a candidaté en le connaissant) ; pas de plafond.
 _Avoid_ : salaire, taux de la mission
 
 **Taux horaire (contractuel)** :

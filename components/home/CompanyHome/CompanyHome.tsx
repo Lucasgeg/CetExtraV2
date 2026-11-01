@@ -9,6 +9,7 @@ import {
   MapPin,
   MessageSquare,
   Plus,
+  UserCheck,
   Users
 } from "lucide-react";
 import Link from "next/link";
@@ -17,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/Loader/Loader";
 import useFetch from "@/hooks/useFetch";
 import useStore from "@/hooks/useStore";
-import type { EnumMissionJob } from "@/store/types";
+import type { EnumMissionJob, PrismaMissionJob } from "@/store/types";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
-import { getJobLabel } from "@/utils/enum";
+import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
 
 type DashboardMission = {
   id: string;
@@ -30,7 +31,7 @@ type DashboardMission = {
   requiredPositions?: { id: string; jobType: string; quantity: number }[];
   employees?: {
     id: string;
-    status: "pending" | "accepted" | "refused" | "cancelled";
+    status: "pending" | "requested" | "accepted" | "refused" | "cancelled";
     missionJob: keyof typeof EnumMissionJob;
     user?: {
       email?: string;
@@ -188,6 +189,28 @@ const CompanyDashboard = ({
       })
   ]);
 
+  // Limite connue : seules les 5 prochaines missions sont chargées ici ; les
+  // candidatures sur des missions plus lointaines restent visibles depuis la
+  // liste des missions et l'email de notification
+  const applicationsToReview = missions.flatMap((mission) =>
+    (mission.employees ?? [])
+      .filter((employee) => employee.status === "requested")
+      .map((employee) => {
+        const extra = employee.user?.extra;
+        return {
+          key: `application-${employee.id}`,
+          missionId: mission.id,
+          label:
+            [extra?.first_name, extra?.last_name].filter(Boolean).join(" ") ||
+            "Candidat",
+          job: convertToFrontendMissionJob(
+            employee.missionJob as unknown as PrismaMissionJob
+          ),
+          missionName: mission.name
+        };
+      })
+  );
+
   return (
     <div className="flex flex-col gap-6">
       {/* Hero : salutation + CTA primaire unique */}
@@ -276,6 +299,9 @@ const CompanyDashboard = ({
                   const confirmed = (mission.employees ?? []).filter(
                     (employee) => employee.status === "accepted"
                   ).length;
+                  const applications = (mission.employees ?? []).filter(
+                    (employee) => employee.status === "requested"
+                  ).length;
                   return (
                     <li key={mission.id}>
                       <Link
@@ -302,6 +328,13 @@ const CompanyDashboard = ({
                           </div>
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
+                          {applications > 0 && (
+                            <span className="flex items-center gap-1.5 rounded-full bg-employer-surface px-2.5 py-0.5 font-semibold text-employer-accent text-xs">
+                              <UserCheck size={14} />
+                              {applications} candidature
+                              {applications > 1 ? "s" : ""}
+                            </span>
+                          )}
                           {required > 0 && (
                             <span className="flex items-center gap-1.5 text-employer-text-secondary text-sm tabular-nums">
                               <Users size={16} />
@@ -320,6 +353,43 @@ const CompanyDashboard = ({
         </div>
 
         <div className="flex flex-col gap-6">
+          {/* Candidatures à traiter : affiché seulement s'il y a une action à faire */}
+          {applicationsToReview.length > 0 && (
+            <SectionCard title="Candidatures à traiter">
+              <ul className="divide-y divide-employer-border/60">
+                {applicationsToReview.slice(0, 5).map((application) => (
+                  <li key={application.key}>
+                    <Link
+                      href={`/company/missions/${application.missionId}`}
+                      className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-employer-surface/50"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-employer-surface text-employer-accent">
+                        <UserCheck size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-employer-text-primary text-sm">
+                          {application.label}
+                        </p>
+                        <p className="truncate text-employer-text-secondary text-xs">
+                          {application.job} · {application.missionName}
+                        </p>
+                      </div>
+                      <ArrowRight
+                        size={16}
+                        className="ml-auto shrink-0 text-employer-text-secondary"
+                      />
+                    </Link>
+                  </li>
+                ))}
+                {applicationsToReview.length > 5 && (
+                  <li className="px-5 py-3 text-employer-text-secondary text-xs">
+                    +{applicationsToReview.length - 5} autres candidatures
+                  </li>
+                )}
+              </ul>
+            </SectionCard>
+          )}
+
           {/* Invitations en attente */}
           <SectionCard title="Invitations en attente">
             {pendingInvitations.length === 0 ? (

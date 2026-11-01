@@ -44,9 +44,26 @@ export default function CompanyMissionsPage() {
       {
         accessorKey: "name",
         header: "Nom de la mission",
-        cell: ({ row }) => (
-          <div className="font-medium text-gray-900">{row.original.name}</div>
-        )
+        cell: ({ row }) => {
+          const applications = (row.original.employees ?? []).filter(
+            (employee) => employee.status === "requested"
+          ).length;
+          return (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-gray-900">
+                {row.original.name}
+              </span>
+              {applications > 0 && (
+                <Link
+                  href={`/company/missions/${row.original.id}`}
+                  className="rounded-full bg-employer-surface px-2.5 py-0.5 font-semibold text-employer-accent text-xs hover:underline"
+                >
+                  {applications} candidature{applications > 1 ? "s" : ""}
+                </Link>
+              )}
+            </div>
+          );
+        }
       },
       {
         accessorKey: "missionStartDate",
@@ -121,7 +138,7 @@ export default function CompanyMissionsPage() {
         const params = new URLSearchParams({
           missionSelector,
           fields:
-            "id,name,missionStartDate,missionEndDate,missionLocation.fullName",
+            "id,name,missionStartDate,missionEndDate,missionLocation.fullName,employees",
           take: MISSIONS_PER_PAGE.toString(),
           skip: skip.toString()
         });

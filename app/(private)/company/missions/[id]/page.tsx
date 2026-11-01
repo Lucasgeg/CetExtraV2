@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
 import MapContainerComponent from "@/components/MapContainerComponent/MapContainerComponent";
 import { MapWithUserFilter } from "@/components/MapWithUserFilter";
+import { MissionApplications } from "@/components/MissionApplications/MissionApplications";
 import MissionForm from "@/components/MissionForm/MissionForm";
 import { PendingInvitations } from "@/components/PendingInvitations/PendingInvitations";
 import { Button } from "@/components/ui/button";
@@ -321,6 +322,11 @@ export default function MissionDetailPage() {
               </div>
             </div>
           </div>
+          <MissionApplications
+            missionId={id}
+            refetchTrigger={pendingInvitationsRefetchTrigger}
+            onDecision={refetch}
+          />
           <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {
               return (
