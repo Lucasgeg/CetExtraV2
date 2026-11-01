@@ -20,7 +20,7 @@ import type {
 } from "@/types/MissionApplications";
 import {
   type DecisionBlocker,
-  HOURLY_RATE_WARNING_THRESHOLD,
+  getHourlyRateWarningThreshold,
   isUnusualHourlyRate,
   REFUSAL_REASON_MAX_LENGTH,
   validateAgreedHourlyRate
@@ -193,7 +193,10 @@ function DecisionDialog({
         );
         return;
       }
-      if (isUnusualHourlyRate(hourlyRate) && warnedRate !== hourlyRate) {
+      if (
+        isUnusualHourlyRate(hourlyRate, hourlyRateMax) &&
+        warnedRate !== hourlyRate
+      ) {
         setWarnedRate(hourlyRate);
         return;
       }
@@ -295,8 +298,9 @@ function DecisionDialog({
             >
               Vous allez accepter à {formatRate(warnedRate)}/h, un taux
               inhabituellement élevé (au-delà de{" "}
-              {formatRate(HOURLY_RATE_WARNING_THRESHOLD)}/h). Vérifiez qu'il ne
-              s'agit pas d'une faute de frappe. Confirmez-vous ?
+              {formatRate(getHourlyRateWarningThreshold(hourlyRateMax))}/h).
+              Vérifiez qu'il ne s'agit pas d'une faute de frappe. Confirmez-vous
+              ?
             </p>
           )}
           <div className="flex justify-end gap-2">

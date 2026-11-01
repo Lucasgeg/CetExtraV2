@@ -128,6 +128,18 @@ export const validateAgreedHourlyRate = (
  */
 export const HOURLY_RATE_WARNING_THRESHOLD = 50;
 
-/** Vrai si le taux dépasse strictement le seuil d'avertissement. */
-export const isUnusualHourlyRate = (hourlyRate: number): boolean =>
-  hourlyRate > HOURLY_RATE_WARNING_THRESHOLD;
+/**
+ * Seuil d'avertissement effectif pour une mission : le plus grand entre
+ * `HOURLY_RATE_WARNING_THRESHOLD` et le maximum annoncé de la fourchette, pour
+ * ne pas demander de confirmation sur un taux que l'entreprise a elle-même
+ * annoncé (ex. fourchette 60–80 €/h).
+ */
+export const getHourlyRateWarningThreshold = (
+  hourlyRateMax: number | null
+): number => Math.max(HOURLY_RATE_WARNING_THRESHOLD, hourlyRateMax ?? 0);
+
+/** Vrai si le taux dépasse strictement le seuil d'avertissement de la mission. */
+export const isUnusualHourlyRate = (
+  hourlyRate: number,
+  hourlyRateMax: number | null
+): boolean => hourlyRate > getHourlyRateWarningThreshold(hourlyRateMax);
