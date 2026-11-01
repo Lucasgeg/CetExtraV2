@@ -74,8 +74,26 @@ export const OBFUSCATION_GRID_STEP_LAT_DEG = 0.009;
 const OBFUSCATION_JITTER_RATIO = 0.5;
 
 /**
- * Hash FNV-1a 32 bits ramené dans [0, 1). Pur JS (pas de `node:crypto`, ce
- * module est aussi importé côté client) et stable d'une exécution à l'autre.
+ * Finaliseur `fmix32` de MurmurHash3 : avalanche complète sur 32 bits.
+ */
+const fmix32 = (h: number): number => {
+  let x = h;
+  x ^= x >>> 16;
+  x = Math.imul(x, 0x85ebca6b);
+  x ^= x >>> 13;
+  x = Math.imul(x, 0xc2b2ae35);
+  x ^= x >>> 16;
+  return x >>> 0;
+};
+
+/**
+ * Hash FNV-1a 32 bits + finaliseur `fmix32`, ramené dans [0, 1). Pur JS (pas
+ * de `node:crypto`, ce module est aussi importé côté client) et stable d'une
+ * exécution à l'autre.
+ *
+ * FNV-1a seul diffuse mal les variations des derniers caractères : les hash de
+ * `${seed}:lat` et `${seed}:lon` restaient corrélés (r ≈ 0,66) et les extras
+ * d'une même cellule s'alignaient sur une diagonale. `fmix32` casse ce lien.
  */
 const hashToUnitInterval = (input: string): number => {
   let hash = 0x811c9dc5;
@@ -83,7 +101,7 @@ const hashToUnitInterval = (input: string): number => {
     hash ^= input.charCodeAt(i);
     hash = Math.imul(hash, 0x01000193);
   }
-  return (hash >>> 0) / 0x100000000;
+  return fmix32(hash) / 0x100000000;
 };
 
 /**

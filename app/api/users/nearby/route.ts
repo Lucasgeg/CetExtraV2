@@ -6,6 +6,18 @@ import {
   obfuscateCoordinates
 } from "@/utils/distance.utils";
 
+/**
+ * Lecture stricte d'un paramètre numérique : absent ou vide → `fallback`,
+ * sinon `Number()` (refuse "12abc", contrairement à `parseFloat`).
+ */
+const parseNumberParam = (
+  value: string | null,
+  fallback = Number.NaN
+): number => {
+  if (value === null || value.trim() === "") return fallback;
+  return Number(value);
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { userId, sessionClaims } = await auth();
@@ -14,19 +26,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
-    const lat = parseFloat(searchParams.get("lat") || "0");
-    const lon = parseFloat(searchParams.get("lon") || "0");
-    const radius = parseFloat(searchParams.get("radius") || "50");
-    const limit = parseInt(searchParams.get("limit") || "100", 10); // Limite de résultats
-    const page = parseInt(searchParams.get("page") || "1", 10); // Page pour pagination
-    const skip = (page - 1) * limit;
+    const lat = parseNumberParam(searchParams.get("lat"));
+    const lon = parseNumberParam(searchParams.get("lon"));
+    const radius = parseNumberParam(searchParams.get("radius"), 50);
+    const limit = parseNumberParam(searchParams.get("limit"), 100); // Limite de résultats
+    const page = parseNumberParam(searchParams.get("page"), 1); // Page pour pagination
 
-    if (!lat || !lon) {
+    if (
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lon) ||
+      lat < -90 ||
+      lat > 90 ||
+      lon < -180 ||
+      lon > 180
+    ) {
       return NextResponse.json(
-        { error: "Coordonnées latitude et longitude requises" },
+        {
+          error:
+            "Coordonnées latitude ([-90, 90]) et longitude ([-180, 180]) requises"
+        },
         { status: 400 }
       );
     }
+    if (!Number.isFinite(radius) || radius <= 0) {
+      return NextResponse.json(
+        { error: "Le rayon doit être un nombre strictement positif" },
+        { status: 400 }
+      );
+    }
+    if (
+      !Number.isSafeInteger(limit) ||
+      limit < 1 ||
+      !Number.isSafeInteger(page) ||
+      page < 1
+    ) {
+      return NextResponse.json(
+        { error: "limit et page doivent être des entiers ≥ 1" },
+        { status: 400 }
+      );
+    }
+    const skip = (page - 1) * limit;
 
     // Récupérer les utilisateurs avec filtrage optimisé
     const users = await prisma.user.findMany({
@@ -63,10 +102,14 @@ export async function GET(request: NextRequest) {
     const nearbyUsers = users.flatMap((user) => {
       if (!user.userLocation) return [];
 
-      // Colonnes `String` en base : "" ou valeur illisible → extra ignoré
+      // Colonnes `String` en base : "" ou valeur illisible → extra ignoré.
+      // On trace l'id seulement, jamais les valeurs (domicile).
       const exactLat = Number.parseFloat(user.userLocation.lat);
       const exactLon = Number.parseFloat(user.userLocation.lon);
       if (!Number.isFinite(exactLat) || !Number.isFinite(exactLon)) {
+        console.warn(
+          `[users/nearby] Localisation illisible, extra ignoré : ${user.id}`
+        );
         return [];
       }
 
