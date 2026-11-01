@@ -1,8 +1,65 @@
+import type { MissionJob, UserMissionStatus } from "@prisma/client";
 import type { EnumMissionJob } from "@/store/types";
 
 type Location = {
   fullName?: string;
 };
+
+/**
+ * Liste blanche des statuts de UserMission pour lesquels l'employeur voit les
+ * coordonnées : son équipe (`accepted`) et les invitations qu'il a lui-même
+ * envoyées (`pending`). Tout autre statut, y compris un statut futur, est
+ * masqué par défaut.
+ */
+export const CONTACT_VISIBLE_USER_MISSION_STATUSES = [
+  "accepted",
+  "pending"
+] as const satisfies readonly UserMissionStatus[];
+
+export type ContactVisibleUserMissionStatus =
+  (typeof CONTACT_VISIBLE_USER_MISSION_STATUSES)[number];
+
+/**
+ * UserMission sans coordonnées (candidature `requested`, `refused`,
+ * `cancelled`…) : ni email, ni téléphone, ni identifiant utilisateur (qui
+ * permettrait de les obtenir via GET /api/users/[userId]).
+ */
+export type CompanyMissionEmployeeMasked<TJob = MissionJob> = {
+  /** UserMission.id */
+  id: string;
+  missionJob: TJob;
+  status: Exclude<UserMissionStatus, ContactVisibleUserMissionStatus>;
+  user: {
+    extra: { first_name: string; last_name: string } | null;
+  };
+};
+
+/** UserMission de l'équipe (`accepted`) ou invitation envoyée (`pending`). */
+export type CompanyMissionEmployeeWithContact<TJob = MissionJob> = {
+  /** UserMission.id */
+  id: string;
+  userId: string;
+  missionJob: TJob;
+  status: ContactVisibleUserMissionStatus;
+  user: {
+    id: string;
+    email: string;
+    extra: {
+      first_name: string;
+      last_name: string;
+      phone: string | null;
+    } | null;
+  };
+};
+
+/**
+ * Élément de `employees` renvoyé par GET /api/companies/[companyId]/missions
+ * (`fields=...,employees`). Discriminé par `status` : coordonnées présentes
+ * uniquement pour `accepted` et `pending`.
+ */
+export type CompanyMissionEmployee<TJob = MissionJob> =
+  | CompanyMissionEmployeeMasked<TJob>
+  | CompanyMissionEmployeeWithContact<TJob>;
 
 export type GetCompanyMission = {
   id: string;
@@ -10,6 +67,8 @@ export type GetCompanyMission = {
   missionStartDate: Date;
   missionEndDate: Date;
   missionLocation: Location;
+  /** Présent seulement si `employees` est demandé dans `fields`. */
+  employees?: CompanyMissionEmployee[];
 };
 
 export interface PpxApiResponse {

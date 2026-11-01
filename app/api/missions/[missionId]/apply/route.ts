@@ -5,8 +5,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import prisma from "@/app/lib/prisma";
 import MissionApplication from "@/components/MailTemplate/MissionApplication";
-import { EnumRole } from "@/store/types";
-import { getMissionJobValue } from "@/utils/enum";
+import { EnumRole, type PrismaMissionJob } from "@/store/types";
+import { convertToFrontendMissionJob } from "@/utils/enum";
 import {
   getOpenPositions,
   publicMissionVisibilityWhere
@@ -151,20 +151,24 @@ export async function POST(
       const applicationEmail = MissionApplication({
         extraName: `${user.extra.first_name} ${user.extra.last_name}`,
         missionName: mission.name,
-        missionJob: getMissionJobValue(missionJob),
+        missionJob: convertToFrontendMissionJob(missionJob as PrismaMissionJob),
         missionDate: mission.missionStartDate.toISOString(),
         missionLocation:
           mission.missionLocation?.fullName ?? "Lieu non précisé",
         ctaUrl: `https://cetextra.fr/company/missions/${mission.id}`
       });
 
-      await resend.emails.send({
+      // Resend ne lève pas sur une erreur API : il la renvoie dans `error`
+      const { error: sendError } = await resend.emails.send({
         from: "Cet Extra <no-reply@cetextra.fr>",
         to: [mission.creator.user.email],
         subject: `Nouvelle candidature — ${mission.name}`,
         react: applicationEmail,
         text: await render(applicationEmail)
       });
+      if (sendError) {
+        console.error("Application notification email error:", sendError);
+      }
     } catch (emailError) {
       console.error("Application notification email error:", emailError);
     }
