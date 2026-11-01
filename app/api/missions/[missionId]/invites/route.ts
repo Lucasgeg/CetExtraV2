@@ -424,6 +424,9 @@ export async function POST(
  * - Returns a 404 Not Found response if the mission does not exist.
  * - Returns a 403 Forbidden response if the mission belongs to another company.
  * - On success, returns a 200 OK response with counts and details of pending employees and invitations.
+ * - GDPR: pending employees (registered extras who have not accepted yet) only expose first/last
+ *   name and profile picture, never their email or user id. Invitations (unregistered extras)
+ *   keep the email the company typed in.
  *
  * @example
  * {{baseUrl}}/api/missions/{missionId}/invites
@@ -456,10 +459,13 @@ export async function GET(
         },
         select: {
           id: true,
+          // RGPD : ni email ni id utilisateur pour un extra inscrit invité
+          // (`pending`) tant qu'il n'a pas accepté (cf.
+          // `CONTACT_VISIBLE_USER_MISSION_STATUSES`). Les `invitations`
+          // ci-dessous (extras non inscrits) gardent l'email saisi par
+          // l'entreprise.
           user: {
             select: {
-              id: true,
-              email: true,
               extra: {
                 select: {
                   first_name: true,
@@ -527,8 +533,6 @@ export async function GET(
       missionStartDate: employee.missionStartDate.toISOString(),
       missionJob: employee.missionJob,
       user: {
-        id: employee.user.id,
-        email: employee.user.email,
         firstName: employee.user.extra?.first_name || null,
         lastName: employee.user.extra?.last_name || null,
         profilePictureUrl: employee.user.profilePictureUrl

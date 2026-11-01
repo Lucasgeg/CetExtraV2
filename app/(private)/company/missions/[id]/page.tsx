@@ -28,7 +28,11 @@ import useFetch from "@/hooks/useFetch";
 import type { PrismaMissionJob } from "@/store/types";
 import { useUserResearchStore } from "@/store/useUserResearchStore";
 import type { Suggestion } from "@/types/api";
-import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
+import type {
+  MissionDetailApiResponse,
+  MissionDetailEmployee,
+  MissionDetailEmployeeWithContact
+} from "@/types/MissionDetailApiResponse";
 import type { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
@@ -110,7 +114,7 @@ export default function MissionDetailPage() {
 
     const items: Array<{
       job: PrismaMissionJob;
-      employee?: (typeof data.employees)[0];
+      employee?: MissionDetailEmployeeWithContact;
       isOccupied: boolean;
     }> = [];
 
@@ -120,7 +124,9 @@ export default function MissionDetailPage() {
       for (let i = 0; i < position.quantity; i++) {
         // Chercher un employé correspondant qui n'est pas encore assigné
         const assignedEmployee = data.employees.find(
-          (emp) =>
+          (
+            emp: MissionDetailEmployee
+          ): emp is MissionDetailEmployeeWithContact =>
             emp.missionJob === position.jobType &&
             emp.status === "accepted" &&
             !items.some((item) => item.employee?.id === emp.id)
