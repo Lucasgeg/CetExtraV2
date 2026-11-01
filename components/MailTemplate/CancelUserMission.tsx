@@ -15,25 +15,32 @@ import {
 } from "@react-email/components";
 
 export type CancelUserMisionProps = {
+  /**
+   * Nature du lien de l'extra avec la mission annulée : `engagement` (extra
+   * engagé, `accepted`) ou `application` (candidature `requested` en attente).
+   * Ne change que la phrase d'annonce.
+   */
+  kind: "engagement" | "application";
   companyName: string;
   missionName: string;
   missionLocation: string;
   missionJob?: string;
   duration?: string; // formated
   missionDate: string;
-  refusalReason?: string; // Motif du refus, optionnel
+  message?: string; // Motif de l’annulation, optionnel
   firstName?: string; // Prénom de l'utilisateur, optionnel
   lastName?: string; // Nom de famille de l'utilisateur, optionnel
 };
 
 export const CancelUserMision = ({
+  kind,
   companyName,
   missionName,
   missionLocation,
   missionJob,
   duration,
   missionDate,
-  refusalReason,
+  message,
   firstName,
   lastName
 }: CancelUserMisionProps) => {
@@ -70,8 +77,9 @@ export const CancelUserMision = ({
                     </Text>
                   )}
                   <Text className="mb-2 text-center text-[#232336] text-base">
-                    Nous tenions à t’informer que ta participation à la mission
-                    suivante a été annulée par l’employeur :
+                    {kind === "application"
+                      ? "Nous tenions à t’informer que la mission suivante, pour laquelle tu avais envoyé ta candidature, a été annulée par l’entreprise :"
+                      : "Nous tenions à t’informer que ta participation à la mission suivante a été annulée par l’employeur :"}
                   </Text>
                   <ul className="mb-4 pl-6 text-[#232336] text-base">
                     <li>
@@ -91,9 +99,9 @@ export const CancelUserMision = ({
                       </li>
                     )}
                   </ul>
-                  {refusalReason && (
+                  {message && (
                     <Text className="mb-4 text-center text-[#F15A29] text-base">
-                      <strong>Motif de l’annulation :</strong> {refusalReason}
+                      <strong>Motif de l’annulation :</strong> {message}
                     </Text>
                   )}
                   <Text className="mb-4 text-center text-[#232336] text-base">
@@ -134,6 +142,7 @@ export default CancelUserMision;
 
 // Exemple d’utilisation :
 CancelUserMision.PreviewProps = {
+  kind: "engagement",
   receiverEmail: "julie.martin@email.com",
   companyName: "Le Traiteur Parisien",
   missionName: "Cocktail dînatoire au Musée d'Orsay",
@@ -141,6 +150,6 @@ CancelUserMision.PreviewProps = {
   missionJob: "Serveur",
   duration: "3 heures",
   missionDate: "2024-05-15T18:00:00Z",
-  refusalReason:
+  message:
     "Le client a annulé la mission en raison d'un imprévu de dernière minute."
 };

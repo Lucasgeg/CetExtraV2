@@ -143,3 +143,70 @@ export const isUnusualHourlyRate = (
   hourlyRate: number,
   hourlyRateMax: number | null
 ): boolean => hourlyRate > getHourlyRateWarningThreshold(hourlyRateMax);
+
+/**
+ * Annulation d'une mission par l'employeur — règles pures, réutilisables par
+ * les futures transitions de statut (mission et engagements).
+ *
+ * | Mission (avant)       | Annulable |
+ * |-----------------------|-----------|
+ * | pending / active      | oui       |
+ * | cancelled / completed | non (409) |
+ *
+ * | Engagement (avant) | Après annulation de la mission | Email |
+ * |--------------------|--------------------------------|-------|
+ * | pending            | cancelled                      | non   |
+ * | requested          | cancelled                      | oui   |
+ * | accepted           | cancelled                      | oui   |
+ * | refused            | inchangé (historique)          | non   |
+ * | cancelled          | inchangé                       | non   |
+ *
+ * Les `Invitation` (extras non inscrits) en attente (`pending`) sont annulées
+ * sans email.
+ */
+
+/** Longueur max du message d'annulation libre envoyé aux extras (non stocké). */
+export const MISSION_CANCELLATION_MESSAGE_MAX_LENGTH = 500;
+
+/** Statuts de mission depuis lesquels l'employeur peut annuler la mission. */
+export const CANCELLABLE_MISSION_STATUSES = [
+  "pending",
+  "active"
+] as const satisfies readonly MissionStatus[];
+
+/** Vrai si une mission dans ce statut peut être annulée. */
+export const isMissionCancellable = (status: MissionStatus): boolean =>
+  (CANCELLABLE_MISSION_STATUSES as readonly MissionStatus[]).includes(status);
+
+/**
+ * Statuts d'engagement (UserMission) passés à `cancelled` par l'annulation de
+ * la mission. `refused` et `cancelled` sont conservés pour l'historique.
+ */
+export const ENGAGEMENT_STATUSES_CANCELLED_WITH_MISSION = [
+  "pending",
+  "requested",
+  "accepted"
+] as const satisfies readonly UserMissionStatus[];
+
+/** Vrai si un engagement dans ce statut est annulé avec sa mission. */
+export const isEngagementCancelledWithMission = (
+  status: UserMissionStatus
+): boolean =>
+  (
+    ENGAGEMENT_STATUSES_CANCELLED_WITH_MISSION as readonly UserMissionStatus[]
+  ).includes(status);
+
+/**
+ * Statuts d'engagement dont l'extra est prévenu par email de l'annulation de
+ * la mission : il s'est engagé (`accepted`) ou a candidaté (`requested`). Les
+ * invitations `pending` sans réponse sont annulées en silence.
+ */
+export const ENGAGEMENT_STATUSES_NOTIFIED_ON_MISSION_CANCELLATION = [
+  "requested",
+  "accepted"
+] as const satisfies readonly UserMissionStatus[];
+
+/** Statut d'attente des `Invitation` (extras non inscrits) annulées avec la mission. */
+export const INVITATION_STATUSES_CANCELLED_WITH_MISSION = [
+  "pending"
+] as const satisfies readonly UserMissionStatus[];

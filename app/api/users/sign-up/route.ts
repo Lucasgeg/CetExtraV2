@@ -137,9 +137,13 @@ const createExtra = async (
         }
 
         // Check if the user have pending invitations
+        // Seules les invitations encore en attente sont transférées : une
+        // invitation annulée (individuellement ou avec sa mission) ne doit pas
+        // renaître en engagement `pending`
         const pendingInvitations = await tx.invitation.findMany({
           where: {
-            email: data.email
+            email: data.email,
+            status: UserMissionStatus.pending
           }
         });
         // Transfer invitation to userMission if any
