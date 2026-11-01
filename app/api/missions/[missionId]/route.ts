@@ -9,7 +9,11 @@ import {
 } from "@/store/types";
 import { ApiError } from "@/types/ApiError";
 import type { CreateMissionFormValues, Suggestion } from "@/types/api";
-import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
+import type {
+  MissionDetailApiResponse,
+  MissionDetailEmployee
+} from "@/types/MissionDetailApiResponse";
+import { isContactVisibleStatus } from "@/utils/contactVisibility.util";
 import {
   convertToDbMissionJob,
   convertToFrontendMissionJob
@@ -21,8 +25,10 @@ import { handlePrismaError } from "@/utils/prismaErrors.util";
  *
  * This endpoint is restricted to users with the `COMPANY` role and to the company that created
  * the mission (ownership check on `mission.creator.user.clerkId`). It retrieves the mission details,
- * including location, required positions, accepted/pending employees (with email and names) and
- * pending invitations, from the database using Prisma.
+ * including location, required positions, accepted/pending employees and pending invitations,
+ * from the database using Prisma. GDPR: the email and user id are only returned for `accepted`
+ * employees; `pending` ones (invited, not yet accepted) only expose first/last name
+ * (cf. `CONTACT_VISIBLE_USER_MISSION_STATUSES`).
  * The response is formatted as a `MissionDetailApiResponse` object.
  *
  * @param req - The incoming Next.js request object.
@@ -134,25 +140,33 @@ export async function GET(
         jobType: position.jobType,
         quantity: position.quantity
       })),
-      employees: mission.employees.map((employee) => ({
-        id: employee.id,
-        missionJob: employee.missionJob,
-        status: employee.status,
-        startDate: employee.missionStartDate.toISOString(),
-        duration:
-          (employee.missionEndDate.getTime() -
-            employee.missionStartDate.getTime()) /
-          (1000 * 60 * 60), // Convert milliseconds to hours
-        hourlyRate: employee.hourlyRate,
-        user: {
-          id: employee.user.id,
-          email: employee.user.email,
-          extra: {
-            firstName: employee.user.extra?.first_name || "",
-            lastName: employee.user.extra?.last_name || ""
-          }
+      employees: mission.employees.map((employee): MissionDetailEmployee => {
+        const base = {
+          id: employee.id,
+          missionJob: employee.missionJob,
+          startDate: employee.missionStartDate.toISOString(),
+          duration:
+            (employee.missionEndDate.getTime() -
+              employee.missionStartDate.getTime()) /
+            (1000 * 60 * 60), // Convert milliseconds to hours
+          hourlyRate: employee.hourlyRate
+        };
+        const extra = {
+          firstName: employee.user.extra?.first_name || "",
+          lastName: employee.user.extra?.last_name || ""
+        };
+        // RGPD : email et id utilisateur seulement pour l'équipe (`accepted`).
+        // Une invitation `pending` n'expose que prénom/nom (objet reconstruit
+        // champ par champ, liste blanche).
+        if (isContactVisibleStatus(employee.status)) {
+          return {
+            ...base,
+            status: employee.status,
+            user: { id: employee.user.id, email: employee.user.email, extra }
+          };
         }
-      })),
+        return { ...base, status: employee.status, user: { extra } };
+      }),
       invitations: [
         ...mission.invitations?.map((invitation) => ({
           id: invitation.id

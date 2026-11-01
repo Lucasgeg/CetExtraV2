@@ -7,22 +7,27 @@ type Location = {
 
 /**
  * Liste blanche des statuts de UserMission pour lesquels l'employeur voit les
- * coordonnées : son équipe (`accepted`) et les invitations qu'il a lui-même
- * envoyées (`pending`). Tout autre statut, y compris un statut futur, est
- * masqué par défaut.
+ * coordonnées (email, téléphone) d'un extra inscrit : uniquement son équipe
+ * (`accepted`). Une invitation envoyée à un extra inscrit (`pending`) ne les
+ * expose pas : sinon une entreprise pourrait inviter n'importe quel extra
+ * trouvé sur la carte et lire ses coordonnées avant qu'il accepte (RGPD). Tout
+ * autre statut, y compris un statut futur, est masqué par défaut.
+ *
+ * Ne concerne pas le modèle `Invitation` (extra non inscrit invité par email) :
+ * son email reste renvoyé, puisque c'est l'entreprise qui l'a saisi.
  */
 export const CONTACT_VISIBLE_USER_MISSION_STATUSES = [
-  "accepted",
-  "pending"
+  "accepted"
 ] as const satisfies readonly UserMissionStatus[];
 
 export type ContactVisibleUserMissionStatus =
   (typeof CONTACT_VISIBLE_USER_MISSION_STATUSES)[number];
 
 /**
- * UserMission sans coordonnées (candidature `requested`, `refused`,
- * `cancelled`…) : ni email, ni téléphone, ni identifiant utilisateur (défense en
- * profondeur : l'id ne doit pas servir de clé vers d'autres endpoints).
+ * UserMission sans coordonnées (invitation `pending`, candidature `requested`,
+ * `refused`, `cancelled`…) : prénom et nom seulement ; ni email, ni téléphone,
+ * ni identifiant utilisateur (défense en profondeur : l'id ne doit pas servir
+ * de clé vers d'autres endpoints).
  */
 export type CompanyMissionEmployeeMasked<TJob = MissionJob> = {
   /** UserMission.id */
@@ -34,7 +39,7 @@ export type CompanyMissionEmployeeMasked<TJob = MissionJob> = {
   };
 };
 
-/** UserMission de l'équipe (`accepted`) ou invitation envoyée (`pending`). */
+/** UserMission de l'équipe (`accepted`), seul statut avec coordonnées. */
 export type CompanyMissionEmployeeWithContact<TJob = MissionJob> = {
   /** UserMission.id */
   id: string;
@@ -55,7 +60,7 @@ export type CompanyMissionEmployeeWithContact<TJob = MissionJob> = {
 /**
  * Élément de `employees` renvoyé par GET /api/companies/[companyId]/missions
  * (`fields=...,employees`). Discriminé par `status` : coordonnées présentes
- * uniquement pour `accepted` et `pending`.
+ * uniquement pour `accepted`.
  */
 export type CompanyMissionEmployee<TJob = MissionJob> =
   | CompanyMissionEmployeeMasked<TJob>

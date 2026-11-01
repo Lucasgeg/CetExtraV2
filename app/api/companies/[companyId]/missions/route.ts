@@ -3,12 +3,12 @@ import { MissionStatus, type UserMissionStatus } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import {
-  CONTACT_VISIBLE_USER_MISSION_STATUSES,
   type CompanyMissionEmployee,
   type CompanyMissionEmployeeMasked,
   type CompanyMissionEmployeeWithContact,
   EnumMissionSelector
 } from "@/types/api";
+import { isContactVisibleStatus } from "@/utils/contactVisibility.util";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 
 // Fonction pour construire l'objet de sélection
@@ -134,17 +134,18 @@ type RawCompanyMissionEmployee = Omit<
 const hasVisibleContact = (
   employee: RawCompanyMissionEmployee
 ): employee is CompanyMissionEmployeeWithContact =>
-  (CONTACT_VISIBLE_USER_MISSION_STATUSES as readonly string[]).includes(
-    employee.status
-  );
+  isContactVisibleStatus(employee.status);
 
 /**
- * Masque les coordonnées par liste blanche de statuts : email, téléphone et
- * identifiant utilisateur ne sont renvoyés que pour l'équipe (`accepted`) et
- * les invitations envoyées par l'entreprise (`pending`). Tout autre statut
- * (`requested`, `refused`, `cancelled`, futur statut) est masqué par défaut.
- * L'identifiant utilisateur est retiré aussi, par défense en profondeur : il
- * ne doit pas servir de clé vers d'autres endpoints. Le
+ * Masque les coordonnées par liste blanche de statuts
+ * (`CONTACT_VISIBLE_USER_MISSION_STATUSES`) : email, téléphone et identifiant
+ * utilisateur ne sont renvoyés que pour l'équipe (`accepted`). Tout autre
+ * statut, y compris une invitation envoyée à un extra inscrit (`pending`), une
+ * candidature (`requested`), `refused`, `cancelled` ou un futur statut, est
+ * masqué par défaut : seuls prénom et nom restent. Les `invitations` (extras
+ * non inscrits) ne passent pas par ici et gardent leur email, saisi par
+ * l'entreprise. L'identifiant utilisateur est retiré aussi, par défense en
+ * profondeur : il ne doit pas servir de clé vers d'autres endpoints. Le
  * `select` Prisma ne pouvant pas dépendre du statut, l'objet masqué est
  * reconstruit champ par champ (un champ ajouté plus tard au `select` ne fuira
  * pas par défaut).

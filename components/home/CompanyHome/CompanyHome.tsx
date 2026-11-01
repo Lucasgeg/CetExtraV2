@@ -20,11 +20,9 @@ import useFetch from "@/hooks/useFetch";
 import useStore from "@/hooks/useStore";
 import type { EnumMissionJob, PrismaMissionJob } from "@/store/types";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
-import type {
-  CompanyMissionEmployee,
-  CompanyMissionEmployeeWithContact
-} from "@/types/api";
+import type { CompanyMissionEmployee } from "@/types/api";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { formatFullName } from "@/utils/string";
 
 type DashboardMission = {
   id: string;
@@ -33,7 +31,7 @@ type DashboardMission = {
   status: "pending" | "active" | "completed" | "cancelled";
   missionLocation?: { fullName?: string };
   requiredPositions?: { id: string; jobType: string; quantity: number }[];
-  // Coordonnées présentes uniquement pour `accepted`/`pending` (masquées côté API)
+  // Coordonnées présentes uniquement pour `accepted` (masquées côté API)
   employees?: CompanyMissionEmployee<keyof typeof EnumMissionJob>[];
   invitations?: {
     id: string;
@@ -170,22 +168,19 @@ const CompanyDashboard = ({
       job: getJobLabel(invitation.missionJob),
       missionName: mission.name
     })),
+    // Extra inscrit invité (`pending`) : pas de coordonnées avant acceptation
+    // (RGPD), on n'affiche que son prénom et son nom
     ...(mission.employees ?? [])
-      .filter(
-        (
-          employee
-        ): employee is CompanyMissionEmployeeWithContact<
-          keyof typeof EnumMissionJob
-        > => employee.status === "pending"
-      )
+      .filter((employee) => employee.status === "pending")
       .map((employee) => {
-        const extra = employee.user?.extra;
-        const fullName = [extra?.first_name, extra?.last_name]
-          .filter(Boolean)
-          .join(" ");
+        const extra = employee.user.extra;
         return {
           key: `employee-${employee.id}`,
-          label: fullName || employee.user?.email || "Extra invité",
+          label: formatFullName(
+            extra?.first_name,
+            extra?.last_name,
+            "Extra invité"
+          ),
           job: getJobLabel(employee.missionJob),
           missionName: mission.name
         };
@@ -199,13 +194,15 @@ const CompanyDashboard = ({
     (mission.employees ?? [])
       .filter((employee) => employee.status === "requested")
       .map((employee) => {
-        const extra = employee.user?.extra;
+        const extra = employee.user.extra;
         return {
           key: `application-${employee.id}`,
           missionId: mission.id,
-          label:
-            [extra?.first_name, extra?.last_name].filter(Boolean).join(" ") ||
-            "Candidat",
+          label: formatFullName(
+            extra?.first_name,
+            extra?.last_name,
+            "Candidat"
+          ),
           job: convertToFrontendMissionJob(
             employee.missionJob as unknown as PrismaMissionJob
           ),

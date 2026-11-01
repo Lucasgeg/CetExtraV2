@@ -23,7 +23,7 @@ import type {
 } from "@/types/GetMissionIdInvites";
 import { formatDateTimeLocal } from "@/utils/date";
 import { getJobLabel } from "@/utils/enum";
-import { capitalizeFirstLetter } from "@/utils/string";
+import { capitalizeFirstLetter, formatFullName } from "@/utils/string";
 import { Button } from "../ui/button";
 import {
   Tooltip,
@@ -212,12 +212,17 @@ export function PendingInvitations({
 
     return (
       <div className="space-y-2">
-        {/* Utilisateurs enregistrés */}
+        {/* Utilisateurs enregistrés : prénom/nom seulement, pas d'email avant
+            acceptation (RGPD) */}
         {invitesData.pendingEmployees.map((employee) => (
           <InvitationCard
             key={employee.id}
             id={employee.id}
-            displayText={`${employee.user.firstName} ${employee.user.lastName}`}
+            displayText={formatFullName(
+              employee.user.firstName,
+              employee.user.lastName,
+              "Extra invité"
+            )}
             profilePictureUrl={employee.user.profilePictureUrl}
             detailsItems={createDetailsItems(employee)}
             onCancel={() => handleCancelInvitation(employee.id, true)}
