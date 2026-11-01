@@ -26,7 +26,6 @@ interface MapWithUserFilterProps {
   showInfo?: boolean;
   autoFetch?: boolean;
   initialRadius?: number;
-  preservePrivacy?: boolean;
 }
 
 interface MapInfoProps {
@@ -34,7 +33,6 @@ interface MapInfoProps {
   totalUsers: number;
   filteredUsers: number;
   loading?: boolean;
-  privacyProtected?: boolean;
 }
 
 const svgMissionMarker = (size = 56) => `
@@ -81,8 +79,7 @@ const MapInfo = ({
   visibleRadius,
   totalUsers,
   filteredUsers,
-  loading = false,
-  privacyProtected = false
+  loading = false
 }: MapInfoProps) => {
   return (
     <div className="absolute top-2 left-2 z-[1000] rounded bg-white p-2 text-sm shadow-md">
@@ -94,11 +91,9 @@ const MapInfo = ({
           <strong>Extras affichés:</strong>{" "}
           {loading ? "..." : `${filteredUsers}/${totalUsers}`}
         </div>
-        {privacyProtected && (
-          <div className="text-blue-600 text-xs">
-            🔒 Positions approximatives (confidentialité)
-          </div>
-        )}
+        <div className="text-blue-600 text-xs">
+          🔒 Positions approximatives (confidentialité)
+        </div>
         {loading && (
           <div className="text-gray-500 text-xs">
             <Loader fullScreen size="xl" />
@@ -204,11 +199,10 @@ export const MapWithUserFilter = ({
   });
 
   // Utilisation du hook pour récupérer les utilisateurs
-  const { users, loading, error, privacyProtected } = useMapUsers({
+  const { users, loading, error } = useMapUsers({
     missionLocation: stableMissionLocation,
     enabled: autoFetch,
-    radius: 50,
-    preservePrivacy: true
+    radius: 50
   });
 
   const handleUsersFiltered = (filteredUsers: UserWithLocation[]) => {
@@ -298,7 +292,6 @@ export const MapWithUserFilter = ({
           totalUsers={users.length}
           filteredUsers={visibleUsers.length}
           loading={loading}
-          privacyProtected={privacyProtected}
         />
       )}
 

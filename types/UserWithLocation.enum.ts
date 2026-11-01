@@ -1,3 +1,8 @@
+/**
+ * Extra renvoyé par `GET /api/users/nearby`. `lat`/`lon` et `distance` sont
+ * toujours calculés sur une position brouillée (grille ~1 km), jamais sur le
+ * domicile exact.
+ */
 export interface UserWithLocation {
   id: string;
   name: string;
@@ -8,7 +13,6 @@ export interface UserWithLocation {
   distance?: number;
   job?: string;
   profileImageUrl?: string;
-  isPrivacyProtected?: boolean;
 }
 
 export interface NearbyUsersResponse {
@@ -16,5 +20,4 @@ export interface NearbyUsersResponse {
   total: number;
   radius: number;
   center: { lat: number; lon: number };
-  privacyProtected?: boolean;
 }
