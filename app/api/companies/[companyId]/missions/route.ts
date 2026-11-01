@@ -143,8 +143,8 @@ const hasVisibleContact = (
  * identifiant utilisateur ne sont renvoyés que pour l'équipe (`accepted`) et
  * les invitations envoyées par l'entreprise (`pending`). Tout autre statut
  * (`requested`, `refused`, `cancelled`, futur statut) est masqué par défaut.
- * L'identifiant utilisateur est retiré aussi : GET /api/users/[userId], ouvert
- * à toute entreprise, permettrait sinon de récupérer les coordonnées. Le
+ * L'identifiant utilisateur est retiré aussi, par défense en profondeur : il
+ * ne doit pas servir de clé vers d'autres endpoints. Le
  * `select` Prisma ne pouvant pas dépendre du statut, l'objet masqué est
  * reconstruit champ par champ (un champ ajouté plus tard au `select` ne fuira
  * pas par défaut).

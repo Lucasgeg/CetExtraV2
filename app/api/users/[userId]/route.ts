@@ -4,13 +4,19 @@ import prisma from "@/app/lib/prisma";
 import type { PrismaMissionJob } from "@/store/types";
 import type { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
 
+/**
+ * Profil public d'un extra, consulté par une entreprise (fiche ouverte depuis
+ * la carte pour l'inviter). Minimisation RGPD : ni email, ni téléphone, ni
+ * date de naissance ; une cible qui n'est pas un extra renvoie 404 (aucune
+ * fiche entreprise exposée). Le `select` ne lit que les champs renvoyés.
+ */
 export async function GET(
   _request: Request,
   props: { params: Promise<{ userId: string }> }
 ): Promise<NextResponse> {
   const { userId: currentUserId, sessionClaims } = await auth();
 
-  if (!currentUserId || sessionClaims.publicMetadata.role !== "company") {
+  if (!currentUserId || sessionClaims?.publicMetadata?.role !== "company") {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
   const { userId } = await props.params;
@@ -18,10 +24,10 @@ export async function GET(
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
-        company: true,
+        description: true,
+        profilePictureUrl: true,
         extra: {
           select: {
-            birthdateIso: true,
             first_name: true,
             last_name: true,
             missionJobs: {
@@ -29,51 +35,27 @@ export async function GET(
                 missionJob: true,
                 experience: true
               }
-            },
-            phone: true
+            }
           }
-        },
-        description: true,
-        profilePictureUrl: true,
-        email: true
+        }
       }
     });
-    if (!user) {
+    if (!user?.extra) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const response: GetUserByIdResponse = {
       id: userId,
-      description: user?.description || undefined,
-      email: user.email,
-      profilePictureUrl: user.profilePictureUrl
-        ? user.profilePictureUrl
-        : undefined,
-      extra: user.extra
-        ? {
-            birthdateIso: user.extra.birthdateIso,
-            firstName: user.extra.first_name,
-            lastName: user.extra.last_name,
-            missionJobs: user.extra.missionJobs.map((job) => ({
-              missionJob: job.missionJob as PrismaMissionJob,
-              experience: job.experience
-            })),
-            phone: user.extra.phone || undefined
-          }
-        : undefined,
-      company: user.company
-        ? {
-            userId: user.company.userId,
-            id: user.company.id,
-            companyName: user.company.company_name,
-            companyPhone: user.company.company_phone
-              ? user.company.company_phone
-              : undefined,
-            contactFirstName: user.company.contactFirstName,
-            contactLastName: user.company.contactLastName,
-            logoId: user.company.logoId ? user.company.logoId : undefined
-          }
-        : undefined
+      description: user.description || undefined,
+      profilePictureUrl: user.profilePictureUrl || undefined,
+      extra: {
+        firstName: user.extra.first_name,
+        lastName: user.extra.last_name,
+        missionJobs: user.extra.missionJobs.map((job) => ({
+          missionJob: job.missionJob as PrismaMissionJob,
+          experience: job.experience
+        }))
+      }
     };
     return NextResponse.json(response);
   } catch (error) {

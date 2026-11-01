@@ -21,8 +21,8 @@ export type ContactVisibleUserMissionStatus =
 
 /**
  * UserMission sans coordonnées (candidature `requested`, `refused`,
- * `cancelled`…) : ni email, ni téléphone, ni identifiant utilisateur (qui
- * permettrait de les obtenir via GET /api/users/[userId]).
+ * `cancelled`…) : ni email, ni téléphone, ni identifiant utilisateur (défense en
+ * profondeur : l'id ne doit pas servir de clé vers d'autres endpoints).
  */
 export type CompanyMissionEmployeeMasked<TJob = MissionJob> = {
   /** UserMission.id */
