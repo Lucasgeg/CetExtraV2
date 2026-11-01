@@ -33,8 +33,15 @@ There is no test runner configured in `package.json` — no unit/integration tes
 - `app/lib/prisma.ts`: singleton Prisma client (Prisma 7, `@prisma/adapter-pg`, configured via `prisma.config.ts`; datasource URL via `DIRECT_URL`).
 - `prisma/schema.prisma`: domain model — `User`, `Extra`, `Company`, `Mission`, `RequiredPosition`, `UserLocation`/`MissionLocation`, `UserMission`, `Invitation`, `BlogPost`/`BlogComment`/`BlogSubscriber`, `ExtraMissionJob`, plus enums (`MissionJob`, `Role`, `UserMissionStatus`, `MissionStatus`, `BusinessSector`, etc.).
 - `store/`: Zustand client state (`useSignUpstore`, `useCurrentUserStore`, `useUserResearchStore`).
-- `hooks/`: shared React hooks (`useFetch`, `useDebounce`, `useMapUser`, `useModalStack`, etc.).
-- `utils/`: cross-cutting helpers — `enum.ts` (mission job mapping), `prismaErrors.util.ts`, `security.ts`/`crypto.ts`, `distance.utils.ts`, `map.util.ts`, `date.ts`.
+- `hooks/`: shared React hooks (`useDebounce`, `useMapUser`, `useModalStack`, etc.).
+- `utils/`: cross-cutting helpers — `enum.ts` (mission job mapping), `prismaErrors.util.ts`, `security.ts`/`crypto.ts`, `distance.utils.ts`, `map.util.ts`, `date.ts`, `apiFetch.ts`/`queryKeys.ts`/`queryClient.ts` (client data fetching, see below).
+
+## Client data fetching
+
+- **TanStack Query v5** for client-side reads of `app/api/**` (routes stay: they also serve a mobile app). `components/Providers/Providers.tsx` mounts the `QueryClientProvider` in `app/(private)/layout.tsx` only (cache dropped when leaving the authenticated area).
+- Fetch with `apiFetch` (`utils/apiFetch.ts`): throws `HttpError { status, message }` on `!response.ok` (not the server-side `ApiError`), forwards `signal`, `json` option for bodies.
+- Query keys only from `utils/queryKeys.ts` (hierarchical: `["missions", id, …]`, `["companies", companyId, "missions", filters]`). Mutations use `useMutation` and invalidate the keys they affect — no `refetch` props or trigger counters.
+- Many components still call `fetch` directly (not migrated yet); mutations there don't invalidate the cache.
 
 ## Conventions
 

@@ -1,4 +1,5 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   BarChart3,
@@ -16,12 +17,13 @@ import Link from "next/link";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/Loader/Loader";
-import useFetch from "@/hooks/useFetch";
 import useStore from "@/hooks/useStore";
 import type { EnumMissionJob, PrismaMissionJob } from "@/store/types";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import type { CompanyMissionEmployee } from "@/types/api";
+import { apiFetch } from "@/utils/apiFetch";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { type CompanyMissionsFilters, queryKeys } from "@/utils/queryKeys";
 import { formatFullName } from "@/utils/string";
 
 type DashboardMission = {
@@ -41,6 +43,41 @@ type DashboardMission = {
 };
 
 type MissionsResponse = { missions: DashboardMission[]; total: number };
+
+const INCOMING_FILTERS = {
+  missionSelector: "incoming",
+  take: 5,
+  sortOrder: "asc",
+  fields:
+    "id,name,missionStartDate,status,missionLocation.fullName,requiredPositions,employees,invitations"
+} satisfies CompanyMissionsFilters;
+
+const PAST_FILTERS = {
+  missionSelector: "past",
+  take: 1,
+  fields: "id"
+} satisfies CompanyMissionsFilters;
+
+const useCompanyMissions = (
+  companyId: string,
+  filters: CompanyMissionsFilters
+) =>
+  useQuery({
+    queryKey: queryKeys.companies.missions(companyId, filters),
+    queryFn: ({ signal }) => {
+      const params = new URLSearchParams(
+        Object.entries(filters).map(([key, value]) => [key, String(value)])
+      );
+      return apiFetch<MissionsResponse>(
+        `/api/companies/${companyId}/missions?${params}`,
+        { signal }
+      );
+    },
+    // Toujours revalidé au montage (le cache s'affiche pendant ce temps) :
+    // création, édition et annulation de mission ne passent pas encore par
+    // TanStack Query et n'invalident donc pas ces listes
+    staleTime: 0
+  });
 
 const formatMissionDate = (date: string) =>
   new Date(date).toLocaleDateString("fr-FR", {
@@ -143,15 +180,14 @@ const CompanyDashboard = ({
   companyId: string;
   firstName?: string;
 }) => {
-  const { data: incoming, loading: incomingLoading } =
-    useFetch<MissionsResponse>(
-      `/api/companies/${companyId}/missions?missionSelector=incoming&take=5&sortOrder=asc&fields=id,name,missionStartDate,status,missionLocation.fullName,requiredPositions,employees,invitations`
-    );
-  const { data: past } = useFetch<MissionsResponse>(
-    `/api/companies/${companyId}/missions?missionSelector=past&take=1&fields=id`
-  );
+  const {
+    data: incoming,
+    isPending: incomingPending,
+    isError: incomingIsError
+  } = useCompanyMissions(companyId, INCOMING_FILTERS);
+  const { data: past } = useCompanyMissions(companyId, PAST_FILTERS);
 
-  if (incomingLoading && !incoming) {
+  if (incomingPending) {
     return (
       <div className="flex h-64 items-center justify-center">
         <Loader size="lg" text="Chargement de votre espace" variant="dots" />
@@ -239,6 +275,16 @@ const CompanyDashboard = ({
           </Link>
         </Button>
       </section>
+
+      {incomingIsError && (
+        <p
+          role="alert"
+          className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 text-sm"
+        >
+          Impossible de charger vos prochaines missions pour le moment, veuillez
+          réessayer.
+        </p>
+      )}
 
       {/* KPIs */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">

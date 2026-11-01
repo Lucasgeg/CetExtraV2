@@ -63,6 +63,20 @@ export const TeamGestionnaryItem = ({
   const [apiError, setApiError] = useState<string | null>(null);
   const { userId: clerkId } = useAuth();
 
+  // `apiError` est partagé par les dialogues : on l'efface à chaque fermeture
+  // pour ne pas réafficher une erreur périmée à la prochaine ouverture
+  const closingClearsApiError =
+    (setOpen: (open: boolean) => void) => (open: boolean) => {
+      setOpen(open);
+      if (!open) setApiError(null);
+    };
+  const handleInviteDialogOpenChange = closingClearsApiError(
+    setIsInviteDialogOpen
+  );
+  const handleInviteWithDetailDialogOpenChange = closingClearsApiError(
+    setIsInviteWithDetailDialogOpen
+  );
+
   const {
     watch,
     control,
@@ -171,6 +185,16 @@ export const TeamGestionnaryItem = ({
       );
     }
   };
+  // Le dialogue de succès s'ouvre sur `rmSubmitted && !apiError` : effacer
+  // l'erreur d'un retrait ÉCHOUÉ doit aussi réinitialiser le formulaire, sinon
+  // fermer le dialogue afficherait « Suppression réussie »
+  const handleRmDialogOpenChange = (open: boolean) => {
+    setRmDialogOpen(open);
+    if (!open && apiError) {
+      setApiError(null);
+      rmReset();
+    }
+  };
   const handleCloseRmDialog = () => {
     setRmDialogOpen(false);
     rmReset();
@@ -203,7 +227,10 @@ export const TeamGestionnaryItem = ({
         <div className="flex">
           {isOccupied && (
             <>
-              <Dialog open={rmDialogOpen} onOpenChange={setRmDialogOpen}>
+              <Dialog
+                open={rmDialogOpen}
+                onOpenChange={handleRmDialogOpenChange}
+              >
                 <DialogTrigger asChild>
                   <Button variant="ghost">
                     <TrashIcon
@@ -252,7 +279,7 @@ export const TeamGestionnaryItem = ({
                     <div className="mt-4 flex justify-end gap-2">
                       <Button
                         variant="outline"
-                        onClick={() => setRmDialogOpen(false)}
+                        onClick={() => handleRmDialogOpenChange(false)}
                         disabled={rmSubmitting}
                         type="button"
                       >
@@ -298,7 +325,7 @@ export const TeamGestionnaryItem = ({
             <>
               <Dialog
                 open={isInviteDialogOpen}
-                onOpenChange={setIsInviteDialogOpen}
+                onOpenChange={handleInviteDialogOpenChange}
               >
                 <DialogTrigger asChild>
                   <Button variant="ghost">
@@ -363,12 +390,12 @@ export const TeamGestionnaryItem = ({
               </Dialog>
               <Dialog
                 open={isInviteWithDetailDialogOpen}
-                onOpenChange={setIsInviteWithDetailDialogOpen}
+                onOpenChange={handleInviteWithDetailDialogOpenChange}
               >
                 <DialogTrigger asChild>
                   <Button
                     variant="ghost"
-                    onClick={() => setIsInviteDialogOpen(false)}
+                    onClick={() => handleInviteDialogOpenChange(false)}
                   >
                     <CalendarDateRangeIcon className="h-4 w-4 text-extra-accent" />
                   </Button>
@@ -495,7 +522,9 @@ export const TeamGestionnaryItem = ({
                         <Button
                           variant="outline"
                           className="flex-1"
-                          onClick={() => setIsInviteWithDetailDialogOpen(false)}
+                          onClick={() =>
+                            handleInviteWithDetailDialogOpenChange(false)
+                          }
                           disabled={isSubmitting}
                           type="button"
                         >
