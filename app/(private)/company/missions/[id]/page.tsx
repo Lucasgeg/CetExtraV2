@@ -322,11 +322,11 @@ export default function MissionDetailPage() {
               </div>
             </div>
           </div>
-          <MissionApplications
-            missionId={id}
-            refetchTrigger={pendingInvitationsRefetchTrigger}
-            onDecision={refetch}
-          />
+          {/* Pas de déclencheur de rechargement : les invitations ne touchent
+              pas aux candidatures, et tout `refetch` de la mission (retrait
+              d'un membre, décision) démonte puis remonte ce composant via
+              l'état `loading`, ce qui recharge déjà les candidatures */}
+          <MissionApplications missionId={id} onDecision={refetch} />
           <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {
               return (

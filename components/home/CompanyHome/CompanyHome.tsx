@@ -20,6 +20,10 @@ import useFetch from "@/hooks/useFetch";
 import useStore from "@/hooks/useStore";
 import type { EnumMissionJob, PrismaMissionJob } from "@/store/types";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
+import type {
+  CompanyMissionEmployee,
+  CompanyMissionEmployeeWithContact
+} from "@/types/api";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
 
 type DashboardMission = {
@@ -29,15 +33,8 @@ type DashboardMission = {
   status: "pending" | "active" | "completed" | "cancelled";
   missionLocation?: { fullName?: string };
   requiredPositions?: { id: string; jobType: string; quantity: number }[];
-  employees?: {
-    id: string;
-    status: "pending" | "requested" | "accepted" | "refused" | "cancelled";
-    missionJob: keyof typeof EnumMissionJob;
-    user?: {
-      email?: string;
-      extra?: { first_name?: string; last_name?: string } | null;
-    };
-  }[];
+  // Coordonnées présentes uniquement pour `accepted`/`pending` (masquées côté API)
+  employees?: CompanyMissionEmployee<keyof typeof EnumMissionJob>[];
   invitations?: {
     id: string;
     email: string;
@@ -174,7 +171,13 @@ const CompanyDashboard = ({
       missionName: mission.name
     })),
     ...(mission.employees ?? [])
-      .filter((employee) => employee.status === "pending")
+      .filter(
+        (
+          employee
+        ): employee is CompanyMissionEmployeeWithContact<
+          keyof typeof EnumMissionJob
+        > => employee.status === "pending"
+      )
       .map((employee) => {
         const extra = employee.user?.extra;
         const fullName = [extra?.first_name, extra?.last_name]

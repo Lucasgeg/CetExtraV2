@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,8 +28,6 @@ import { capitalizeFirstLetter } from "@/utils/string";
 
 type MissionApplicationsProps = {
   missionId: string;
-  /** Incrémenté par la page pour forcer un rechargement. */
-  refetchTrigger: number;
   /** Appelé après une décision enregistrée (rafraîchir l'équipe de la page). */
   onDecision: () => void;
 };
@@ -308,17 +306,12 @@ function DecisionDialog({
  */
 export function MissionApplications({
   missionId,
-  refetchTrigger,
   onDecision
 }: MissionApplicationsProps) {
   const { data, error, refetch } = useFetch<
     GetMissionApplicationsResponse | { message: string }
   >(`/api/missions/${missionId}/applications`);
   const [pending, setPending] = useState<PendingDecision | null>(null);
-
-  useEffect(() => {
-    if (refetchTrigger > 0) refetch();
-  }, [refetchTrigger, refetch]);
 
   if (!data && !error) {
     return <Loader variant="spinner" size="sm" />;

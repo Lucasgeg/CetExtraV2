@@ -242,7 +242,8 @@ export async function PATCH(
     // échec d'envoi ne doit pas pousser l'employeur à rejouer l'action
     try {
       const email = ApplicationDecision(outcome.email.props);
-      await resend.emails.send({
+      // Resend ne lève pas sur une erreur API : il la renvoie dans `error`
+      const { error: sendError } = await resend.emails.send({
         from: "Cet Extra <no-reply@cetextra.fr>",
         to: [outcome.email.to],
         subject:
@@ -252,6 +253,9 @@ export async function PATCH(
         react: email,
         text: await render(email)
       });
+      if (sendError) {
+        console.error("Application decision email error:", sendError);
+      }
     } catch (emailError) {
       console.error("Application decision email error:", emailError);
     }

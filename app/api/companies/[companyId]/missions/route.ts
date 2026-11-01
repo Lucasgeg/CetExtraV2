@@ -1,8 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
-import { MissionStatus } from "@prisma/client";
+import { MissionStatus, type UserMissionStatus } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
-import { EnumMissionSelector } from "@/types/api";
+import {
+  CONTACT_VISIBLE_USER_MISSION_STATUSES,
+  type CompanyMissionEmployee,
+  type CompanyMissionEmployeeMasked,
+  type CompanyMissionEmployeeWithContact,
+  EnumMissionSelector
+} from "@/types/api";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 
 // Fonction pour construire l'objet de sélection
@@ -119,6 +125,50 @@ const buildSelectObject = (fields: string[] | null) => {
   return selectObj;
 };
 
+// Forme brute renvoyée par le `select` de `employees` ci-dessus, avant masquage
+type RawCompanyMissionEmployee = Omit<
+  CompanyMissionEmployeeWithContact,
+  "status"
+> & { status: UserMissionStatus };
+
+const hasVisibleContact = (
+  employee: RawCompanyMissionEmployee
+): employee is CompanyMissionEmployeeWithContact =>
+  (CONTACT_VISIBLE_USER_MISSION_STATUSES as readonly string[]).includes(
+    employee.status
+  );
+
+/**
+ * Masque les coordonnées par liste blanche de statuts : email, téléphone et
+ * identifiant utilisateur ne sont renvoyés que pour l'équipe (`accepted`) et
+ * les invitations envoyées par l'entreprise (`pending`). Tout autre statut
+ * (`requested`, `refused`, `cancelled`, futur statut) est masqué par défaut.
+ * L'identifiant utilisateur est retiré aussi : GET /api/users/[userId], ouvert
+ * à toute entreprise, permettrait sinon de récupérer les coordonnées. Le
+ * `select` Prisma ne pouvant pas dépendre du statut, l'objet masqué est
+ * reconstruit champ par champ (un champ ajouté plus tard au `select` ne fuira
+ * pas par défaut).
+ */
+const maskEmployeeContacts = (
+  employees: RawCompanyMissionEmployee[]
+): CompanyMissionEmployee[] =>
+  employees.map((employee) => {
+    if (hasVisibleContact(employee)) {
+      return employee;
+    }
+    const { extra } = employee.user;
+    return {
+      id: employee.id,
+      missionJob: employee.missionJob,
+      status: employee.status as CompanyMissionEmployeeMasked["status"],
+      user: {
+        extra: extra
+          ? { first_name: extra.first_name, last_name: extra.last_name }
+          : null
+      }
+    };
+  });
+
 /**
  * Handles GET requests to retrieve missions for a specific company.
  *
@@ -233,6 +283,12 @@ export async function GET(
 
       return {
         ...mission,
+        // `select` dynamique (any) : Prisma ne peut pas typer `employees` ici
+        ...(mission.employees && {
+          employees: maskEmployeeContacts(
+            mission.employees as unknown as RawCompanyMissionEmployee[]
+          )
+        }),
         requiredPositions: mission.requiredPositions || []
       };
     });
