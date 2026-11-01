@@ -20,6 +20,8 @@ import type {
 } from "@/types/MissionApplications";
 import {
   type DecisionBlocker,
+  HOURLY_RATE_WARNING_THRESHOLD,
+  isUnusualHourlyRate,
   REFUSAL_REASON_MAX_LENGTH,
   validateAgreedHourlyRate
 } from "@/utils/engagement.util";
@@ -164,6 +166,10 @@ function DecisionDialog({
   );
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Taux au-dessus du seuil pour lequel l'avertissement est affiché : le
+  // prochain envoi de ce même taux vaut confirmation. Remis à null à chaque
+  // modification du taux pour redemander la confirmation.
+  const [warnedRate, setWarnedRate] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const fieldId = useId();
 
@@ -185,6 +191,10 @@ function DecisionDialog({
             ? `Le taux doit être supérieur ou égal au minimum annoncé (${formatRate(hourlyRateMin)}/h).`
             : "Le taux horaire doit être un nombre supérieur à 0."
         );
+        return;
+      }
+      if (isUnusualHourlyRate(hourlyRate) && warnedRate !== hourlyRate) {
+        setWarnedRate(hourlyRate);
         return;
       }
       body = { decision, hourlyRate };
@@ -240,7 +250,10 @@ function DecisionDialog({
                 min={hourlyRateMin ?? 0.01}
                 required
                 value={rate}
-                onChange={(event) => setRate(event.target.value)}
+                onChange={(event) => {
+                  setRate(event.target.value);
+                  setWarnedRate(null);
+                }}
               />
               <span className="text-employer-text-secondary text-xs">
                 {hourlyRateMin !== null && hourlyRateMax !== null
@@ -275,6 +288,17 @@ function DecisionDialog({
               {error}
             </p>
           )}
+          {isAccept && warnedRate !== null && (
+            <p
+              role="alert"
+              className="rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-900 text-sm"
+            >
+              Vous allez accepter à {formatRate(warnedRate)}/h, un taux
+              inhabituellement élevé (au-delà de{" "}
+              {formatRate(HOURLY_RATE_WARNING_THRESHOLD)}/h). Vérifiez qu'il ne
+              s'agit pas d'une faute de frappe. Confirmez-vous ?
+            </p>
+          )}
           <div className="flex justify-end gap-2">
             <Button
               type="button"
@@ -290,7 +314,11 @@ function DecisionDialog({
               variant={isAccept ? "default" : "destructive"}
               disabled={submitting}
             >
-              {isAccept ? "Confirmer l'embauche" : "Refuser la candidature"}
+              {!isAccept
+                ? "Refuser la candidature"
+                : warnedRate !== null
+                  ? `Oui, embaucher à ${formatRate(warnedRate)}/h`
+                  : "Confirmer l'embauche"}
             </Button>
           </div>
         </form>

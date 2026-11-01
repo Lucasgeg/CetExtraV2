@@ -116,3 +116,18 @@ export const validateAgreedHourlyRate = (
 
   return null;
 };
+
+/**
+ * Seuil (€/h) au-delà duquel l'interface demande une confirmation explicite
+ * avant d'envoyer une acceptation.
+ *
+ * Garde-fou UX contre les fautes de frappe (15 saisi 1500), PAS une règle
+ * métier : la règle reste « plancher sans plafond » (voir
+ * `validateAgreedHourlyRate`). Le serveur ne l'applique pas et un taux
+ * supérieur reste valide une fois confirmé.
+ */
+export const HOURLY_RATE_WARNING_THRESHOLD = 50;
+
+/** Vrai si le taux dépasse strictement le seuil d'avertissement. */
+export const isUnusualHourlyRate = (hourlyRate: number): boolean =>
+  hourlyRate > HOURLY_RATE_WARNING_THRESHOLD;
