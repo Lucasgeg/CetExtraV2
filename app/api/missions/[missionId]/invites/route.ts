@@ -17,6 +17,9 @@ import { isEmailValid } from "@/utils/string";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/** Nombre maximal d'ids acceptés par tableau (`employees`, `invites`) dans le DELETE. */
+const MAX_IDS_PER_LIST = 100;
+
 /**
  * @function POST
  * @async
@@ -554,7 +557,8 @@ export async function GET(
  *
  * @param request - The incoming Next.js request object.
  * @param props - An object containing route parameters, specifically the missionId.
- * IDs that do not exist or do not belong to this mission are ignored.
+ * Only pending employees/invites are cancelled: IDs that do not exist, do not belong
+ * to this mission or are no longer pending are ignored.
  *
  * @param request - The incoming Next.js request object.
  * @param props - An object containing route parameters, specifically the missionId.
@@ -563,7 +567,8 @@ export async function GET(
  *   where `cancelled` holds the number of rows actually cancelled.
  *
  * @throws {401} If the user is not authorized or not a company.
- * @throws {400} If the missionId parameter or request body is invalid.
+ * @throws {400} If the missionId parameter or request body is invalid (invalid JSON,
+ *   non-string/empty IDs, or more than 100 IDs per list).
  * @throws {403} If the mission belongs to another company.
  * @throws {404} If the mission is not found.
  * @throws {500} For unexpected errors or database failures.
@@ -592,10 +597,26 @@ export async function DELETE(
     );
   }
 
-  const body = (await request.json()) as InviteListDelete;
-  if (!body || !Array.isArray(body.employees) || !Array.isArray(body.invites)) {
+  let body: InviteListDelete;
+  try {
+    body = (await request.json()) as InviteListDelete;
+  } catch {
     return NextResponse.json(
       { message: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
+  const isValidIdList = (ids: unknown): ids is string[] =>
+    Array.isArray(ids) &&
+    ids.length <= MAX_IDS_PER_LIST &&
+    ids.every((id) => typeof id === "string" && id.length > 0);
+
+  if (!body || !isValidIdList(body.employees) || !isValidIdList(body.invites)) {
+    return NextResponse.json(
+      {
+        message: `Invalid request body: employees and invites must be arrays of at most ${MAX_IDS_PER_LIST} non-empty string IDs`
+      },
       { status: 400 }
     );
   }
@@ -630,7 +651,9 @@ export async function DELETE(
 
   try {
     // Le filtre missionId ferme l'IDOR : un id absent ou rattaché à une autre
-    // mission est simplement ignoré (non compté dans `cancelled`).
+    // mission est simplement ignoré (non compté dans `cancelled`). Le filtre
+    // pending limite la route aux invitations en attente (pas d'annulation
+    // d'un extra accepté ni d'une candidature `requested`).
     const cancelled = await prisma.$transaction(async (tx) => {
       let employees = 0;
       let invites = 0;
@@ -638,6 +661,7 @@ export async function DELETE(
         const { count } = await tx.userMission.updateMany({
           where: {
             missionId,
+            status: "pending",
             id: {
               in: employeeIds
             }
@@ -652,6 +676,7 @@ export async function DELETE(
         const { count } = await tx.invitation.updateMany({
           where: {
             missionId,
+            status: "pending",
             id: {
               in: inviteIds
             }
@@ -673,16 +698,21 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
+    // Le détail (message Prisma, modèle, champs) reste dans les logs serveur,
+    // le client ne reçoit qu'un message générique.
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const { message, status } = handlePrismaError(error, "DELETE invites");
       console.error("Error deleting invites:", message, status);
-      return NextResponse.json({ message }, { status });
-    } else {
       return NextResponse.json(
-        { message: error instanceof Error ? error.message : "Unknown error" },
-        { status: 500 }
+        { message: "Failed to delete invites" },
+        { status }
       );
     }
+    console.error("Error deleting invites:", error);
+    return NextResponse.json(
+      { message: "Failed to delete invites" },
+      { status: 500 }
+    );
   }
 }
 
