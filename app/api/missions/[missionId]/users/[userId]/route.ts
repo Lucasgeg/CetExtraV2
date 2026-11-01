@@ -165,6 +165,7 @@ export async function PATCH(
             );
 
             const cancelUserMissionEmail = CancelUserMision({
+              kind: "engagement",
               companyName: mission.creator.company_name,
               missionName: mission.name,
               missionLocation:
@@ -172,7 +173,7 @@ export async function PATCH(
               missionJob: getMissionJobValue(missionJob),
               duration,
               missionDate,
-              refusalReason: message
+              message
             });
 
             try {
