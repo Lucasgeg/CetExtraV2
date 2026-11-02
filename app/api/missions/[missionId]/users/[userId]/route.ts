@@ -24,7 +24,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * front) est ignoré : le poste de l'email est lu sur l'engagement en base.
  */
 const parseBody = (body: unknown): { message: string | undefined } | string => {
-  if (typeof body !== "object" || body === null) return "Invalid body";
+  if (typeof body !== "object" || body === null) {
+    return "Corps de requête invalide";
+  }
   const { message } = body as Record<string, unknown>;
 
   if (
@@ -32,11 +34,11 @@ const parseBody = (body: unknown): { message: string | undefined } | string => {
     message !== null &&
     typeof message !== "string"
   ) {
-    return "message must be a string";
+    return "Le motif doit être une chaîne de caractères";
   }
   const trimmed = typeof message === "string" ? message.trim() : "";
   if (trimmed.length > MISSION_CANCELLATION_MESSAGE_MAX_LENGTH) {
-    return `message must be at most ${MISSION_CANCELLATION_MESSAGE_MAX_LENGTH} characters`;
+    return `Le motif ne doit pas dépasser ${MISSION_CANCELLATION_MESSAGE_MAX_LENGTH} caractères`;
   }
   return { message: trimmed || undefined };
 };
@@ -70,16 +72,20 @@ type RemovalOutcome =
  *   l'extra.
  * - Body : `{ message?, missionJob? }` — motif optionnel (≤ 500 caractères,
  *   transmis par email, non stocké) ; `missionJob` est ignoré.
- * - Ordre des contrôles : 401 → 400 → 404 (mission absente, ou engagement
- *   absent sur cette mission) → 403 (mission d'une autre entreprise) → 409
+ * - Ordre des contrôles : 401 → 400 → 404 (mission absente) → 403 (mission
+ *   d'une autre entreprise) → 404 (engagement absent sur cette mission) → 409
  *   (mission annulée ou terminée — `getMissionRemovalBlocker` ; une mission
  *   déjà commencée reste permise) → 409
  *   (engagement non `accepted` : une invitation `pending` s'annule via les
  *   routes d'invitation, une candidature `requested` se refuse via la décision
  *   sur candidature — `canCompanyRemoveEngagement`, utils/engagement.util.ts).
- * - Concurrence : la mission est verrouillée `FOR SHARE` (contre une
- *   annulation simultanée), puis la ligne UserMission `FOR UPDATE`, avant la
- *   lecture des statuts.
+ *   La propriété est vérifiée avant l'engagement : une autre entreprise reçoit
+ *   toujours 403 et ne peut pas déduire qui est engagé sur la mission.
+ * - Concurrence : propriété vérifiée sans verrou (le créateur ne change pas),
+ *   puis la mission est verrouillée `FOR SHARE` (contre une annulation
+ *   simultanée) et la ligne UserMission `FOR UPDATE`, avant la lecture des
+ *   statuts.
+ * - Messages d'erreur en français : le front les affiche tels quels.
  * - L'email est envoyé APRÈS commit et n'est pas bloquant : le retrait
  *   enregistré fait foi, un échec d'envoi est seulement journalisé.
  *
@@ -93,13 +99,13 @@ export async function PATCH(
   try {
     const { userId: clerkId, sessionClaims } = await auth();
     if (!clerkId || sessionClaims?.publicMetadata?.role !== EnumRole.COMPANY) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
     }
 
     const { missionId, userId } = await props.params;
     if (!missionId || !userId) {
       return NextResponse.json(
-        { message: "Mission ID and User ID are required" },
+        { message: "Identifiants de mission et d'extra requis" },
         { status: 400 }
       );
     }
@@ -111,6 +117,30 @@ export async function PATCH(
 
     const outcome = await prisma.$transaction(
       async (tx): Promise<RemovalOutcome> => {
+        // Propriété AVANT l'existence de l'engagement et avant tout verrou :
+        // une autre entreprise ne doit ni sonder les engagements d'une mission
+        // (403 dans tous les cas), ni verrouiller ses lignes. Le créateur
+        // d'une mission ne change jamais : cette lecture hors verrou suffit
+        const owner = await tx.mission.findUnique({
+          where: { id: missionId },
+          select: {
+            creator: { select: { user: { select: { clerkId: true } } } }
+          }
+        });
+
+        if (!owner) {
+          return { ok: false, status: 404, message: "Mission introuvable" };
+        }
+
+        if (owner.creator.user.clerkId !== clerkId) {
+          return {
+            ok: false,
+            status: 403,
+            message:
+              "Vous n'êtes pas autorisé à modifier l'équipe de cette mission"
+          };
+        }
+
         // Verrou partagé de la mission puis verrou de l'engagement : même
         // ordre que l'annulation de mission (Mission FOR UPDATE puis
         // engagements), le statut de la mission lu ici reste donc valable
@@ -118,24 +148,15 @@ export async function PATCH(
         await tx.$queryRaw`
           SELECT id FROM "Mission" WHERE id = ${missionId} FOR SHARE`;
 
-        const mission = await tx.mission.findUnique({
+        const mission = await tx.mission.findUniqueOrThrow({
           where: { id: missionId },
           select: {
             name: true,
             status: true,
             missionLocation: { select: { fullName: true } },
-            creator: {
-              select: {
-                company_name: true,
-                user: { select: { clerkId: true } }
-              }
-            }
+            creator: { select: { company_name: true } }
           }
         });
-
-        if (!mission) {
-          return { ok: false, status: 404, message: "Mission not found" };
-        }
 
         // Verrou de l'engagement : un retrait et une autre transition
         // simultanés (double clic, annulation de la mission) s'exécutent
@@ -166,15 +187,7 @@ export async function PATCH(
           return {
             ok: false,
             status: 404,
-            message: "User not found in this mission"
-          };
-        }
-
-        if (mission.creator.user.clerkId !== clerkId) {
-          return {
-            ok: false,
-            status: 403,
-            message: "Unauthorized to remove user from this mission"
+            message: "Cet extra n'est pas lié à cette mission"
           };
         }
 
@@ -269,8 +282,8 @@ export async function PATCH(
       {
         message:
           status === 503
-            ? "Database connection failed"
-            : "Failed to remove user from mission"
+            ? "Service momentanément indisponible, réessayez plus tard"
+            : "Impossible de retirer l'extra de la mission"
       },
       { status: status === 503 ? 503 : 500 }
     );

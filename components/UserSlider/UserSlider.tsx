@@ -152,7 +152,9 @@ export const UserSlider = ({
       }
     });
   const emailWarning =
-    invite.data && !invite.data.emailSent ? invite.data.message : null;
+    invite.data && !invite.data.emailSent
+      ? `${invite.data.message}. Vous pourrez renvoyer l'invitation plus tard en l'annulant puis en invitant à nouveau.`
+      : null;
 
   return (
     <Slider {...sliderProps}>

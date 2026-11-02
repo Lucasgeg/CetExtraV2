@@ -7,19 +7,19 @@ import prisma from "@/app/lib/prisma";
 import MissionInvitation, {
   type MissionInvitationProps
 } from "@/components/MailTemplate/MissionInvitation";
-import { EnumRole } from "@/store/types";
+import { EnumRole, type PrismaMissionJob } from "@/store/types";
 import type { GetMissionInvitesResponse } from "@/types/GetMissionIdInvites";
 import type { InviteListDelete } from "@/types/InviteListDelete";
-import type {
-  MissionInviteBody,
-  MissionInviteResponse
-} from "@/types/MissionInvite";
+import type { MissionInviteResponse } from "@/types/MissionInvite";
 import {
   getInviteBlocker,
   getMissionInviteBlocker,
   type InviteBlocker
 } from "@/utils/engagement.util";
-import { convertToDbMissionJob } from "@/utils/enum";
+import {
+  convertToDbMissionJob,
+  convertToFrontendMissionJob
+} from "@/utils/enum";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 import { isEmailValid } from "@/utils/string";
 
@@ -39,6 +39,100 @@ type InviteFields = {
 type InviteOutcome =
   | { ok: false; status: number; message: string }
   | { ok: true; email: { to: string; props: MissionInvitationProps } };
+
+type ParsedInvite = {
+  expeditorUserId: string;
+  /** User.id de l'extra inscrit, si l'invitation vise un identifiant. */
+  userId: string | undefined;
+  /** Email normalisé (trim + minuscules), si l'invitation vise un email. */
+  receiverEmail: string | undefined;
+  missionJob: MissionJob;
+  startDate: Date;
+  endDate: Date;
+};
+
+/** Normalisation des emails d'invitation : écriture, verrou et recherche. */
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === "string" && value.trim().length > 0;
+
+/**
+ * Valide le corps `MissionInviteBody` sans faire confiance au typage : renvoie
+ * les champs prêts à l'emploi, ou le message (400) du premier champ invalide.
+ */
+const parseInviteBody = (body: unknown): ParsedInvite | string => {
+  if (typeof body !== "object" || body === null) {
+    return "Format de données invalide";
+  }
+  const {
+    expeditorUserId,
+    receiverEmail,
+    userId,
+    missionJob,
+    missionStartDate,
+    missionEndDate
+  } = body as Record<string, unknown>;
+
+  if (!isNonEmptyString(expeditorUserId) || !isNonEmptyString(missionJob)) {
+    return "Tous les champs obligatoires doivent être renseignés";
+  }
+
+  if (
+    (receiverEmail !== undefined &&
+      receiverEmail !== null &&
+      typeof receiverEmail !== "string") ||
+    (userId !== undefined && userId !== null && typeof userId !== "string")
+  ) {
+    return "Format de données invalide";
+  }
+
+  const email = isNonEmptyString(receiverEmail)
+    ? normalizeEmail(receiverEmail)
+    : undefined;
+  if (email !== undefined && !isEmailValid(email)) {
+    return "L'adresse email n'est pas valide";
+  }
+
+  const targetUserId = isNonEmptyString(userId) ? userId : undefined;
+  if (!targetUserId && !email) {
+    return "Vous devez fournir soit un email soit un identifiant d'utilisateur";
+  }
+
+  if (
+    !isNonEmptyString(missionStartDate) ||
+    !isNonEmptyString(missionEndDate)
+  ) {
+    return "Les dates de début et de fin sont obligatoires";
+  }
+  const startDate = new Date(missionStartDate);
+  const endDate = new Date(missionEndDate);
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    return "Les dates de début et de fin ne sont pas valides";
+  }
+  if (startDate < new Date()) {
+    return "La date de début doit être dans le futur";
+  }
+  if (startDate >= endDate) {
+    return "La date de début doit être antérieure à la date de fin";
+  }
+
+  let dbMissionJob: MissionJob;
+  try {
+    dbMissionJob = convertToDbMissionJob(missionJob);
+  } catch {
+    return "Poste inconnu";
+  }
+
+  return {
+    expeditorUserId,
+    userId: targetUserId,
+    receiverEmail: email,
+    missionJob: dbMissionJob,
+    startDate,
+    endDate
+  };
+};
 
 /**
  * @function POST
@@ -88,71 +182,26 @@ export async function POST(
   const { missionId } = await props.params;
 
   try {
+    const parsed = parseInviteBody(await req.json().catch(() => null));
+    if (typeof parsed === "string" || !missionId) {
+      return NextResponse.json(
+        {
+          message:
+            typeof parsed === "string"
+              ? parsed
+              : "Tous les champs obligatoires doivent être renseignés"
+        },
+        { status: 400 }
+      );
+    }
     const {
       expeditorUserId,
       receiverEmail,
       userId,
-      missionEndDate,
       missionJob,
-      missionStartDate
-    } = (await req.json()) as MissionInviteBody;
-
-    // Validation des données
-    if (!missionId || !expeditorUserId || !missionJob) {
-      return new Response(
-        JSON.stringify({
-          message: "Tous les champs obligatoires doivent être renseignés"
-        }),
-        { status: 400 }
-      );
-    }
-
-    if (receiverEmail && !isEmailValid(receiverEmail)) {
-      return new Response(
-        JSON.stringify({ message: "L'adresse email n'est pas valide" }),
-        { status: 400 }
-      );
-    }
-
-    if (!missionStartDate || !missionEndDate) {
-      return new Response(
-        JSON.stringify({
-          message: "Les dates de début et de fin sont obligatoires"
-        }),
-        { status: 400 }
-      );
-    }
-
-    // Validation des dates
-    const startDate = new Date(missionStartDate);
-    const endDate = new Date(missionEndDate);
-    const now = new Date();
-
-    if (!userId && !receiverEmail) {
-      return new Response(
-        JSON.stringify({
-          message:
-            "Vous devez fournir soit un email soit un identifiant d'utilisateur"
-        }),
-        { status: 400 }
-      );
-    }
-
-    if (startDate < now) {
-      return new Response(
-        JSON.stringify({ message: "La date de début doit être dans le futur" }),
-        { status: 400 }
-      );
-    }
-
-    if (startDate >= endDate) {
-      return new Response(
-        JSON.stringify({
-          message: "La date de début doit être antérieure à la date de fin"
-        }),
-        { status: 400 }
-      );
-    }
+      startDate,
+      endDate
+    } = parsed;
 
     // Validation de l'autorisation
     if (
@@ -178,20 +227,16 @@ export async function POST(
 
     const invite: InviteFields = {
       missionId,
-      missionJob: convertToDbMissionJob(missionJob),
+      missionJob,
       missionStartDate: startDate,
       missionEndDate: endDate
     };
 
     const outcome = await prisma.$transaction(
       async (tx): Promise<InviteOutcome> => {
-        // Verrou partagé de la mission, pris avant celui de l'engagement (même
-        // ordre que l'annulation de mission, qui la verrouille FOR UPDATE) :
-        // une annulation simultanée attend la fin de l'invitation, ou
-        // l'invitation lit le statut `cancelled` déjà commité
-        await tx.$queryRaw`
-          SELECT id FROM "Mission" WHERE id = ${missionId} FOR SHARE`;
-
+        // Appartenance vérifiée AVANT tout verrou : on ne verrouille pas les
+        // lignes d'une autre entreprise (le créateur d'une mission ne change
+        // jamais, cette lecture hors verrou suffit)
         const user = await tx.user.findUnique({
           where: { clerkId: expeditorUserId },
           select: {
@@ -203,8 +248,6 @@ export async function POST(
                   },
                   select: {
                     name: true,
-                    status: true,
-                    missionStartDate: true,
                     missionLocation: {
                       select: {
                         fullName: true
@@ -228,11 +271,23 @@ export async function POST(
           };
         }
 
+        // Verrou partagé de la mission, pris avant celui de l'engagement (même
+        // ordre que l'annulation de mission, qui la verrouille FOR UPDATE) :
+        // une annulation simultanée attend la fin de l'invitation, ou
+        // l'invitation lit le statut `cancelled` déjà commité. Statut et date
+        // relus sous ce verrou
+        await tx.$queryRaw`
+          SELECT id FROM "Mission" WHERE id = ${missionId} FOR SHARE`;
+        const missionState = await tx.mission.findUniqueOrThrow({
+          where: { id: missionId },
+          select: { status: true, missionStartDate: true }
+        });
+
         // Contrôlé après l'appartenance et les vérifications de l'invité
         // (409 après 403/404), avant le statut de l'engagement
         const missionBlocker = getMissionInviteBlocker({
-          missionStatus: mission.status,
-          missionStartDate: mission.missionStartDate,
+          missionStatus: missionState.status,
+          missionStartDate: missionState.missionStartDate,
           now: new Date()
         });
 
@@ -301,10 +356,7 @@ export async function POST(
           // d'entreprise inscrite garde l'`Invitation` simple.
           const registeredExtra = await tx.user.findFirst({
             where: {
-              email: {
-                equals: receiverEmail.trim().toLowerCase(),
-                mode: "insensitive"
-              },
+              email: { equals: receiverEmail, mode: "insensitive" },
               role: "extra"
             },
             select: { id: true, email: true }
@@ -328,7 +380,9 @@ export async function POST(
               companyName: user.company.company_name,
               isAllreadyRegistered: isRegisteredExtra,
               duration: endDate.getTime() - startDate.getTime(),
-              missionJob,
+              missionJob: convertToFrontendMissionJob(
+                missionJob as PrismaMissionJob
+              ),
               missionDate: startDate.toISOString(),
               missionName: mission.name,
               missionLocation:
@@ -795,11 +849,17 @@ const inviteRegisteredExtra = async (
 };
 
 /**
- * Invite un extra non inscrit par email (`Invitation`). Réinviter un email est
- * un acte explicite : l'upsert est conservé, mais une invitation encore
- * `pending` n'est pas écrasée (même règle `getInviteBlocker` ; une invitation
- * `cancelled` repasse en `pending`). Verrou de la ligne existante comme pour
- * `inviteRegisteredExtra`.
+ * Invite un extra non inscrit par email (`Invitation`), selon la même règle
+ * `getInviteBlocker` : une invitation encore `pending` n'est pas écrasée, une
+ * invitation `cancelled` repasse en `pending`.
+ *
+ * `email` est déjà normalisé (trim + minuscules) ; les lignes historiques non
+ * normalisées sont retrouvées en comparant `lower(trim(email))`, et leur email
+ * est normalisé à la réinvitation. Comme pour `inviteRegisteredExtra` : la
+ * ligne existante est verrouillée avant la lecture de son statut ; sans ligne
+ * existante, rien n'est verrouillé et une invitation concurrente (double clic)
+ * fait échouer la création sur l'unicité [email, missionId] (P2002 → 409 chez
+ * l'appelant) : un seul 201, un seul email.
  *
  * @returns la raison du refus, ou null si l'email a été (ré)invité.
  */
@@ -808,20 +868,19 @@ const inviteUnregisteredExtra = async (
   invite: InviteFields,
   email: string
 ): Promise<InviteBlocker | null> => {
-  await tx.$queryRaw`
-    SELECT id FROM "Invitation"
-    WHERE email = ${email} AND "missionId" = ${invite.missionId}
+  const [existing] = await tx.$queryRaw<
+    { id: string; status: UserMissionStatus }[]
+  >`
+    SELECT id, status FROM "Invitation"
+    WHERE lower(trim(email)) = ${email} AND "missionId" = ${invite.missionId}
+    ORDER BY "createdAt"
     FOR UPDATE`;
-
-  const existing = await tx.invitation.findUnique({
-    where: { email_missionId: { email, missionId: invite.missionId } },
-    select: { status: true }
-  });
 
   const blocker = getInviteBlocker(existing?.status ?? null);
   if (blocker) return blocker;
 
   const data = {
+    email,
     missionStartDate: invite.missionStartDate,
     missionEndDate: invite.missionEndDate,
     missionJob: invite.missionJob,
@@ -829,12 +888,16 @@ const inviteUnregisteredExtra = async (
     status: UserMissionStatus.pending
   };
 
-  const invitation = await tx.invitation.upsert({
-    where: { email_missionId: { email, missionId: invite.missionId } },
-    create: { ...data, email, missionId: invite.missionId },
-    update: data,
-    select: { id: true }
-  });
+  const invitation = existing
+    ? await tx.invitation.update({
+        where: { id: existing.id },
+        data,
+        select: { id: true }
+      })
+    : await tx.invitation.create({
+        data: { ...data, missionId: invite.missionId },
+        select: { id: true }
+      });
   // Id seulement : l'email saisi par l'entreprise ne va pas dans les logs
   console.info("User invitation created:", invitation.id);
   return null;
