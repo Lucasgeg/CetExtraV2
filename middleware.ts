@@ -28,7 +28,8 @@ const protectedRoutes = [
   "/api/missions(.*)",
   "/api/users/nearby(.*)", // API pour récupérer les utilisateurs
   "/api/blog/send-mail(.*)", // API pour envoyer des emails
-  "/api/companies(.*)" // API pour les entreprises
+  "/api/companies(.*)", // API pour les entreprises
+  "/api/me(.*)" // API de l'utilisateur connecté (rôle vérifié dans le handler)
 ];
 
 // Détection de l'environnement

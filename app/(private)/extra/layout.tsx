@@ -11,7 +11,7 @@ export default function ExtraLayout({
     <div className="mx-auto flex h-full w-full flex-col sm:px-6">
       {/* Header fixe */}
       <header className="relative flex h-1/6 items-center py-2">
-        <LayoutTitle />
+        <LayoutTitle homeHref="/extra" />
         <div className="ml-auto flex gap-1">
           <UserButton
             appearance={{
