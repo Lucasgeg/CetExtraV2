@@ -16,6 +16,16 @@ export interface MissionDetailApiResponse {
   creatorId: string;
   missionLocationId: string | null;
   status: MissionStatus;
+  /** Intention de diffusion publique (pas la visibilité effective, ADR 0002). */
+  isPublic: boolean;
+  /** Fourchette indicative (€/h) : les deux ou aucune (null). */
+  hourlyRateMin: number | null;
+  hourlyRateMax: number | null;
+  /**
+   * Au moins un engagement `requested`/`accepted` : le minimum de la
+   * fourchette ne peut qu'augmenter (`getRateFloorChangeBlocker`).
+   */
+  hasActiveEngagements: boolean;
 
   missionLocation: {
     id: string;

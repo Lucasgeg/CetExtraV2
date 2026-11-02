@@ -160,6 +160,18 @@ export type CreateMissionFormValues = {
   location: Suggestion;
   extraJobOptions: EnumMissionJob[];
   teamCounts: TeamCount;
+  /**
+   * Intention de diffusion publique (opt-out, `true` par défaut en base) ;
+   * absent = défaut DB à la création, inchangé à l'édition. Voir ADR 0002.
+   */
+  isPublic?: boolean;
+  /**
+   * Fourchette de taux horaire indicative (€/h) : les deux bornes ou aucune
+   * (`null`), min ≤ max — voir `validateHourlyRateRange`. Absentes = défaut
+   * (aucune) à la création, inchangées à l'édition.
+   */
+  hourlyRateMin?: number | null;
+  hourlyRateMax?: number | null;
 };
 
 export enum EnumMissionSelector {

@@ -10,6 +10,7 @@ import { MapWithUserFilter } from "@/components/MapWithUserFilter";
 import { MissionApplications } from "@/components/MissionApplications/MissionApplications";
 import MissionForm from "@/components/MissionForm/MissionForm";
 import { PendingInvitations } from "@/components/PendingInvitations/PendingInvitations";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -38,6 +39,7 @@ import type { UserWithLocation } from "@/types/UserWithLocation.enum";
 import { apiFetch, isNotFoundOrForbidden } from "@/utils/apiFetch";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { formatHourlyRateRange } from "@/utils/missionPublication.util";
 import { queryKeys } from "@/utils/queryKeys";
 import { capitalizeFirstLetter } from "@/utils/string";
 
@@ -184,6 +186,13 @@ export default function MissionDetailPage() {
       value: formatDateTimeLocal(data.missionEndDate)
     }
   ];
+  const hourlyRateRange = formatHourlyRateRange(
+    data.hourlyRateMin,
+    data.hourlyRateMax
+  );
+  if (hourlyRateRange) {
+    items.push({ label: "Taux horaire indicatif", value: hourlyRateRange });
+  }
 
   const points: MissionPoint[] = [
     {
@@ -226,9 +235,28 @@ export default function MissionDetailPage() {
       <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
         <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
           <div className="flex flex-1 flex-col p-4">
-            <h2 className="font-bold text-employer-primary text-lg">
-              Détails de la mission
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-bold text-employer-primary text-lg">
+                Détails de la mission
+              </h2>
+              {/* Intention seulement (ADR 0002) : une mission publique
+                  complète, commencée ou sans adresse n'est pas listée */}
+              <Badge
+                variant="outline"
+                title={
+                  data.isPublic
+                    ? "Proposée sur le site public tant qu'elle a une adresse, n'a pas commencé et qu'il reste des postes à pourvoir"
+                    : "Retirée du site public : elle n'apparaît pas dans les annonces"
+                }
+                className={
+                  data.isPublic
+                    ? "border-green-700 text-green-700"
+                    : "text-muted-foreground"
+                }
+              >
+                {data.isPublic ? "Publique" : "Privée"}
+              </Badge>
+            </div>
             <DetailsList items={items} />
             <div className="flex flex-1 flex-col">
               <MapContainerComponent
