@@ -18,6 +18,11 @@ import {
   convertToDbMissionJob,
   convertToFrontendMissionJob
 } from "@/utils/enum";
+import {
+  getRateFloorChangeBlocker,
+  parsePublicationFields,
+  RATE_FLOOR_ENGAGEMENT_STATUSES
+} from "@/utils/missionPublication.util";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 
 /**
@@ -101,6 +106,14 @@ export async function GET(
           select: {
             id: true
           }
+        },
+        // Plancher de taux figé si des engagements actifs existent
+        _count: {
+          select: {
+            employees: {
+              where: { status: { in: [...RATE_FLOOR_ENGAGEMENT_STATUSES] } }
+            }
+          }
         }
       }
     });
@@ -127,6 +140,10 @@ export async function GET(
       creatorId: mission.creatorId,
       missionLocationId: mission.missionLocationId,
       status: mission.status,
+      isPublic: mission.isPublic,
+      hourlyRateMin: mission.hourlyRateMin,
+      hourlyRateMax: mission.hourlyRateMax,
+      hasActiveEngagements: mission._count.employees > 0,
       missionLocation: mission.missionLocation
         ? {
             id: mission.missionLocation.id,
@@ -196,6 +213,10 @@ export async function GET(
  * Elle empêche la modification de certaines propriétés (localisation, dates, types de postes) si des employés ont déjà accepté ou sont en attente sur la mission.
  * Les postes acceptés ne peuvent pas être supprimés ou réduits en dessous du nombre d'employés acceptés.
  * Les informations de la mission et ses postes requis sont mises à jour dans une transaction Prisma.
+ * Champs de publication optionnels (`isPublic`, `hourlyRateMin`/`hourlyRateMax`) : absents = inchangés,
+ * validés par `parsePublicationFields` (400 avec message en français si invalides). Si des
+ * engagements `requested`/`accepted` existent, le minimum ne peut qu'augmenter (409 sinon,
+ * `getRateFloorChangeBlocker`).
  *
  * @param req - La requête HTTP contenant les nouvelles valeurs du formulaire de mission.
  * @param props - Les paramètres de la route, incluant l'identifiant de la mission.
@@ -258,6 +279,14 @@ export async function PUT(
     extraJobOptions
   } = body as CreateMissionFormValues;
 
+  // Champs de publication : validés avant tout accès DB (400 propre, pas de
+  // throw ApiError). Absents = inchangés. `isPublic: true` est accepté tel
+  // quel : l'adresse est exigée juste en dessous (ADR 0002)
+  const publication = parsePublicationFields(body);
+  if (publication.error !== null) {
+    return NextResponse.json({ message: publication.error }, { status: 400 });
+  }
+
   if (!location?.lat || !location.lon || !location.display_name) {
     return NextResponse.json(
       { message: "Location data is incomplete" },
@@ -277,6 +306,23 @@ export async function PUT(
 
   if (!oldMission || oldMission.creatorId !== creator.company.id) {
     return NextResponse.json({ message: "Mission not found" }, { status: 404 });
+  }
+
+  // Plancher « hausse seulement » tant que des engagements sont actifs
+  // (seulement si la fourchette est fournie : absente = inchangée)
+  if (publication.data.hourlyRateMin !== undefined) {
+    const floorBlocker = getRateFloorChangeBlocker(
+      oldMission.hourlyRateMin,
+      publication.data.hourlyRateMin,
+      oldMission.employees.some((emp) =>
+        (RATE_FLOOR_ENGAGEMENT_STATUSES as readonly string[]).includes(
+          emp.status
+        )
+      )
+    );
+    if (floorBlocker) {
+      return NextResponse.json({ message: floorBlocker }, { status: 409 });
+    }
   }
 
   if (oldMission.status !== "pending") {
@@ -384,7 +430,8 @@ export async function PUT(
           missionStartDate: new Date(missionStartDate),
           missionEndDate: new Date(missionEndDate),
           status: oldMission.status,
-          missionLocationId: missionLocation.id
+          missionLocationId: missionLocation.id,
+          ...publication.data
         }
       });
 

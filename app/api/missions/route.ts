@@ -6,6 +6,7 @@ import prisma from "@/app/lib/prisma";
 import type { EnumMissionJob } from "@/store/types";
 import type { CreateMissionFormValues } from "@/types/api";
 import { convertToDbMissionJob } from "@/utils/enum";
+import { parsePublicationFields } from "@/utils/missionPublication.util";
 
 /**
  * Handles the creation of a new mission.
@@ -26,10 +27,13 @@ import { convertToDbMissionJob } from "@/utils/enum";
  * - `missionStartDate`: Start date of the mission (string or date).
  * - `teamCounts`: Object mapping job types to required quantities.
  * - `additionalInfo`: (optional) Additional information about the mission.
+ * - `isPublic`: (optional) boolean, public listing intent (opt-out, DB default true).
+ * - `hourlyRateMin` / `hourlyRateMax`: (optional) indicative hourly rate range
+ *   (€/h): both or none, each > 0, min <= max (`validateHourlyRateRange`).
  *
  * Responses:
  * - 201: Mission created successfully. Returns the created mission object.
- * - 400: Missing required fields.
+ * - 400: Missing required fields, or invalid publication fields (French message).
  * - 401: Unauthorized (missing or invalid session/role).
  * - 404: Creator (company) not found.
  * - 500: Error creating mission (with error message).
@@ -50,6 +54,7 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" }
     });
   }
+  const body = await req.json();
   const {
     location,
     missionDescription,
@@ -58,7 +63,7 @@ export async function POST(req: NextRequest) {
     missionStartDate,
     teamCounts,
     additionalInfo
-  } = (await req.json()) as CreateMissionFormValues;
+  } = body as CreateMissionFormValues;
 
   if (!missionName || !missionStartDate || !missionEndDate || !location) {
     return new Response(
@@ -68,6 +73,14 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" }
       }
     );
+  }
+
+  // Validé avant tout accès DB. `isPublic: true` est accepté tel quel :
+  // l'adresse est obligatoire ci-dessus, et le prédicat de visibilité exclut
+  // de toute façon une mission non localisée (ADR 0002)
+  const publication = parsePublicationFields(body);
+  if (publication.error !== null) {
+    return NextResponse.json({ message: publication.error }, { status: 400 });
   }
 
   const creator = await prisma.user.findUnique({
@@ -115,6 +128,7 @@ export async function POST(req: NextRequest) {
         missionLocationId: missionLocation.id,
         additionalInfo,
         creatorId: creator.company.id,
+        ...publication.data,
         requiredPositions: {
           create: Object.entries(teamCounts)
             .filter(([, quantity]) => !!quantity && quantity > 0)

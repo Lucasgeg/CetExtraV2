@@ -26,6 +26,7 @@ import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse"
 import { convertToFrontendMissionJob, getMissionJobKey } from "@/utils/enum";
 import { Loader } from "../ui/Loader/Loader";
 import type { Option } from "../ui/MultipleSelector";
+import { MissionPublicationCard } from "./MissionPublicationCard";
 
 const MissionCard = dynamic(
   () =>
@@ -83,7 +84,11 @@ export default function MissionForm({
       missionEndDate: "",
       extraJobOptions: [],
       teamCounts: {},
-      location: undefined
+      location: undefined,
+      // Opt-out : publique par défaut à la création (ADR 0002)
+      isPublic: true,
+      hourlyRateMin: null,
+      hourlyRateMax: null
     }
   });
 
@@ -98,6 +103,9 @@ export default function MissionForm({
   const [employees, setEmployees] = useState<
     MissionDetailApiResponse["employees"] | undefined
   >(undefined);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  /** Plancher en vigueur (minimum en base) si des engagements sont actifs. */
+  const [rateFloor, setRateFloor] = useState<number | null>(null);
   const [isDeletingInvitations, setIsDeletingInvitations] = useState(false);
   const [deleteInvitationsError, setDeleteInvitationsError] = useState<
     string | null
@@ -147,7 +155,10 @@ export default function MissionForm({
               lat: data.missionLocation?.lat || 0,
               lon: data.missionLocation?.lon || 0,
               display_name: data.missionLocation?.fullName || "Lieu inconnu"
-            }
+            },
+            isPublic: data.isPublic,
+            hourlyRateMin: data.hourlyRateMin,
+            hourlyRateMax: data.hourlyRateMax
           });
 
           const invitations: InviteListDelete = {
@@ -160,6 +171,7 @@ export default function MissionForm({
           setInvitationsData(invitations);
 
           setEmployees(data.employees);
+          setRateFloor(data.hasActiveEngagements ? data.hourlyRateMin : null);
         } catch (error) {
           if (error instanceof Error) {
             console.error("Error:", error);
@@ -213,6 +225,7 @@ export default function MissionForm({
     setConfirmView(false);
     setFormIsValid(false);
     setMissionId(undefined);
+    setSubmitError(null);
     resetFormValues();
     setValue("additionalInfo", "");
   };
@@ -259,7 +272,26 @@ export default function MissionForm({
     });
   };
 
-  const onSubmit = async (data: CreateMissionFormValues) => {
+  /** Message de l'API (400 de validation notamment), sinon générique. */
+  const readSubmitError = async (response: Response) => {
+    const errorData = await response.json().catch(() => null);
+    console.error("Error saving mission:", errorData);
+    const message =
+      typeof errorData?.message === "string" ? errorData.message : null;
+    setSubmitError(
+      message && response.status === 400
+        ? message
+        : "Une erreur est survenue lors de l'enregistrement de la mission."
+    );
+  };
+
+  const onSubmit = async (formData: CreateMissionFormValues) => {
+    setSubmitError(null);
+    // Pas d'adresse = pas de publication (l'intention reste dans le formulaire)
+    const data: CreateMissionFormValues = {
+      ...formData,
+      isPublic: !!formData.location && formData.isPublic !== false
+    };
     if (isEditMode) {
       const response = await fetch(`/api/missions/${editedMissionId}`, {
         method: "PUT",
@@ -269,8 +301,7 @@ export default function MissionForm({
         body: JSON.stringify({ ...data })
       });
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error creating mission:", errorData);
+        await readSubmitError(response);
         return;
       }
       setMissionId((await response.json()).mission.id);
@@ -286,8 +317,7 @@ export default function MissionForm({
       })
     });
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error creating mission:", errorData);
+      await readSubmitError(response);
       return;
     }
     if (response.ok) {
@@ -449,6 +479,11 @@ export default function MissionForm({
         {renderTitle()}
         {renderAlert()}
       </h1>
+      {submitError && (
+        <p role="alert" className="px-4 text-center text-red-500 text-sm">
+          {submitError}
+        </p>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
         {formIsValid && confirmView ? (
           <ValidationMission
@@ -622,6 +657,13 @@ export default function MissionForm({
                     className="h-full max-h-[50%]"
                   />
                 )}
+              />
+              <MissionPublicationCard
+                control={control}
+                hasLocation={!!currentLocation}
+                disabled={isSubmitting}
+                rateErrorMessage={errors.hourlyRateMin?.message}
+                rateFloor={isEditMode ? rateFloor : null}
               />
             </div>
             {/* Third Col */}
