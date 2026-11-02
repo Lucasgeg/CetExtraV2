@@ -68,12 +68,16 @@ export type EngagementStatusTone = "info" | "warning" | "success" | "neutral";
 /**
  * Libellé de statut compréhensible par un extra (le statut technique de la
  * UserMission seul ne suffit pas : une invitation `pending` sur une mission
- * passée est « expirée »).
+ * passée est « expirée »). Une mission annulée prime sur le statut de
+ * l'engagement, quel qu'il soit.
  */
 export const getEngagementStatusLabel = (
   engagement: MeEngagement,
   now: Date
 ): { label: string; tone: EngagementStatusTone } => {
+  if (engagement.mission.status === "cancelled") {
+    return { label: "Mission annulée", tone: "neutral" };
+  }
   switch (engagement.status) {
     case "refused":
       return { label: "Non retenue", tone: "neutral" };
@@ -88,9 +92,6 @@ export const getEngagementStatusLabel = (
         ? { label: "Sans réponse", tone: "neutral" }
         : { label: "En attente de réponse", tone: "warning" };
     case "accepted":
-      if (engagement.mission.status === "cancelled") {
-        return { label: "Mission annulée", tone: "neutral" };
-      }
       return isOver(engagement, now)
         ? { label: "Terminée", tone: "neutral" }
         : { label: "Confirmée", tone: "success" };

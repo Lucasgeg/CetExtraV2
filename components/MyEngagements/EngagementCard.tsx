@@ -128,7 +128,7 @@ export const EngagementCard = ({
           </Heading>
           <p className="flex items-center gap-1.5 text-extra-text-secondary text-sm">
             <Building2 size={14} aria-hidden="true" className="shrink-0" />
-            <span className="truncate">{mission.companyName}</span>
+            <span className="min-w-0 break-words">{mission.companyName}</span>
           </p>
         </div>
         <EngagementStatusBadge engagement={engagement} now={now} />

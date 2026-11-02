@@ -2,16 +2,12 @@
 
 import { ArrowLeft, Inbox } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { RefreshErrorBanner } from "@/components/ui/RefreshErrorBanner/RefreshErrorBanner";
-import { useMyEngagements } from "@/hooks/useMyEngagements";
+import { useGroupedEngagements } from "@/hooks/useMyEngagements";
 import type { MeEngagement } from "@/types/MeEngagements";
-import {
-  type EngagementSection,
-  groupEngagements
-} from "@/utils/myEngagements.util";
+import type { EngagementSection } from "@/utils/myEngagements.util";
 import { EngagementCard } from "./EngagementCard";
 
 const SECTIONS: {
@@ -99,20 +95,16 @@ const EngagementSectionBlock = ({
 };
 
 export const MyEngagements = () => {
-  const { data, isPending, isError, isFetching, refetch, dataUpdatedAt } =
-    useMyEngagements();
-
-  // Référence temporelle = instant de la dernière réponse : stable entre deux
-  // rendus, mise à jour à chaque revalidation
-  const now = useMemo(
-    () => new Date(dataUpdatedAt || Date.now()),
-    [dataUpdatedAt]
-  );
-  const engagements = data?.engagements;
-  const grouped = useMemo(
-    () => groupEngagements(engagements ?? [], now),
-    [engagements, now]
-  );
+  const {
+    data,
+    isPending,
+    isError,
+    isFetching,
+    refetch,
+    engagements,
+    grouped,
+    now
+  } = useGroupedEngagements();
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-2 sm:p-4">

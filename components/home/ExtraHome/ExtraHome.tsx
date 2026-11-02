@@ -8,13 +8,11 @@ import {
   Mail
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
 import { EngagementCard } from "@/components/MyEngagements/EngagementCard";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { RefreshErrorBanner } from "@/components/ui/RefreshErrorBanner/RefreshErrorBanner";
-import { useMyEngagements } from "@/hooks/useMyEngagements";
-import { groupEngagements } from "@/utils/myEngagements.util";
+import { useGroupedEngagements } from "@/hooks/useMyEngagements";
 
 const UPCOMING_PREVIEW_COUNT = 3;
 
@@ -46,18 +44,8 @@ const SummaryTile = ({
  * cache de la page complète (même clé de requête, sans filtre).
  */
 export const ExtraHome = () => {
-  const { data, isPending, isError, isFetching, refetch, dataUpdatedAt } =
-    useMyEngagements();
-
-  const now = useMemo(
-    () => new Date(dataUpdatedAt || Date.now()),
-    [dataUpdatedAt]
-  );
-  const engagements = data?.engagements;
-  const grouped = useMemo(
-    () => groupEngagements(engagements ?? [], now),
-    [engagements, now]
-  );
+  const { data, isPending, isError, isFetching, refetch, grouped, now } =
+    useGroupedEngagements();
   const upcomingPreview = grouped.upcoming.slice(0, UPCOMING_PREVIEW_COUNT);
 
   return (
