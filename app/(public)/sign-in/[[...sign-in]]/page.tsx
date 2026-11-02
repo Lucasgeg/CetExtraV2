@@ -12,7 +12,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
+import { getSafeRedirectPath } from "@/utils/safeRedirect";
 import { getMainUserData } from "./actions";
+
+/**
+ * Destination après connexion : `redirect_url` s'il désigne un chemin de ce
+ * site (validé par le parseur d'URL, pas de redirection ouverte), sinon
+ * l'accueil (le middleware y redirige ensuite selon le rôle).
+ */
+const getPostSignInPath = () =>
+  getSafeRedirectPath(
+    new URLSearchParams(window.location.search).get("redirect_url"),
+    "/",
+    window.location.origin
+  );
 
 export default function Page() {
   const { setUser } = useCurrentUserStore();
@@ -71,7 +84,7 @@ export default function Page() {
         }
         const data = await getMainUserData();
         setUser(data);
-        router.push("/");
+        router.push(getPostSignInPath());
       } else {
         // If the sign-in process is not complete, set the error message
         setError("Email ou mot de passe incorrect");

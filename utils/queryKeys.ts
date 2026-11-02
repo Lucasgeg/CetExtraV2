@@ -13,9 +13,21 @@ export type MeEngagementsFilters = {
   scope?: EngagementScope;
 };
 
+/** Filtres du listing public (`GET /api/missions/public`). */
+export type PublicMissionsFilters = {
+  lat: number | null;
+  lon: number | null;
+  radius: number | null;
+  page: number;
+};
+
 export const queryKeys = {
   missions: {
     all: ["missions"] as const,
+    /** Surfaces publiques (listing de la vitrine `/missions`). */
+    publicAll: ["missions", "public"] as const,
+    publicList: (filters: PublicMissionsFilters) =>
+      ["missions", "public", "list", filters] as const,
     byId: (missionId: string) => ["missions", missionId] as const,
     detail: (missionId: string) => ["missions", missionId, "detail"] as const,
     applications: (missionId: string) =>

@@ -22,6 +22,14 @@ export function PublicNavbar() {
           </li>
           <li>
             <Link
+              href="/missions"
+              className="rounded-lg px-4 py-2 font-semibold text-employer-text-primary text-sm transition-colors hover:bg-employer-surface"
+            >
+              Missions
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/about"
               className="rounded-lg px-4 py-2 font-semibold text-employer-text-primary text-sm transition-colors hover:bg-employer-surface"
             >
