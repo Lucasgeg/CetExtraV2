@@ -8,7 +8,10 @@ import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { PrismaMissionJob } from "@/store/types";
 import type { GetUserByIdResponse } from "@/types/GetUserByIdResponse";
-import type { MissionInviteBody } from "@/types/MissionInvite";
+import type {
+  MissionInviteBody,
+  MissionInviteResponse
+} from "@/types/MissionInvite";
 import { apiFetch, isHttpError } from "@/utils/apiFetch";
 import { convertToFrontendMissionJob } from "@/utils/enum";
 import { queryKeys } from "@/utils/queryKeys";
@@ -60,7 +63,7 @@ export const UserSlider = ({
 
   const invite = useMutation({
     mutationFn: (body: MissionInviteBody) =>
-      apiFetch(`/api/missions/${missionId}/invites`, {
+      apiFetch<MissionInviteResponse>(`/api/missions/${missionId}/invites`, {
         method: "POST",
         json: body
       }),
@@ -141,8 +144,15 @@ export const UserSlider = ({
     setValue("missionJob", convertToFrontendMissionJob(jobType));
   };
 
+  // Email non envoyé : la carte reste ouverte pour afficher l'avertissement
   const onInvite = (data: MissionInviteBody) =>
-    invite.mutate(data, { onSuccess: () => sliderProps.onClose?.() });
+    invite.mutate(data, {
+      onSuccess: (result) => {
+        if (result.emailSent) sliderProps.onClose?.();
+      }
+    });
+  const emailWarning =
+    invite.data && !invite.data.emailSent ? invite.data.message : null;
 
   return (
     <Slider {...sliderProps}>
@@ -421,6 +431,9 @@ export const UserSlider = ({
         </form>
       )}
       {apiError && <div className="mt-2 text-red-600 text-sm">{apiError}</div>}
+      {emailWarning && (
+        <div className="mt-2 text-amber-700 text-sm">{emailWarning}</div>
+      )}
     </Slider>
   );
 };

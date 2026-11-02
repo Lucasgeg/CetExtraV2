@@ -214,3 +214,141 @@ export const ENGAGEMENT_STATUSES_NOTIFIED_ON_MISSION_CANCELLATION = [
 export const INVITATION_STATUSES_CANCELLED_WITH_MISSION = [
   "pending"
 ] as const satisfies readonly UserMissionStatus[];
+
+/**
+ * Invitation d'un extra par l'employeur (POST /api/missions/[id]/invites) —
+ * transition depuis un engagement (UserMission) éventuellement existant pour
+ * le couple (extra, mission). S'applique aussi aux `Invitation` (extras non
+ * inscrits, invités par email), qui ne connaissent en pratique que `pending`
+ * et `cancelled`.
+ *
+ * | Engagement existant | Invitation                                             |
+ * |---------------------|--------------------------------------------------------|
+ * | aucun               | création en `pending`, taux null                       |
+ * | cancelled / refused | réinvitation : `pending`, taux null, dates/poste MAJ   |
+ * | pending             | non (409) : déjà invité                                |
+ * | requested           | non (409) : accepter la candidature à la place         |
+ * | accepted            | non (409) : déjà dans l'équipe (statut et taux gardés) |
+ */
+
+export type InviteBlocker = {
+  code: "ALREADY_INVITED" | "ALREADY_APPLIED" | "ALREADY_IN_TEAM";
+  message: string;
+};
+
+/** Statuts d'engagement depuis lesquels l'employeur peut réinviter l'extra. */
+export const REINVITABLE_ENGAGEMENT_STATUSES = [
+  "cancelled",
+  "refused"
+] as const satisfies readonly UserMissionStatus[];
+
+// Record exhaustif : un futur statut ne compile pas tant qu'il n'est pas classé
+const INVITE_BLOCKERS: Record<UserMissionStatus, InviteBlocker | null> = {
+  cancelled: null,
+  refused: null,
+  pending: {
+    code: "ALREADY_INVITED",
+    message: "Cet extra est déjà invité sur cette mission"
+  },
+  requested: {
+    code: "ALREADY_APPLIED",
+    message:
+      "Cet extra a déjà candidaté : acceptez sa candidature depuis la section Candidatures"
+  },
+  accepted: {
+    code: "ALREADY_IN_TEAM",
+    message: "Cet extra fait déjà partie de l'équipe"
+  }
+};
+
+/**
+ * Renvoie la raison pour laquelle l'employeur ne peut pas (ré)inviter l'extra,
+ * ou null si l'invitation est permise. `existingStatus` vaut null quand aucun
+ * engagement n'existe encore pour ce couple (extra, mission).
+ */
+export const getInviteBlocker = (
+  existingStatus: UserMissionStatus | null
+): InviteBlocker | null =>
+  existingStatus === null ? null : INVITE_BLOCKERS[existingStatus];
+
+/**
+ * Retrait d'un extra de l'équipe par l'employeur
+ * (PATCH /api/missions/[id]/users/[userId]) : seul un membre de l'équipe
+ * (`accepted`) peut être retiré (→ `cancelled`, email à l'extra). Une
+ * invitation `pending` s'annule via les routes d'invitation, une candidature
+ * `requested` se refuse via la décision sur candidature ; `refused` et
+ * `cancelled` sont terminaux.
+ */
+export const COMPANY_REMOVABLE_ENGAGEMENT_STATUSES = [
+  "accepted"
+] as const satisfies readonly UserMissionStatus[];
+
+/** Vrai si l'employeur peut retirer de l'équipe un engagement dans ce statut. */
+export const canCompanyRemoveEngagement = (
+  status: UserMissionStatus
+): boolean =>
+  (
+    COMPANY_REMOVABLE_ENGAGEMENT_STATUSES as readonly UserMissionStatus[]
+  ).includes(status);
+
+/**
+ * Conditions sur la mission elle-même pour inviter un extra ou retirer un
+ * membre de l'équipe (contrôlées après l'appartenance, avant le statut de
+ * l'engagement).
+ *
+ * | Mission                     | Inviter   | Retirer   |
+ * |-----------------------------|-----------|-----------|
+ * | cancelled                   | non (409) | non (409) |
+ * | completed                   | non (409) | non (409) |
+ * | pending / active, commencée | non (409) | oui       |
+ * | pending / active, à venir   | oui       | oui       |
+ *
+ * Le retrait reste possible sur une mission commencée : un extra peut se
+ * désister le jour même. « Ouverte » = annulable (`isMissionCancellable`).
+ */
+
+export type MissionBlocker = {
+  code: "MISSION_CANCELLED" | "MISSION_COMPLETED" | "MISSION_STARTED";
+  message: string;
+};
+
+/** Vrai si la mission a commencé (début atteint ou dépassé). */
+export const hasMissionStarted = (missionStartDate: Date, now: Date): boolean =>
+  missionStartDate.getTime() <= now.getTime();
+
+/** Mission close (annulée ou terminée) : aucune transition d'engagement. */
+const getClosedMissionBlocker = (
+  missionStatus: MissionStatus
+): MissionBlocker | null => {
+  if (isMissionCancellable(missionStatus)) return null;
+  return missionStatus === "cancelled"
+    ? { code: "MISSION_CANCELLED", message: "Mission annulée" }
+    : { code: "MISSION_COMPLETED", message: "Mission terminée" };
+};
+
+/**
+ * Raison pour laquelle l'employeur ne peut pas inviter d'extra sur cette
+ * mission (UserMission comme `Invitation`), ou null : mission `pending` /
+ * `active` et pas encore commencée.
+ */
+export const getMissionInviteBlocker = ({
+  missionStatus,
+  missionStartDate,
+  now
+}: {
+  missionStatus: MissionStatus;
+  missionStartDate: Date;
+  now: Date;
+}): MissionBlocker | null =>
+  getClosedMissionBlocker(missionStatus) ??
+  (hasMissionStarted(missionStartDate, now)
+    ? { code: "MISSION_STARTED", message: "Mission déjà commencée" }
+    : null);
+
+/**
+ * Raison pour laquelle l'employeur ne peut pas retirer un membre de l'équipe
+ * de cette mission, ou null : seule une mission annulée ou terminée l'empêche.
+ */
+export const getMissionRemovalBlocker = (
+  missionStatus: MissionStatus
+): MissionBlocker | null => getClosedMissionBlocker(missionStatus);
