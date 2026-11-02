@@ -20,7 +20,11 @@ const basePublicRoutes = [
 ];
 
 // Les routes publiques additionnelles pour dev/rec
-const devPublicRoutes = ["/sign-up(.*)", "/api/users/sign-up"];
+const devPublicRoutes = [
+  "/sign-up(.*)",
+  "/api/users/sign-up",
+  "/missions(.*)" // Vitrine publique des missions (ouverte en prod au lancement)
+];
 
 const protectedRoutes = [
   "/company(.*)", // Routes de l'entreprise
