@@ -16,6 +16,8 @@ export type RadiusOptionKm = (typeof RADIUS_OPTIONS_KM)[number];
 /** Aligné sur le défaut de l'API publique (50 km). */
 export const DEFAULT_RADIUS_KM: RadiusOptionKm = 50;
 export const PUBLIC_MISSIONS_PAGE_SIZE = 10;
+/** Borne haute de `page` (entrée publique) ; au-delà, ramenée à cette valeur. */
+export const MAX_MISSIONS_PAGE = 1000;
 
 export type MissionsPageFilters = {
   zone: { lat: number; lon: number; label: string | null } | null;
@@ -57,7 +59,9 @@ export const parseMissionsPageFilters = (
   const radius = isRadiusOption(radiusParam) ? radiusParam : DEFAULT_RADIUS_KM;
 
   const pageParam = Number.parseInt(readParam(params, "page") ?? "", 10);
-  const page = Number.isFinite(pageParam) && pageParam > 1 ? pageParam : 1;
+  const page = Number.isFinite(pageParam)
+    ? Math.min(Math.max(pageParam, 1), MAX_MISSIONS_PAGE)
+    : 1;
 
   return { zone, radius, page };
 };

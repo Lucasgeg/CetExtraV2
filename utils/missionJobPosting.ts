@@ -76,6 +76,8 @@ export const buildMissionJobPosting = (mission: PublicMissionDetail) => {
     datePosted: mission.createdAt.toISOString(),
     validThrough: mission.missionStartDate.toISOString(),
     employmentType: "TEMPORARY",
+    // Candidature directement sur la page de la mission
+    directApply: true,
     hiringOrganization: {
       "@type": "Organization",
       name: mission.creator.company_name

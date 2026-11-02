@@ -11,35 +11,55 @@ const TITLE = "Missions d'extras en restauration et événementiel";
 const DESCRIPTION =
   "Trouvez une mission d'extra près de chez vous : serveur, chef de rang, cuisinier, barman… Consultez les missions publiées par les traiteurs et organisateurs d'événements sur Cet Extra et candidatez en ligne.";
 
-// URL relatives : résolues par le `metadataBase` du layout racine
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  openGraph: {
-    title: `${TITLE} | Cet Extra`,
+type SearchParams = Record<string, string | string[] | undefined>;
+
+/** Paramètres de zone : leurs variantes ne sont pas indexées. */
+const ZONE_PARAMS = ["lat", "lon", "rayon", "lieu"];
+
+/**
+ * Canonical et indexation selon les filtres :
+ * - sans zone : chaque page de la pagination est canonique d'elle-même
+ *   (`/missions`, `/missions?page=N`) ;
+ * - avec une zone : `noindex, follow` et canonical vers `/missions`.
+ *
+ * URL relatives : résolues par le `metadataBase` du layout racine.
+ */
+export async function generateMetadata(props: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const hasZone = ZONE_PARAMS.some((name) => searchParams[name] !== undefined);
+  const { page } = parseMissionsPageFilters(searchParams);
+  const canonical =
+    !hasZone && page > 1 ? `/missions?page=${page}` : "/missions";
+
+  return {
+    title: !hasZone && page > 1 ? `${TITLE} – page ${page}` : TITLE,
     description: DESCRIPTION,
-    url: "/missions",
-    type: "website",
-    images: [
-      {
-        url: "/cetextralogo.jpeg",
-        width: 1200,
-        height: 630,
-        alt: "Cet Extra - Plateforme d'extras pour l'évènementiel"
-      }
-    ]
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${TITLE} | Cet Extra`,
-    description: DESCRIPTION,
-    images: ["/cetextralogo.jpeg"]
-  },
-  // Les variantes filtrées (zone, page) pointent vers le listing de base
-  alternates: {
-    canonical: "/missions"
-  }
-};
+    openGraph: {
+      title: `${TITLE} | Cet Extra`,
+      description: DESCRIPTION,
+      url: canonical,
+      type: "website",
+      images: [
+        {
+          url: "/cetextralogo.jpeg",
+          width: 1200,
+          height: 630,
+          alt: "Cet Extra - Plateforme d'extras pour l'évènementiel"
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${TITLE} | Cet Extra`,
+      description: DESCRIPTION,
+      images: ["/cetextralogo.jpeg"]
+    },
+    alternates: { canonical },
+    ...(hasZone && { robots: { index: false, follow: true } })
+  };
+}
 
 /**
  * Vitrine publique des missions. Premier rendu serveur (indexable) calculé
@@ -48,7 +68,7 @@ export const metadata: Metadata = {
  * partie interactive côté client (TanStack Query).
  */
 export default async function PublicMissionsPage(props: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParams>;
 }) {
   const filters = parseMissionsPageFilters(await props.searchParams);
   const result = await listPublicMissions(toPublicMissionsQuery(filters));

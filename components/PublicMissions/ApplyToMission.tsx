@@ -226,17 +226,16 @@ function ExtraApplyForm({ missionId, positions }: ApplyToMissionProps) {
         ))}
       </fieldset>
 
-      <div aria-live="assertive">
-        {errorMessage && (
-          <p
-            id={errorId}
-            role="alert"
-            className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-800 text-sm"
-          >
-            {errorMessage}
-          </p>
-        )}
-      </div>
+      {/* role="alert" seul : annonce unique à l'apparition */}
+      {errorMessage && (
+        <p
+          id={errorId}
+          role="alert"
+          className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-800 text-sm"
+        >
+          {errorMessage}
+        </p>
+      )}
 
       <Button
         type="submit"

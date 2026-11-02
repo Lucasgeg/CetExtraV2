@@ -17,6 +17,10 @@ import {
 } from "@/utils/publicMission.format";
 import { getPublicMission } from "@/utils/publicMissions.server";
 
+// Visibilité volatile (postes pourvus, annulation, début, opt-out) : jamais
+// de rendu mis en cache, une mission devenue invisible doit répondre 404
+export const dynamic = "force-dynamic";
+
 type PublicMissionPageParams = {
   missionId: string;
 };
