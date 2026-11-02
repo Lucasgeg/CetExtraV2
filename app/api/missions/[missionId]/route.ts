@@ -25,6 +25,9 @@ import {
 } from "@/utils/missionPublication.util";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
 
+/** Plancher bloqué détecté sous verrou : annule la transaction du PUT (409). */
+class RateFloorBlockedError extends Error {}
+
 /**
  * Handles GET requests for fetching detailed information about a specific mission.
  *
@@ -420,6 +423,38 @@ export async function PUT(
         throw new Error("Failed to update mission location");
       }
 
+      // Plancher « hausse seulement », recontrôlé sous verrou de la mission
+      // (le contrôle précoce hors transaction évite le travail inutile dans le
+      // cas courant). Fenêtre résiduelle : /apply ne verrouille pas encore la
+      // mission, une candidature validée en parallèle peut donc être insérée
+      // après le recomptage ci-dessous — couvert par le ticket Notion
+      // « [API] Course entre candidature (apply) et annulation de mission »
+      const newRateMin = publication.data.hourlyRateMin;
+      if (newRateMin !== undefined) {
+        await tx.$queryRaw`
+          SELECT id FROM "Mission" WHERE id = ${missionId} FOR UPDATE`;
+        // Requêtes séquentielles : une transaction interactive n'a qu'une
+        // connexion
+        const lockedMission = await tx.mission.findUnique({
+          where: { id: missionId },
+          select: { hourlyRateMin: true }
+        });
+        const activeEngagements = await tx.userMission.count({
+          where: {
+            missionId,
+            status: { in: [...RATE_FLOOR_ENGAGEMENT_STATUSES] }
+          }
+        });
+        const floorBlocker = getRateFloorChangeBlocker(
+          lockedMission?.hourlyRateMin ?? null,
+          newRateMin,
+          activeEngagements > 0
+        );
+        if (floorBlocker) {
+          throw new RateFloorBlockedError(floorBlocker);
+        }
+      }
+
       // 2. Mettre à jour les informations de base de la mission
       const missionUpdated = await tx.mission.update({
         where: { id: missionId },
@@ -504,6 +539,9 @@ export async function PUT(
       { status: 200 }
     );
   } catch (error) {
+    if (error instanceof RateFloorBlockedError) {
+      return NextResponse.json({ message: error.message }, { status: 409 });
+    }
     const { message, status } = handlePrismaError(error, "UpdateMission");
     return NextResponse.json({ message, status }, { status });
   }

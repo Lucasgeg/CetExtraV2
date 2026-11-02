@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { CreateMissionFormValues } from "@/types/api";
 import {
+  getEffectiveIsPublic,
   getRateFloorChangeBlocker,
   validateHourlyRateRange
 } from "@/utils/missionPublication.util";
@@ -64,7 +65,7 @@ export const MissionPublicationCard = ({
         name="isPublic"
         control={control}
         render={({ field }) => {
-          const checked = hasLocation && field.value !== false;
+          const checked = getEffectiveIsPublic(field.value, hasLocation);
           return (
             <div className="flex flex-col gap-1">
               <label
@@ -80,10 +81,10 @@ export const MissionPublicationCard = ({
                 <input
                   id="isPublic"
                   type="checkbox"
+                  // biome-ignore lint/a11y/useAriaPropsForRole: checkbox natif, l'état coché est exposé par `checked` (ARIA in HTML déconseille aria-checked sur input checkbox)
                   role="switch"
                   className="peer sr-only"
                   checked={checked}
-                  aria-checked={checked}
                   onChange={(event) => field.onChange(event.target.checked)}
                   onBlur={field.onBlur}
                   ref={field.ref}

@@ -98,6 +98,17 @@ export const parsePublicationFields = (
 };
 
 /**
+ * Publication effectivement demandée : intention (opt-out, `undefined` = vrai
+ * comme le défaut DB) ET adresse renseignée. Sans adresse, l'interrupteur est
+ * affiché décoché et le formulaire envoie `false`, mais l'intention est
+ * conservée pour le moment où une adresse est saisie.
+ */
+export const getEffectiveIsPublic = (
+  isPublic: boolean | undefined,
+  hasLocation: boolean
+): boolean => hasLocation && isPublic !== false;
+
+/**
  * Statuts d'engagement qui figent le plancher : l'extra a candidaté
  * (`requested`) ou a été retenu (`accepted`) en connaissant le minimum annoncé.
  */

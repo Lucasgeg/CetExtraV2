@@ -24,6 +24,7 @@ import type { CreateMissionFormValues, Suggestion } from "@/types/api";
 import type { InviteListDelete } from "@/types/InviteListDelete";
 import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { convertToFrontendMissionJob, getMissionJobKey } from "@/utils/enum";
+import { getEffectiveIsPublic } from "@/utils/missionPublication.util";
 import { Loader } from "../ui/Loader/Loader";
 import type { Option } from "../ui/MultipleSelector";
 import { MissionPublicationCard } from "./MissionPublicationCard";
@@ -272,14 +273,14 @@ export default function MissionForm({
     });
   };
 
-  /** Message de l'API (400 de validation notamment), sinon générique. */
+  /** Message de l'API pour une erreur métier (400 validation, 409 plancher), sinon générique. */
   const readSubmitError = async (response: Response) => {
     const errorData = await response.json().catch(() => null);
     console.error("Error saving mission:", errorData);
     const message =
       typeof errorData?.message === "string" ? errorData.message : null;
     setSubmitError(
-      message && response.status === 400
+      message && (response.status === 400 || response.status === 409)
         ? message
         : "Une erreur est survenue lors de l'enregistrement de la mission."
     );
@@ -290,7 +291,7 @@ export default function MissionForm({
     // Pas d'adresse = pas de publication (l'intention reste dans le formulaire)
     const data: CreateMissionFormValues = {
       ...formData,
-      isPublic: !!formData.location && formData.isPublic !== false
+      isPublic: getEffectiveIsPublic(formData.isPublic, !!formData.location)
     };
     if (isEditMode) {
       const response = await fetch(`/api/missions/${editedMissionId}`, {

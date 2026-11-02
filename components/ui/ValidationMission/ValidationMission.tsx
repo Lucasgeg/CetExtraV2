@@ -3,7 +3,10 @@ import type { LatLngExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { EnumMissionJob } from "@/store/types";
 import type { CreateMissionFormValues } from "@/types/api";
-import { formatHourlyRateRange } from "@/utils/missionPublication.util";
+import {
+  formatHourlyRateRange,
+  getEffectiveIsPublic
+} from "@/utils/missionPublication.util";
 import MapContainerComponent, {
   type MissionPoint
 } from "../../MapContainerComponent/MapContainerComponent";
@@ -67,7 +70,9 @@ export default function ValidationMission({
     {
       label: "Publication sur le site public",
       // Même règle que l'envoi : pas d'adresse = pas de publication
-      value: formData.location && formData.isPublic !== false ? "Oui" : "Non"
+      value: getEffectiveIsPublic(formData.isPublic, !!formData.location)
+        ? "Oui"
+        : "Non"
     },
     {
       label: "Taux horaire indicatif",
