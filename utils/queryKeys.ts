@@ -1,8 +1,17 @@
+import type { UserMissionStatus } from "@prisma/client";
+import type { EngagementScope } from "@/types/MeEngagements";
+
 /**
  * Clés TanStack Query centralisées. Hiérarchiques : invalider un préfixe
  * (ex. `missions.byId(id)`) invalide toutes les requêtes en dessous.
  */
 export type CompanyMissionsFilters = Record<string, string | number>;
+
+/** Filtres de `GET /api/me/engagements` (voir `types/MeEngagements.ts`). */
+export type MeEngagementsFilters = {
+  status?: UserMissionStatus[];
+  scope?: EngagementScope;
+};
 
 export const queryKeys = {
   missions: {
@@ -20,5 +29,11 @@ export const queryKeys = {
   },
   users: {
     profile: (userId: string) => ["users", userId, "profile"] as const
+  },
+  /** Données de l'utilisateur connecté (résolu par la session côté API). */
+  me: {
+    all: ["me"] as const,
+    engagements: (filters: MeEngagementsFilters = {}) =>
+      ["me", "engagements", filters] as const
   }
 };

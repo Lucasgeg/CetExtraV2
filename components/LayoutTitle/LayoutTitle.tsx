@@ -4,15 +4,17 @@ import Link from "next/link";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import { CetExtraLogo } from "../icons/CetExtraLogo";
 
-export const LayoutTitle = () => {
+type LayoutTitleProps = {
+  /** Accueil de l'espace courant, cible du logo. */
+  homeHref: string;
+};
+
+export const LayoutTitle = ({ homeHref }: LayoutTitleProps) => {
   const { userFirstName } = useCurrentUserStore();
 
   return (
     <div className="flex h-full w-full items-center">
-      <Link
-        href={"/company"}
-        className="flex aspect-square h-full items-center"
-      >
+      <Link href={homeHref} className="flex aspect-square h-full items-center">
         <CetExtraLogo className="h-full object-contain" />
       </Link>
       <div className="flex h-full flex-col justify-center gap-1 bg-employer-primary/20 px-6 text-employer-surface">
