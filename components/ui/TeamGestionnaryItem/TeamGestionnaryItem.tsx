@@ -11,7 +11,10 @@ import { fr } from "date-fns/locale";
 import { type ReactNode, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import type { EnumMissionJob } from "@/store/types";
-import type { MissionInviteBody } from "@/types/MissionInvite";
+import type {
+  MissionInviteBody,
+  MissionInviteResponse
+} from "@/types/MissionInvite";
 import type { MissionRemoveUserBody } from "@/types/MissionRemoveUser.body";
 import { isEmailValid } from "@/utils/string";
 import { Button } from "../button";
@@ -173,10 +176,19 @@ export const TeamGestionnaryItem = ({
         throw new Error(result.message || "Une erreur est survenue");
       }
 
-      setIsInviteDialogOpen(false);
-      setIsInviteWithDetailDialogOpen(false);
       onInviteSuccess();
       reset();
+      // Invitation enregistrée mais email non envoyé : le dialogue reste
+      // ouvert pour afficher l'avertissement (effacé à la fermeture)
+      if ((result as MissionInviteResponse).emailSent === false) {
+        setApiError(
+          result.message ||
+            "Invitation enregistrée, mais l'email n'a pas pu être envoyé"
+        );
+        return;
+      }
+      setIsInviteDialogOpen(false);
+      setIsInviteWithDetailDialogOpen(false);
     } catch (error) {
       setApiError(
         error instanceof Error

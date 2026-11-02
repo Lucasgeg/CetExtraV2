@@ -22,3 +22,13 @@ type UserIdInviteBody = BaseMissionInviteBody & {
 
 // Union des deux types
 export type MissionInviteBody = EmailInviteBody | UserIdInviteBody;
+
+/**
+ * Réponse 201 de POST /api/missions/[missionId]/invites. L'invitation est
+ * enregistrée dans tous les cas ; `emailSent: false` signale que l'email n'a
+ * pas pu être envoyé (`message` le dit en clair, à afficher).
+ */
+export type MissionInviteResponse = {
+  message: string;
+  emailSent: boolean;
+};
