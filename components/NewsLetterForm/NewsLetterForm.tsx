@@ -79,7 +79,7 @@ export default function NewsletterForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Votre email"
             required
-            className="w-full rounded border px-3 py-2 text-sm"
+            className="w-full rounded-sm border px-3 py-2 text-sm"
             disabled={status === "loading"}
           />
 
@@ -101,7 +101,7 @@ export default function NewsletterForm() {
         <Button
           type="submit"
           disabled={status === "loading" || !acceptTerms}
-          className="w-full rounded bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 sm:text-base"
+          className="w-full rounded-sm bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700 sm:text-base"
         >
           {status === "loading" ? "Envoi..." : "M'inscrire"}
         </Button>

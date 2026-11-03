@@ -73,7 +73,7 @@ export default async function BlogListPage() {
             {posts.map((post) => (
               <li
                 key={post.id}
-                className="rounded-xl border border-employer-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                className="rounded-xl border border-employer-border bg-white p-6 shadow-xs transition-shadow hover:shadow-md"
               >
                 <p className="mb-2 font-semibold text-employer-text-secondary text-xs uppercase tracking-[0.1em]">
                   {new Date(post.createdAt).toLocaleDateString("fr-FR", {

@@ -45,7 +45,7 @@ export default async function BlogAdminPage({
         </h1>
         <Link
           href="/blog/admin/create"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white shadow transition hover:bg-blue-700 sm:mt-0"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-blue-700 sm:mt-0"
         >
           <span>+ Nouvel article</span>
         </Link>
@@ -55,7 +55,7 @@ export default async function BlogAdminPage({
         {posts.map((post) => (
           <div
             key={post.id}
-            className="flex flex-col items-start justify-between rounded-xl border border-gray-200 bg-white p-5 shadow sm:flex-row sm:items-center"
+            className="flex flex-col items-start justify-between rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center"
           >
             <div>
               <h2 className="font-semibold text-gray-900 text-xl">
@@ -83,7 +83,7 @@ export default async function BlogAdminPage({
         <div className="mt-10 flex justify-center gap-4">
           <Link
             href={`/admin/blog?page=${pageNumber - 1}`}
-            className={`rounded-full px-4 py-2 shadow ${pageNumber <= 1 ? "pointer-events-none bg-gray-200 opacity-50" : "bg-gray-100 hover:bg-gray-200"}`}
+            className={`rounded-full px-4 py-2 shadow-sm ${pageNumber <= 1 ? "pointer-events-none bg-gray-200 opacity-50" : "bg-gray-100 hover:bg-gray-200"}`}
           >
             ← Précédent
           </Link>
@@ -92,7 +92,7 @@ export default async function BlogAdminPage({
           </span>
           <Link
             href={`/admin/blog?page=${pageNumber + 1}`}
-            className={`rounded-full px-4 py-2 shadow ${pageNumber >= totalPages ? "pointer-events-none bg-gray-200 opacity-50" : "bg-gray-100 hover:bg-gray-200"}`}
+            className={`rounded-full px-4 py-2 shadow-sm ${pageNumber >= totalPages ? "pointer-events-none bg-gray-200 opacity-50" : "bg-gray-100 hover:bg-gray-200"}`}
           >
             Suivant →
           </Link>

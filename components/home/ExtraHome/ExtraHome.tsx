@@ -25,7 +25,7 @@ const SummaryTile = ({
   label: string;
   value: number;
 }) => (
-  <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-4 rounded-2xl border border-extra-border bg-extra-background p-4 shadow-sm">
+  <div className="grid grid-cols-[auto_1fr] grid-rows-[auto_auto] items-center gap-x-4 rounded-2xl border border-extra-border bg-extra-background p-4 shadow-xs">
     <div className="row-span-2 flex h-11 w-11 items-center justify-center rounded-xl bg-extra-surface text-extra-secondary">
       <Icon size={24} aria-hidden="true" />
     </div>

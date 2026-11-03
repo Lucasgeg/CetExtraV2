@@ -145,7 +145,7 @@ export const AddressAutocomplete = ({
                 <button
                   type="button"
                   aria-label="Supprimer l'adresse sélectionnée"
-                  className="absolute top-1/2 right-2 -translate-y-1/2 rounded text-gray-500 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary"
+                  className="absolute top-1/2 right-2 -translate-y-1/2 rounded-sm text-gray-500 hover:text-red-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary"
                   onClick={() => {
                     setSelectedAddress(undefined);
                     setQuery("");
@@ -180,7 +180,7 @@ export const AddressAutocomplete = ({
                   type="button"
                   onClick={() => handleSelectSuggestion(suggestion)}
                   onKeyDown={(event) => handleSuggestionKeyDown(event, index)}
-                  className="w-full cursor-pointer p-2 text-left hover:bg-gray-100 focus-visible:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary focus-visible:ring-inset"
+                  className="w-full cursor-pointer p-2 text-left hover:bg-gray-100 focus-visible:bg-gray-100 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary focus-visible:ring-inset"
                 >
                   {suggestion.display_name}
                 </button>

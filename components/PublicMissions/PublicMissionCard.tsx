@@ -30,12 +30,12 @@ export function PublicMissionCard({ mission }: PublicMissionCardProps) {
   );
 
   return (
-    <article className="relative flex h-full flex-col gap-3 rounded-xl border border-employer-border bg-white p-5 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-employer-secondary hover:shadow-md">
+    <article className="relative flex h-full flex-col gap-3 rounded-xl border border-employer-border bg-white p-5 shadow-xs transition-shadow focus-within:ring-2 focus-within:ring-employer-secondary hover:shadow-md">
       <h3 className="font-bold text-employer-primary text-lg leading-snug">
         {/* Lien étiré sur toute la carte (pseudo-élément) */}
         <Link
           href={`/missions/${mission.id}`}
-          className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none"
+          className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-hidden"
         >
           {mission.name}
         </Link>

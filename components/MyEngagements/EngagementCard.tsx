@@ -120,7 +120,7 @@ export const EngagementCard = ({
         : "Adresse non communiquée");
 
   return (
-    <article className="flex flex-col gap-3 rounded-2xl border border-extra-border bg-white p-4 shadow-sm">
+    <article className="flex flex-col gap-3 rounded-2xl border border-extra-border bg-white p-4 shadow-xs">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <Heading className="break-words font-bold text-base text-extra-text-primary">

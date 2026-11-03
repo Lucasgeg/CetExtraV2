@@ -333,7 +333,7 @@ export const UserSlider = ({
             </div>
             {selectedMissionJob && (
               <>
-                <div className="flex items-center gap-2 rounded-lg bg-blue-50 p-3 shadow-sm">
+                <div className="flex items-center gap-2 rounded-lg bg-blue-50 p-3 shadow-xs">
                   <span className="text-2xl">🎯</span>
                   <div>
                     <p className="font-semibold text-blue-800">

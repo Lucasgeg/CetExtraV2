@@ -38,12 +38,12 @@ export function KeywordInput({
       {keywords.map((kw, idx) => (
         <div
           key={idx}
-          className="flex items-center rounded bg-gray-200 px-2 py-1"
+          className="flex items-center rounded-sm bg-gray-200 px-2 py-1"
         >
           <input
             value={kw}
             onChange={(e) => editKeyword(idx, e.target.value)}
-            className="w-auto border-none bg-transparent outline-none"
+            className="w-auto border-none bg-transparent outline-hidden"
             style={{ minWidth: 30 }}
           />
           <button
@@ -61,7 +61,7 @@ export function KeywordInput({
         type="text"
         placeholder="Ajouter un mot-clé"
         onKeyDown={handleInput}
-        className="border-none outline-none"
+        className="border-none outline-hidden"
       />
     </div>
   );

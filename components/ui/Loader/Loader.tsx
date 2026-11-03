@@ -51,7 +51,7 @@ export const Loader = ({
 
   const containerClasses = cn(
     "flex items-center justify-center",
-    fullScreen && "fixed inset-0 z-50 bg-black/20 backdrop-blur-sm",
+    fullScreen && "fixed inset-0 z-50 bg-black/20 backdrop-blur-xs",
     !fullScreen && "min-h-10 min-w-10",
     className
   );

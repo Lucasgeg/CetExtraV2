@@ -82,7 +82,7 @@ const MapInfo = ({
   loading = false
 }: MapInfoProps) => {
   return (
-    <div className="absolute top-2 left-2 z-[1000] rounded bg-white p-2 text-sm shadow-md">
+    <div className="absolute top-2 left-2 z-[1000] rounded-sm bg-white p-2 text-sm shadow-md">
       <div className="flex flex-col gap-1">
         <div>
           <strong>Rayon visible:</strong> {visibleRadius.toFixed(2)} km

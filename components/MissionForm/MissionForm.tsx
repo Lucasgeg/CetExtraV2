@@ -670,7 +670,7 @@ export default function MissionForm({
             {/* Third Col */}
             <div className="flex h-full min-h-0 flex-col justify-start gap-4 overflow-hidden lg:row-span-2">
               {/* Controller */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Controller
                   name="extraJobOptions"
                   control={control}
@@ -713,7 +713,7 @@ export default function MissionForm({
 
               {/* Affichage - avec scroll limité à ce conteneur */}
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-employer-background shadow-md">
-                <h2 className="flex-shrink-0 px-4 py-2 text-center font-semibold text-employer-primary text-lg">
+                <h2 className="shrink-0 px-4 py-2 text-center font-semibold text-employer-primary text-lg">
                   Gestion de l'équipe:
                 </h2>
 
@@ -729,12 +729,12 @@ export default function MissionForm({
                           <Fragment key={jobValue}>
                             <li className="flex justify-between text-employer-secondary">
                               <div className="flex items-center gap-2">
-                                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 font-semibold text-[#9A7B3F] text-xs">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 font-semibold text-[#9A7B3F] text-xs">
                                   {index + 1}
                                 </span>
                                 <span className="text-sm">{jobValue}</span>
                               </div>
-                              <div className="flex min-w-32 flex-shrink-0 items-center justify-center gap-2">
+                              <div className="flex min-w-32 shrink-0 items-center justify-center gap-2">
                                 <Button
                                   type="button"
                                   className="px-2 py-1 text-xs"
@@ -775,7 +775,7 @@ export default function MissionForm({
               </div>
 
               {/* Boutons - toujours visibles en bas */}
-              <div className="flex h-auto flex-shrink-0 justify-between gap-4">
+              <div className="flex h-auto shrink-0 justify-between gap-4">
                 <Button
                   theme="company"
                   type="button"

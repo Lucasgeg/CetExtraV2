@@ -130,7 +130,7 @@ export const Slider: React.FC<SliderProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-2 text-gray-400 transition-colors hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="rounded-md p-2 text-gray-400 transition-colors hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
             aria-label="Fermer"
           >
             <svg

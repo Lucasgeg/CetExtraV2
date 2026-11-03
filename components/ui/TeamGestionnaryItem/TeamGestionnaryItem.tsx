@@ -215,7 +215,7 @@ export const TeamGestionnaryItem = ({
   return (
     <>
       <div
-        className={`flex w-full items-center gap-2 rounded-xl px-4 py-2 shadow-sm ${
+        className={`flex w-full items-center gap-2 rounded-xl px-4 py-2 shadow-xs ${
           isOccupied
             ? "bg-gradient-to-r from-green-200/60 to-green-100/60"
             : "bg-gradient-to-r from-[#2E7BA6]/30 to-[#FFF8ED]/60"
