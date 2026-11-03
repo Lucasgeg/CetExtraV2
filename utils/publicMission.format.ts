@@ -136,3 +136,7 @@ export const publicJobLabel = (jobType: string) =>
 
 export const remainingPlacesLabel = (remaining: number) =>
   `${remaining} place${remaining > 1 ? "s" : ""}`;
+
+/** Lien vers le lieu de la mission sur openstreetmap.org. */
+export const buildOpenStreetMapUrl = (lat: number, lon: number) =>
+  `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
