@@ -13,6 +13,11 @@ import { VerifyingDisplay } from "@/components/sign-up/VerifyingDisplay";
 import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
 import { EnumRole } from "@/store/types";
 import { useSignUpStore } from "@/store/useSignUpstore";
+import {
+  clearSignUpMission,
+  getMissionReturnPath,
+  syncSignUpMissionFromUrl
+} from "@/utils/signUpMissionTarget";
 
 enum SignUpStep {
   Initial,
@@ -30,6 +35,24 @@ export default function SignUpPage() {
   const { signUp } = useSignUp();
   const { user } = useSignUpStore();
   const isCompany = user?.role === EnumRole.COMPANY;
+  // Mission ciblée depuis la vitrine (`?mission=<id>`), mémorisée pour la
+  // redirection post-inscription (cf. VerifyingDisplay). Lue après montage :
+  // `window` n'existe pas au rendu serveur.
+  const [targetMissionPath, setTargetMissionPath] = React.useState<
+    string | null
+  >(null);
+
+  React.useEffect(() => {
+    setTargetMissionPath(
+      getMissionReturnPath(syncSignUpMissionFromUrl(window.location.search))
+    );
+  }, []);
+
+  // Le visiteur déjà inscrit garde sa mission via `redirect_url` (validé par
+  // la page de connexion) : la valeur mémorisée ici n'a plus d'usage
+  const signInHref = targetMissionPath
+    ? `/sign-in?redirect_url=${encodeURIComponent(targetMissionPath)}`
+    : "/sign-in";
 
   const handleRegistrationStartAction = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +145,8 @@ export default function SignUpPage() {
               {renderDisplay()}
               <Link
                 className="mt-4 text-employer-text-secondary text-xs hover:text-employer-primary hover:underline"
-                href="/sign-in"
+                href={signInHref}
+                onClick={clearSignUpMission}
               >
                 Déjà un compte ? Se connecter
               </Link>
