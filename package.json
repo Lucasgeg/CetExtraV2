@@ -51,7 +51,7 @@
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "lucide-react": "^1.0.0",
-    "next": "^16.2.6",
+    "next": "^16.4.5",
     "next-cloudinary": "^7.0.0",
     "next-sitemap": "^4.2.3",
     "pg": "^8.13.1",
