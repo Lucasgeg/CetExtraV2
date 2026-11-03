@@ -1,10 +1,11 @@
 "use client";
 
 import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
-import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import CustomTable from "@/components/CustomTable/CustomTable";
+import CustomTable, {
+  type GenericColumn
+} from "@/components/CustomTable/CustomTable";
 import { Switch } from "@/components/ui/atom/Switch/Switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +50,7 @@ export default function CompanyMissionsPage() {
 
   const totalPages = Math.ceil(totalMissions / MISSIONS_PER_PAGE);
 
-  const columns: ColumnDef<GetCompanyMission>[] = useMemo(
+  const columns: GenericColumn<GetCompanyMission>[] = useMemo(
     () => [
       {
         accessorKey: "name",
