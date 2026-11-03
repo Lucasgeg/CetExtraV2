@@ -181,6 +181,20 @@ export async function listPublicMissions({
 }
 
 /**
+ * Toutes les missions visibles publiquement, sans zone ni pagination
+ * (sitemap) : même prédicat que le listing, dont c'est un simple appel.
+ */
+export async function listAllPublicMissions() {
+  const { missions } = await listPublicMissions({
+    center: null,
+    radius: PUBLIC_MISSIONS_DEFAULT_RADIUS_KM,
+    take: Number.MAX_SAFE_INTEGER,
+    skip: 0
+  });
+  return missions;
+}
+
+/**
  * Détail public d'une mission, ou `null` si elle n'est pas visible
  * publiquement (inconnue, opt-out, annulée, commencée ou complète) : les
  * appelants renvoient le même 404 opaque dans tous ces cas — ne jamais

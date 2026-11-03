@@ -45,7 +45,7 @@ export async function generateMetadata(props: {
     openGraph: {
       title: `${post.title} | Cet Extra`,
       description: post.shortDesc,
-      url: `https://cetextra.fr/blog/${post.shortUrl}`,
+      url: `/blog/${post.shortUrl}`,
       type: "article",
       images: [
         {
@@ -63,7 +63,7 @@ export async function generateMetadata(props: {
       images: ["/cetextralogo.jpeg"]
     },
     alternates: {
-      canonical: `https://cetextra.fr/blog/${post.shortUrl}`
+      canonical: `/blog/${post.shortUrl}`
     }
   };
 }

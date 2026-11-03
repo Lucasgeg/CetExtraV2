@@ -18,7 +18,7 @@ export const metadata = {
     title: "Blog Cet Extra – Recrutement extras événementiel & actus",
     description:
       "Toutes les actualités et conseils sur le recrutement d'extras en événementiel avec la plateforme Cet Extra.",
-    url: "https://www.cetextra.fr/blog",
+    url: "/blog",
     type: "website",
     images: [
       {
@@ -37,7 +37,7 @@ export const metadata = {
     images: ["/cetextralogo.jpeg"]
   },
   alternates: {
-    canonical: "https://www.cetextra.fr/blog"
+    canonical: "/blog"
   }
 };
 

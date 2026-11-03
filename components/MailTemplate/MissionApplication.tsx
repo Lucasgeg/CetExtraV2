@@ -14,6 +14,7 @@ import {
   Tailwind,
   Text
 } from "@react-email/components";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 export type MissionApplicationProps = {
   extraName: string;
@@ -40,7 +41,7 @@ export const MissionApplication = ({
           <Container className="mx-auto my-2 max-w-[600px] rounded-lg border border-[#EFD08C] bg-white p-0 shadow-md">
             <Img
               alt="logo Cet Extra"
-              src="https://cetextra.fr/cetextralogo.jpeg"
+              src={absoluteUrl("/cetextralogo.jpeg")}
               className="mx-auto h-[10rem] w-[10rem] rounded-md"
             />
             <Preview>
@@ -127,5 +128,5 @@ MissionApplication.PreviewProps = {
   missionJob: "Serveur",
   missionDate: "2026-08-15T18:00:00Z",
   missionLocation: "1 Rue de la Légion d'Honneur, 75007 Paris",
-  ctaUrl: "https://cetextra.fr/company/missions/123"
+  ctaUrl: absoluteUrl("/company/missions/123")
 };

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
       "À propos de Cet Extra | Recrutement d'extras événementiel simplifié",
     description:
       "Découvrez l'histoire et la mission de Cet Extra, l'application pensée pour simplifier la recherche d'extras en restauration et événementiel.",
-    url: "https://cetextra.fr/about",
+    url: "/about",
     type: "website",
     images: [
       {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     ]
   },
   alternates: {
-    canonical: "https://cetextra.fr/about"
+    canonical: "/about"
   }
 };
 

@@ -13,6 +13,7 @@ import {
   Tailwind,
   Text
 } from "@react-email/components";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 /**
  * Email envoyé à l'extra quand l'employeur répond à sa candidature.
@@ -60,7 +61,7 @@ export const ApplicationDecision = (props: ApplicationDecisionProps) => {
           <Container className="mx-auto my-2 max-w-[600px] rounded-lg border border-[#EFD08C] bg-white p-0 shadow-md">
             <Img
               alt="logo Cet Extra"
-              src="https://cetextra.fr/cetextralogo.jpeg"
+              src={absoluteUrl("/cetextralogo.jpeg")}
               className="mx-auto h-[10rem] w-[10rem] rounded-md"
             />
             <Preview>

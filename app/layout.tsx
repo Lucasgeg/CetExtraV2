@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AnimatedBG } from "@/components/ui/AnimatedBG/AnimatedBG";
+import { SITE_URL } from "@/utils/siteUrl";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,12 +21,15 @@ export const metadata: Metadata = {
   },
   description:
     "Simplifiez la recherche d’extras pour vos évènements. Plateforme innovante pour les employeurs de l’évènementiel.",
-  metadataBase: new URL("https://cetextra.fr"),
+  // Résout les URL relatives (canonical, openGraph…) de toutes les pages
+  metadataBase: new URL(SITE_URL),
+  // Ni `openGraph.url` ni `alternates.canonical` ici : hérités par toute page
+  // qui ne les surcharge pas, ils la feraient pointer vers l'accueil (le
+  // canonical de l'accueil est déclaré dans app/page.tsx)
   openGraph: {
     title: "Cet Extra | Plateforme d’extras pour l’évènementiel",
     description:
       "Simplifiez la recherche d’extras pour vos évènements. Plateforme innovante pour les employeurs de l’évènementiel.",
-    url: "https://www.cetextra.fr",
     type: "website",
     images: [
       {
@@ -42,9 +46,6 @@ export const metadata: Metadata = {
     description:
       "Simplifiez la recherche d’extras pour vos évènements. Plateforme innovante pour les employeurs de l’évènementiel.",
     images: ["/cetextralogo.jpeg"]
-  },
-  alternates: {
-    canonical: "https://www.cetextra.fr/"
   },
   icons: {
     icon: "/favicon.png"

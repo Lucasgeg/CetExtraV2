@@ -21,6 +21,7 @@ import {
   convertToFrontendMissionJob
 } from "@/utils/enum";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
+import { absoluteUrl } from "@/utils/siteUrl";
 import { isEmailValid } from "@/utils/string";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -416,7 +417,7 @@ export async function POST(
         react: missionInvitation,
         text: await render(missionInvitation),
         headers: {
-          "List-Unsubscribe": "<https://cetextra.fr/blog/unsubscribe>"
+          "List-Unsubscribe": `<${absoluteUrl("/blog/unsubscribe")}>`
         }
       });
       if (sendError) {

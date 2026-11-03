@@ -50,7 +50,7 @@ _Avoid_ : poste réservé, poste invité
 - Lint: `bun run lint`
 - Typecheck: `bun tsc --noEmit`
 - Build: `bun run build`
-- Build prod Vercel (migrate + sitemap): `bun run vercel-build`
+- Build prod Vercel (migrate) : `bun run vercel-build` — sitemap et robots sont natifs (`app/sitemap.ts`, `app/robots.ts`)
 - Format: `bun run format`
 - Check format: `bun run format:check`
 
@@ -130,3 +130,4 @@ _Avoid_ : poste réservé, poste invité
 - `RESEND_API_KEY`
 - `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_WORKSPACE_ID`
 - `VERCEL_ENV`
+- `NEXT_PUBLIC_SITE_URL` (facultative : hôte canonique, défaut `https://cetextra.fr`, lue uniquement via `utils/siteUrl.ts`)
