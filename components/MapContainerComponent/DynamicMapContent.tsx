@@ -32,6 +32,18 @@ type DynamicMapContentProps = {
   maxHeight?: string;
   className?: string;
   width?: string;
+  minHeight?: string;
+  interactive?: boolean;
+};
+
+const STATIC_MAP_OPTIONS = {
+  dragging: false,
+  touchZoom: false,
+  doubleClickZoom: false,
+  scrollWheelZoom: false,
+  boxZoom: false,
+  keyboard: false,
+  zoomControl: false
 };
 
 const missionIcon = divIcon({
@@ -53,13 +65,15 @@ export default function DynamicMapContent({
   height,
   maxHeight,
   className,
-  width = "100%"
+  width = "100%",
+  minHeight = "300px",
+  interactive = true
 }: DynamicMapContentProps) {
   return (
     <MapContainer
       style={{
         height: height,
-        minHeight: "300px",
+        minHeight,
         width,
         borderRadius: "1.25em",
         maxHeight
@@ -67,14 +81,21 @@ export default function DynamicMapContent({
       center={center}
       zoom={zoom}
       className={cn(styles.mapContainer, className)}
+      {...(interactive ? {} : STATIC_MAP_OPTIONS)}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="© OpenStreetMap contributors"
+        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {points.map((point) => (
-        <Marker key={point.id} position={point.position} icon={missionIcon}>
-          <Popup>{point.label}</Popup>
+        <Marker
+          key={point.id}
+          position={point.position}
+          icon={missionIcon}
+          interactive={interactive}
+          keyboard={interactive}
+        >
+          {interactive && <Popup>{point.label}</Popup>}
         </Marker>
       ))}
     </MapContainer>

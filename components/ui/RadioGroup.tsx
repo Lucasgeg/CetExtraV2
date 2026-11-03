@@ -47,7 +47,7 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
             <Tooltip>
               <TooltipTrigger
                 asChild
-                className={`cursor-pointer rounded p-1 ${
+                className={`cursor-pointer rounded-sm p-1 ${
                   selectedValue === option.value
                     ? "bg-blue-500 text-white"
                     : "bg-gray-200"

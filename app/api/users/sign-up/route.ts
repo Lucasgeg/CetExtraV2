@@ -137,9 +137,20 @@ const createExtra = async (
         }
 
         // Check if the user have pending invitations
+        // Seules les invitations encore en attente sont transférées : une
+        // invitation annulée (individuellement ou avec sa mission) ne doit pas
+        // renaître en engagement `pending`.
+        // Email comparé sans casse ni espaces : les invitations sont écrites
+        // normalisées (trim + minuscules), les lignes historiques ne le sont
+        // pas forcément
+        const invitationEmail = {
+          equals: String(data.email).trim(),
+          mode: "insensitive" as const
+        };
         const pendingInvitations = await tx.invitation.findMany({
           where: {
-            email: data.email
+            email: invitationEmail,
+            status: UserMissionStatus.pending
           }
         });
         // Transfer invitation to userMission if any
@@ -171,7 +182,7 @@ const createExtra = async (
           try {
             await tx.invitation.deleteMany({
               where: {
-                email: data.email
+                email: invitationEmail
               }
             });
           } catch (error) {

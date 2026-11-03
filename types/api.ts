@@ -1,8 +1,70 @@
+import type { MissionJob, UserMissionStatus } from "@prisma/client";
 import type { EnumMissionJob } from "@/store/types";
 
 type Location = {
   fullName?: string;
 };
+
+/**
+ * Liste blanche des statuts de UserMission pour lesquels l'employeur voit les
+ * coordonnées (email, téléphone) d'un extra inscrit : uniquement son équipe
+ * (`accepted`). Une invitation envoyée à un extra inscrit (`pending`) ne les
+ * expose pas : sinon une entreprise pourrait inviter n'importe quel extra
+ * trouvé sur la carte et lire ses coordonnées avant qu'il accepte (RGPD). Tout
+ * autre statut, y compris un statut futur, est masqué par défaut.
+ *
+ * Ne concerne pas le modèle `Invitation` (extra non inscrit invité par email) :
+ * son email reste renvoyé, puisque c'est l'entreprise qui l'a saisi.
+ */
+export const CONTACT_VISIBLE_USER_MISSION_STATUSES = [
+  "accepted"
+] as const satisfies readonly UserMissionStatus[];
+
+export type ContactVisibleUserMissionStatus =
+  (typeof CONTACT_VISIBLE_USER_MISSION_STATUSES)[number];
+
+/**
+ * UserMission sans coordonnées (invitation `pending`, candidature `requested`,
+ * `refused`, `cancelled`…) : prénom et nom seulement ; ni email, ni téléphone,
+ * ni identifiant utilisateur (défense en profondeur : l'id ne doit pas servir
+ * de clé vers d'autres endpoints).
+ */
+export type CompanyMissionEmployeeMasked<TJob = MissionJob> = {
+  /** UserMission.id */
+  id: string;
+  missionJob: TJob;
+  status: Exclude<UserMissionStatus, ContactVisibleUserMissionStatus>;
+  user: {
+    extra: { first_name: string; last_name: string } | null;
+  };
+};
+
+/** UserMission de l'équipe (`accepted`), seul statut avec coordonnées. */
+export type CompanyMissionEmployeeWithContact<TJob = MissionJob> = {
+  /** UserMission.id */
+  id: string;
+  userId: string;
+  missionJob: TJob;
+  status: ContactVisibleUserMissionStatus;
+  user: {
+    id: string;
+    email: string;
+    extra: {
+      first_name: string;
+      last_name: string;
+      phone: string | null;
+    } | null;
+  };
+};
+
+/**
+ * Élément de `employees` renvoyé par GET /api/companies/[companyId]/missions
+ * (`fields=...,employees`). Discriminé par `status` : coordonnées présentes
+ * uniquement pour `accepted`.
+ */
+export type CompanyMissionEmployee<TJob = MissionJob> =
+  | CompanyMissionEmployeeMasked<TJob>
+  | CompanyMissionEmployeeWithContact<TJob>;
 
 export type GetCompanyMission = {
   id: string;
@@ -10,6 +72,8 @@ export type GetCompanyMission = {
   missionStartDate: Date;
   missionEndDate: Date;
   missionLocation: Location;
+  /** Présent seulement si `employees` est demandé dans `fields`. */
+  employees?: CompanyMissionEmployee[];
 };
 
 export interface PpxApiResponse {
@@ -96,6 +160,18 @@ export type CreateMissionFormValues = {
   location: Suggestion;
   extraJobOptions: EnumMissionJob[];
   teamCounts: TeamCount;
+  /**
+   * Intention de diffusion publique (opt-out, `true` par défaut en base) ;
+   * absent = défaut DB à la création, inchangé à l'édition. Voir ADR 0002.
+   */
+  isPublic?: boolean;
+  /**
+   * Fourchette de taux horaire indicative (€/h) : les deux bornes ou aucune
+   * (`null`), min ≤ max — voir `validateHourlyRateRange`. Absentes = défaut
+   * (aucune) à la création, inchangées à l'édition.
+   */
+  hourlyRateMin?: number | null;
+  hourlyRateMax?: number | null;
 };
 
 export enum EnumMissionSelector {

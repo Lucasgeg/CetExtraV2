@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import prisma from "@/app/lib/prisma";
 import { NewBlogPostTemplate } from "@/components/MailTemplate/NewBlogPostTemplate";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -23,9 +24,6 @@ export async function POST(request: Request) {
   const { shortDesc, title, emailSubject, shortUrl } =
     (await request.json()) as SendMailResponse;
 
-  const baseUrl = "https://cetextra.fr";
-  const unsubscribePath = "/blog/unsubscribe";
-
   try {
     const subscribersList = await prisma.blogSubscriber.findMany({
       select: { email: true },
@@ -38,7 +36,7 @@ export async function POST(request: Request) {
     const NewBlogPostEmail = NewBlogPostTemplate({
       title,
       shortDesc,
-      url: `${baseUrl}/blog/${shortUrl}`
+      url: absoluteUrl(`/blog/${shortUrl}`)
     });
 
     const results = await resend.emails.send({
@@ -49,7 +47,7 @@ export async function POST(request: Request) {
       react: NewBlogPostEmail,
       text: await render(NewBlogPostEmail),
       headers: {
-        "List-Unsubscribe": `<${baseUrl}${unsubscribePath}>`
+        "List-Unsubscribe": `<${absoluteUrl("/blog/unsubscribe")}>`
       }
     });
 

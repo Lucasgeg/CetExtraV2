@@ -13,6 +13,7 @@ import {
   Tailwind,
   Text
 } from "@react-email/components";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 // Correction de l'importation - suppression du composant T/Table inexistant
 
@@ -65,7 +66,7 @@ export const StatReport = ({
                 <Column>
                   <Img
                     alt="logo Cet Extra"
-                    src="https://cetextra.fr/cetextralogo.jpeg"
+                    src={absoluteUrl("/cetextralogo.jpeg")}
                     className="h-16 w-16 rounded-full border-2 border-white"
                   />
                   <Heading

@@ -19,7 +19,7 @@ Mission que l’employeur n’a pas retirée de la diffusion publique (intention
 _Avoid_ : mission publiée, mission visible
 
 **Fourchette de taux horaire** :
-Plage indicative (min–max) affichée sur l’annonce publique d’une mission. Optionnelle (les deux bornes ou aucune, min ≤ max) ; n’engage pas le taux contractuel.
+Plage indicative (min–max) affichée sur l’annonce publique d’une mission. Optionnelle (les deux bornes ou aucune, min ≤ max) ; n’engage pas le taux contractuel. Exception : à l’acceptation d’une **candidature**, le minimum est un plancher pour le taux contractuel (l’extra a candidaté en le connaissant) ; pas de plafond.
 _Avoid_ : salaire, taux de la mission
 
 **Taux horaire (contractuel)** :
@@ -50,7 +50,7 @@ _Avoid_ : poste réservé, poste invité
 - Lint: `bun run lint`
 - Typecheck: `bun tsc --noEmit`
 - Build: `bun run build`
-- Build prod Vercel (migrate + sitemap): `bun run vercel-build`
+- Build prod Vercel (migrate) : `bun run vercel-build` — sitemap et robots sont natifs (`app/sitemap.ts`, `app/robots.ts`)
 - Format: `bun run format`
 - Check format: `bun run format:check`
 
@@ -130,3 +130,4 @@ _Avoid_ : poste réservé, poste invité
 - `RESEND_API_KEY`
 - `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`, `INFISICAL_WORKSPACE_ID`
 - `VERCEL_ENV`
+- `NEXT_PUBLIC_SITE_URL` (facultative : hôte canonique, défaut `https://cetextra.fr`, lue uniquement via `utils/siteUrl.ts`)

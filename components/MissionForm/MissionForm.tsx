@@ -24,8 +24,10 @@ import type { CreateMissionFormValues, Suggestion } from "@/types/api";
 import type { InviteListDelete } from "@/types/InviteListDelete";
 import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
 import { convertToFrontendMissionJob, getMissionJobKey } from "@/utils/enum";
+import { getEffectiveIsPublic } from "@/utils/missionPublication.util";
 import { Loader } from "../ui/Loader/Loader";
 import type { Option } from "../ui/MultipleSelector";
+import { MissionPublicationCard } from "./MissionPublicationCard";
 
 const MissionCard = dynamic(
   () =>
@@ -83,7 +85,11 @@ export default function MissionForm({
       missionEndDate: "",
       extraJobOptions: [],
       teamCounts: {},
-      location: undefined
+      location: undefined,
+      // Opt-out : publique par défaut à la création (ADR 0002)
+      isPublic: true,
+      hourlyRateMin: null,
+      hourlyRateMax: null
     }
   });
 
@@ -98,6 +104,9 @@ export default function MissionForm({
   const [employees, setEmployees] = useState<
     MissionDetailApiResponse["employees"] | undefined
   >(undefined);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  /** Plancher en vigueur (minimum en base) si des engagements sont actifs. */
+  const [rateFloor, setRateFloor] = useState<number | null>(null);
   const [isDeletingInvitations, setIsDeletingInvitations] = useState(false);
   const [deleteInvitationsError, setDeleteInvitationsError] = useState<
     string | null
@@ -147,7 +156,10 @@ export default function MissionForm({
               lat: data.missionLocation?.lat || 0,
               lon: data.missionLocation?.lon || 0,
               display_name: data.missionLocation?.fullName || "Lieu inconnu"
-            }
+            },
+            isPublic: data.isPublic,
+            hourlyRateMin: data.hourlyRateMin,
+            hourlyRateMax: data.hourlyRateMax
           });
 
           const invitations: InviteListDelete = {
@@ -160,6 +172,7 @@ export default function MissionForm({
           setInvitationsData(invitations);
 
           setEmployees(data.employees);
+          setRateFloor(data.hasActiveEngagements ? data.hourlyRateMin : null);
         } catch (error) {
           if (error instanceof Error) {
             console.error("Error:", error);
@@ -213,6 +226,7 @@ export default function MissionForm({
     setConfirmView(false);
     setFormIsValid(false);
     setMissionId(undefined);
+    setSubmitError(null);
     resetFormValues();
     setValue("additionalInfo", "");
   };
@@ -259,7 +273,26 @@ export default function MissionForm({
     });
   };
 
-  const onSubmit = async (data: CreateMissionFormValues) => {
+  /** Message de l'API pour une erreur métier (400 validation, 409 plancher), sinon générique. */
+  const readSubmitError = async (response: Response) => {
+    const errorData = await response.json().catch(() => null);
+    console.error("Error saving mission:", errorData);
+    const message =
+      typeof errorData?.message === "string" ? errorData.message : null;
+    setSubmitError(
+      message && (response.status === 400 || response.status === 409)
+        ? message
+        : "Une erreur est survenue lors de l'enregistrement de la mission."
+    );
+  };
+
+  const onSubmit = async (formData: CreateMissionFormValues) => {
+    setSubmitError(null);
+    // Pas d'adresse = pas de publication (l'intention reste dans le formulaire)
+    const data: CreateMissionFormValues = {
+      ...formData,
+      isPublic: getEffectiveIsPublic(formData.isPublic, !!formData.location)
+    };
     if (isEditMode) {
       const response = await fetch(`/api/missions/${editedMissionId}`, {
         method: "PUT",
@@ -269,8 +302,7 @@ export default function MissionForm({
         body: JSON.stringify({ ...data })
       });
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error creating mission:", errorData);
+        await readSubmitError(response);
         return;
       }
       setMissionId((await response.json()).mission.id);
@@ -286,8 +318,7 @@ export default function MissionForm({
       })
     });
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error creating mission:", errorData);
+      await readSubmitError(response);
       return;
     }
     if (response.ok) {
@@ -449,6 +480,11 @@ export default function MissionForm({
         {renderTitle()}
         {renderAlert()}
       </h1>
+      {submitError && (
+        <p role="alert" className="px-4 text-center text-red-500 text-sm">
+          {submitError}
+        </p>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="min-h-0 flex-1">
         {formIsValid && confirmView ? (
           <ValidationMission
@@ -623,11 +659,18 @@ export default function MissionForm({
                   />
                 )}
               />
+              <MissionPublicationCard
+                control={control}
+                hasLocation={!!currentLocation}
+                disabled={isSubmitting}
+                rateErrorMessage={errors.hourlyRateMin?.message}
+                rateFloor={isEditMode ? rateFloor : null}
+              />
             </div>
             {/* Third Col */}
             <div className="flex h-full min-h-0 flex-col justify-start gap-4 overflow-hidden lg:row-span-2">
               {/* Controller */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Controller
                   name="extraJobOptions"
                   control={control}
@@ -670,7 +713,7 @@ export default function MissionForm({
 
               {/* Affichage - avec scroll limité à ce conteneur */}
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg bg-employer-background shadow-md">
-                <h2 className="flex-shrink-0 px-4 py-2 text-center font-semibold text-employer-primary text-lg">
+                <h2 className="shrink-0 px-4 py-2 text-center font-semibold text-employer-primary text-lg">
                   Gestion de l'équipe:
                 </h2>
 
@@ -686,12 +729,12 @@ export default function MissionForm({
                           <Fragment key={jobValue}>
                             <li className="flex justify-between text-employer-secondary">
                               <div className="flex items-center gap-2">
-                                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 font-semibold text-[#9A7B3F] text-xs">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#2E7BA6]/40 font-semibold text-[#9A7B3F] text-xs">
                                   {index + 1}
                                 </span>
                                 <span className="text-sm">{jobValue}</span>
                               </div>
-                              <div className="flex min-w-32 flex-shrink-0 items-center justify-center gap-2">
+                              <div className="flex min-w-32 shrink-0 items-center justify-center gap-2">
                                 <Button
                                   type="button"
                                   className="px-2 py-1 text-xs"
@@ -732,7 +775,7 @@ export default function MissionForm({
               </div>
 
               {/* Boutons - toujours visibles en bas */}
-              <div className="flex h-auto flex-shrink-0 justify-between gap-4">
+              <div className="flex h-auto shrink-0 justify-between gap-4">
                 <Button
                   theme="company"
                   type="button"

@@ -122,14 +122,14 @@ export default async function UnsubscribePage({
                   id="email"
                   name="email"
                   required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#FDBA3B] focus:outline-none focus:ring-2 focus:ring-[#FDBA3B]/20"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#FDBA3B] focus:outline-hidden focus:ring-2 focus:ring-[#FDBA3B]/20"
                   placeholder="votre@email.com"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full rounded-lg bg-red-600 px-6 py-3 font-semibold text-white shadow transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="w-full rounded-lg bg-red-600 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-hidden focus:ring-2 focus:ring-red-500/20"
               >
                 Me désinscrire
               </button>
@@ -140,7 +140,7 @@ export default async function UnsubscribePage({
         <div className="mt-6 text-center">
           <Link
             href="/"
-            className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow transition hover:bg-[#F15A29] hover:text-white"
+            className="inline-block rounded-lg bg-[#FDBA3B] px-6 py-3 font-semibold text-[#22345E] shadow-sm transition hover:bg-[#F15A29] hover:text-white"
           >
             Retour à l'accueil
           </Link>

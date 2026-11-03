@@ -1,13 +1,16 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LatLngExpression } from "leaflet";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MissionPoint } from "@/components/MapContainerComponent/DynamicMapContent";
 import MapContainerComponent from "@/components/MapContainerComponent/MapContainerComponent";
 import { MapWithUserFilter } from "@/components/MapWithUserFilter";
+import { MissionApplications } from "@/components/MissionApplications/MissionApplications";
 import MissionForm from "@/components/MissionForm/MissionForm";
 import { PendingInvitations } from "@/components/PendingInvitations/PendingInvitations";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import {
@@ -22,28 +25,39 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Loader } from "@/components/ui/Loader/Loader";
+import { RefreshErrorBanner } from "@/components/ui/RefreshErrorBanner/RefreshErrorBanner";
 import { TeamGestionnaryItem } from "@/components/ui/TeamGestionnaryItem/TeamGestionnaryItem";
-import useFetch from "@/hooks/useFetch";
 import type { PrismaMissionJob } from "@/store/types";
 import { useUserResearchStore } from "@/store/useUserResearchStore";
 import type { Suggestion } from "@/types/api";
-import type { MissionDetailApiResponse } from "@/types/MissionDetailApiResponse";
+import type {
+  MissionDetailApiResponse,
+  MissionDetailEmployee,
+  MissionDetailEmployeeWithContact
+} from "@/types/MissionDetailApiResponse";
 import type { UserWithLocation } from "@/types/UserWithLocation.enum";
+import { apiFetch, isNotFoundOrForbidden } from "@/utils/apiFetch";
 import { formatDateTimeLocal, formatDuration } from "@/utils/date";
 import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { formatHourlyRateRange } from "@/utils/missionPublication.util";
+import { queryKeys } from "@/utils/queryKeys";
 import { capitalizeFirstLetter } from "@/utils/string";
 
 export default function MissionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { data, error, loading, refetch } = useFetch<MissionDetailApiResponse>(
-    `/api/missions/${id}`
-  );
+  const queryClient = useQueryClient();
+  const { data, error, isPending, isError, isFetching, refetch } = useQuery({
+    queryKey: queryKeys.missions.detail(id),
+    queryFn: ({ signal }) =>
+      apiFetch<MissionDetailApiResponse>(`/api/missions/${id}`, { signal }),
+    // Toujours revalidé au montage (le cache s'affiche pendant ce temps) :
+    // création, édition et annulation de mission ne passent pas encore par
+    // TanStack Query et n'invalident donc pas ce détail. À retirer quand
+    // elles invalideront le cache
+    staleTime: 0
+  });
   const { setRequiredPositions, setMissionData } = useUserResearchStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [
-    pendingInvitationsRefetchTrigger,
-    setPendingInvitationsRefetchTrigger
-  ] = useState(0);
 
   const [fullScreenMapOpen, setFullScreenMapOpen] = useState(false);
   const [_filteredUsers, setFilteredUsers] = useState<UserWithLocation[]>([]);
@@ -72,7 +86,7 @@ export default function MissionDetailPage() {
     [data?.missionLocation?.lat, data?.missionLocation?.lon]
   );
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader
@@ -84,48 +98,65 @@ export default function MissionDetailPage() {
     );
   }
 
-  if (error) {
+  // L'erreur ne remplace l'écran que sans données, ou si la mission a
+  // disparu / n'est plus accessible (403/404). Un rafraîchissement en échec
+  // (ex. 5xx après une décision) garde l'écran et affiche une bannière
+  // (après `isPending`, `data === undefined` implique un état d'erreur)
+  if (data === undefined || isNotFoundOrForbidden(error)) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-red-500">
-          Erreur lors du chargement des détails de la mission: {error.message}
+        <p role="alert" className="text-red-500">
+          {isNotFoundOrForbidden(error)
+            ? "Mission introuvable ou inaccessible."
+            : `Erreur lors du chargement des détails de la mission : ${error?.message ?? "erreur inconnue"}`}
         </p>
       </div>
     );
   }
 
-  if (!data) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-red-500">
-          Aucune donnée trouvée pour cette mission.
-        </p>
-      </div>
-    );
-  }
+  // Retrait d'un membre : l'équipe (détail) et les postes disponibles
+  // (candidatures) changent, on invalide tout ce qui concerne la mission
+  const invalidateMission = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.missions.byId(id) });
+  const invalidateInvites = () =>
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.missions.invites(id)
+      }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.companies.all })
+    ]);
 
   const createTeamGestionnaryItems = () => {
-    if (!data) return [];
-
     const items: Array<{
+      /** Clé React stable : un item ne doit pas hériter de l'état local
+       * (dialogues, formulaire) de son voisin après un rafraîchissement */
+      key: string;
       job: PrismaMissionJob;
-      employee?: (typeof data.employees)[0];
+      employee?: MissionDetailEmployeeWithContact;
       isOccupied: boolean;
     }> = [];
 
     // Pour chaque type de poste requis
     data.requiredPositions.forEach((position) => {
+      // Rang parmi les places libres de ce poste (indépendant des places
+      // occupées, pour qu'un départ ne décale pas les clés existantes)
+      let freeSlotIndex = 0;
       // Créer autant d'items que de quantity
       for (let i = 0; i < position.quantity; i++) {
         // Chercher un employé correspondant qui n'est pas encore assigné
         const assignedEmployee = data.employees.find(
-          (emp) =>
+          (
+            emp: MissionDetailEmployee
+          ): emp is MissionDetailEmployeeWithContact =>
             emp.missionJob === position.jobType &&
             emp.status === "accepted" &&
             !items.some((item) => item.employee?.id === emp.id)
         );
 
         items.push({
+          key: assignedEmployee
+            ? `employee-${assignedEmployee.id}`
+            : `free-${position.jobType}-${freeSlotIndex++}`,
           job: position.jobType as PrismaMissionJob,
           employee: assignedEmployee,
           isOccupied: !!assignedEmployee
@@ -155,6 +186,13 @@ export default function MissionDetailPage() {
       value: formatDateTimeLocal(data.missionEndDate)
     }
   ];
+  const hourlyRateRange = formatHourlyRateRange(
+    data.hourlyRateMin,
+    data.hourlyRateMax
+  );
+  if (hourlyRateRange) {
+    items.push({ label: "Taux horaire indicatif", value: hourlyRateRange });
+  }
 
   const points: MissionPoint[] = [
     {
@@ -187,12 +225,38 @@ export default function MissionDetailPage() {
         <span className="text-extra-primary">Détails&nbsp;</span>de la
         mission&nbsp;<span className="underline">{data.name}</span>
       </h1>
+      {isError && (
+        <RefreshErrorBanner
+          className="mt-2"
+          onRetry={() => refetch()}
+          retrying={isFetching}
+        />
+      )}
       <div className="grid flex-1 gap-3 overflow-hidden py-4 lg:grid lg:grid-cols-3 lg:gap-x-4">
         <div className="flex w-full flex-1 flex-col gap-4 overflow-auto rounded-lg bg-employer-background shadow-md">
           <div className="flex flex-1 flex-col p-4">
-            <h2 className="font-bold text-employer-primary text-lg">
-              Détails de la mission
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-bold text-employer-primary text-lg">
+                Détails de la mission
+              </h2>
+              {/* Intention seulement (ADR 0002) : une mission publique
+                  complète, commencée ou sans adresse n'est pas listée */}
+              <Badge
+                variant="outline"
+                title={
+                  data.isPublic
+                    ? "Proposée sur le site public tant qu'elle a une adresse, n'a pas commencé et qu'il reste des postes à pourvoir"
+                    : "Retirée du site public : elle n'apparaît pas dans les annonces"
+                }
+                className={
+                  data.isPublic
+                    ? "border-green-700 text-green-700"
+                    : "text-muted-foreground"
+                }
+              >
+                {data.isPublic ? "Publique" : "Privée"}
+              </Badge>
+            </div>
             <DetailsList items={items} />
             <div className="flex flex-1 flex-col">
               <MapContainerComponent
@@ -231,15 +295,7 @@ export default function MissionDetailPage() {
               {data.additionalInfo || "Aucune description fournie."}
             </CardContent>
           </Card>
-          <Dialog
-            open={fullScreenMapOpen}
-            onOpenChange={(open) => {
-              setFullScreenMapOpen(open);
-              if (!open) {
-                setPendingInvitationsRefetchTrigger((prev) => prev + 1);
-              }
-            }}
-          >
+          <Dialog open={fullScreenMapOpen} onOpenChange={setFullScreenMapOpen}>
             <DialogTrigger asChild>
               <Button
                 theme="company"
@@ -266,7 +322,6 @@ export default function MissionDetailPage() {
                 showInfo={true}
                 autoFetch={true}
                 initialRadius={2.5}
-                preservePrivacy={true}
               />
             </DialogContent>
           </Dialog>
@@ -314,18 +369,18 @@ export default function MissionDetailPage() {
                 </DialogContent>
               </Dialog>
               <div className="w-24">
-                <PendingInvitations
-                  missionId={id}
-                  refetchTrigger={pendingInvitationsRefetchTrigger}
-                />
+                <PendingInvitations missionId={id} />
               </div>
             </div>
           </div>
+          {/* Une décision invalide elle-même les candidatures et le détail de
+              la mission (équipe ci-dessous) : aucun rechargement à câbler */}
+          <MissionApplications missionId={id} />
           <div className="flex flex-1 flex-col gap-1 rounded-lg bg-employer-background p-1 shadow-md sm:p-3">
             {teamItems.map((item, index) => {
               return (
                 <TeamGestionnaryItem
-                  key={`${item.job}-${index}`}
+                  key={item.key}
                   tipNumber={index + 1}
                   value={
                     item.employee
@@ -363,10 +418,8 @@ export default function MissionDetailPage() {
                   minDateStart={data.missionStartDate}
                   missionId={id}
                   userId={item.employee?.user.id}
-                  onDeleteFetch={refetch}
-                  onInviteSuccess={() =>
-                    setPendingInvitationsRefetchTrigger((prev) => prev + 1)
-                  }
+                  onDeleteFetch={invalidateMission}
+                  onInviteSuccess={invalidateInvites}
                 />
               );
             })}

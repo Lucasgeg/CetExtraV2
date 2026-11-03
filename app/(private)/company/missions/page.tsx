@@ -1,10 +1,11 @@
 "use client";
 
 import { MagnifyingGlassIcon, TrashIcon } from "@heroicons/react/24/outline";
-import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import CustomTable from "@/components/CustomTable/CustomTable";
+import CustomTable, {
+  type GenericColumn
+} from "@/components/CustomTable/CustomTable";
 import { Switch } from "@/components/ui/atom/Switch/Switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +22,17 @@ import {
 } from "@/components/ui/pagination";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
 import { EnumMissionSelector, type GetCompanyMission } from "@/types/api";
+import type { MissionCancellationApiResponse } from "@/types/MissionCancellation";
+import { MISSION_CANCELLATION_MESSAGE_MAX_LENGTH } from "@/utils/engagement.util";
 
 const MISSIONS_PER_PAGE = 10;
+
+const CANCEL_ERROR_MESSAGES: Record<number, string> = {
+  400: "Le motif d'annulation est invalide ou trop long.",
+  403: "Vous ne pouvez pas annuler une mission d'une autre entreprise.",
+  404: "Cette mission n'existe plus.",
+  409: "Cette mission est déjà annulée ou terminée."
+};
 
 export default function CompanyMissionsPage() {
   const { companyId } = useCurrentUserStore();
@@ -36,17 +46,35 @@ export default function CompanyMissionsPage() {
   const [totalMissions, setTotalMissions] = useState(0);
   const [missionToCancel, setMissionToCancel] = useState<string | null>(null);
   const [cancelMessage, setCancelMessage] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
 
   const totalPages = Math.ceil(totalMissions / MISSIONS_PER_PAGE);
 
-  const columns: ColumnDef<GetCompanyMission>[] = useMemo(
+  const columns: GenericColumn<GetCompanyMission>[] = useMemo(
     () => [
       {
         accessorKey: "name",
         header: "Nom de la mission",
-        cell: ({ row }) => (
-          <div className="font-medium text-gray-900">{row.original.name}</div>
-        )
+        cell: ({ row }) => {
+          const applications = (row.original.employees ?? []).filter(
+            (employee) => employee.status === "requested"
+          ).length;
+          return (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-gray-900">
+                {row.original.name}
+              </span>
+              {applications > 0 && (
+                <Link
+                  href={`/company/missions/${row.original.id}`}
+                  className="rounded-full bg-employer-surface px-2.5 py-0.5 font-semibold text-employer-accent text-xs hover:underline"
+                >
+                  {applications} candidature{applications > 1 ? "s" : ""}
+                </Link>
+              )}
+            </div>
+          );
+        }
       },
       {
         accessorKey: "missionStartDate",
@@ -92,14 +120,14 @@ export default function CompanyMissionsPage() {
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
             <Link
-              className="rounded p-1 text-blue-600 hover:bg-blue-100"
+              className="rounded-sm p-1 text-blue-600 hover:bg-blue-100"
               title="Voir les détails"
               href={`/company/missions/${row.original.id}`}
             >
               <MagnifyingGlassIcon className="h-4 w-4" />
             </Link>
             <button
-              className="rounded p-1 text-red-600 hover:bg-red-100"
+              className="rounded-sm p-1 text-red-600 hover:bg-red-100"
               title="Supprimer"
               type="button"
               onClick={() => setMissionToCancel(row.original.id)}
@@ -121,7 +149,7 @@ export default function CompanyMissionsPage() {
         const params = new URLSearchParams({
           missionSelector,
           fields:
-            "id,name,missionStartDate,missionEndDate,missionLocation.fullName",
+            "id,name,missionStartDate,missionEndDate,missionLocation.fullName,employees",
           take: MISSIONS_PER_PAGE.toString(),
           skip: skip.toString()
         });
@@ -182,8 +210,14 @@ export default function CompanyMissionsPage() {
     );
   }
 
+  const closeCancelModal = () => {
+    setMissionToCancel(null);
+    setCancelMessage(null);
+  };
+
   const handleCancelMission = async (missionId: string) => {
     setLoading(true);
+    setWarning(null);
     try {
       const response = await fetch(`/api/missions/${missionId}/cancel`, {
         method: "PATCH",
@@ -191,14 +225,29 @@ export default function CompanyMissionsPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
         throw new Error(
-          errorData.error || "Erreur lors de l'annulation de la mission"
+          CANCEL_ERROR_MESSAGES[response.status] ??
+            "Erreur lors de l'annulation de la mission"
         );
       }
 
-      // Recharger les missions après annulation
+      // Recharger les missions après annulation, même si le corps de la
+      // réponse est illisible : la mission est annulée en base
       fetchMissions(currentPage);
+
+      // Un échec d'envoi d'email n'est qu'un avertissement, à ne pas
+      // présenter comme une erreur
+      const result: MissionCancellationApiResponse | null = await response
+        .json()
+        .catch(() => null);
+      const emailFailures = result?.emailFailures ?? 0;
+      if (emailFailures > 0) {
+        setWarning(
+          `Mission annulée, mais ${emailFailures} extra${
+            emailFailures > 1 ? "s n'ont" : " n'a"
+          } pas pu être prévenu${emailFailures > 1 ? "s" : ""} par email.`
+        );
+      }
     } catch (error) {
       console.error("Erreur annulation mission:", error);
       setError(
@@ -206,7 +255,8 @@ export default function CompanyMissionsPage() {
       );
     } finally {
       setLoading(false);
-      setMissionToCancel(null);
+      // Le motif ne doit jamais rester pré-rempli pour la mission suivante
+      closeCancelModal();
     }
   };
 
@@ -228,10 +278,7 @@ export default function CompanyMissionsPage() {
 
   return (
     <div className="flex h-full flex-col pb-6">
-      <Modal
-        isOpen={!!missionToCancel}
-        onClose={() => setMissionToCancel(null)}
-      >
+      <Modal isOpen={!!missionToCancel} onClose={closeCancelModal}>
         <ModalBody>
           <p>
             Êtes-vous sûr de vouloir annuler cette mission ? Cette action est
@@ -240,12 +287,13 @@ export default function CompanyMissionsPage() {
           <Input
             placeholder="Motif de l'annulation (optionnel)"
             value={cancelMessage || ""}
+            maxLength={MISSION_CANCELLATION_MESSAGE_MAX_LENGTH}
             onChange={(e) => setCancelMessage(e.target.value)}
           />
           <div className="mt-4 flex justify-end space-x-3">
             <Button
               variant="outline"
-              onClick={() => setMissionToCancel(null)}
+              onClick={closeCancelModal}
               disabled={loading}
             >
               Annuler
@@ -273,9 +321,19 @@ export default function CompanyMissionsPage() {
       </div>
 
       {error && (
-        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+        <div className="rounded-sm border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong className="font-bold">Erreur: </strong>
           <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
+      {warning && (
+        <div
+          role="status"
+          className="rounded-sm border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-800"
+        >
+          <strong className="font-bold">Attention : </strong>
+          <span className="block sm:inline">{warning}</span>
         </div>
       )}
 

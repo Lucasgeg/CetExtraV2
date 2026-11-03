@@ -57,7 +57,7 @@ function DefaultErrorFallback({
       <p className="text-gray-500 text-sm">{error.message}</p>
       <button
         onClick={retry}
-        className="rounded bg-employer-primary px-4 py-2 text-white hover:bg-employer-secondary"
+        className="rounded-sm bg-employer-primary px-4 py-2 text-white hover:bg-employer-secondary"
       >
         Réessayer
       </button>

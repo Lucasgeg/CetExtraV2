@@ -62,52 +62,88 @@ export const getVisibleRadius = (bounds: LatLngBounds): number => {
 };
 
 /**
- * Ajoute une variation aléatoire aux coordonnées pour préserver la confidentialité
- * @param lat Latitude originale
- * @param lon Longitude originale
- * @param radiusKm Rayon de variation en kilomètres (défaut: 500m)
- * @returns Nouvelles coordonnées avec variation aléatoire
+ * Pas de la grille d'anonymisation en latitude (≈ 1 km : 1° ≈ 111,2 km).
  */
-export const randomizeCoordinates = (
-  lat: number,
-  lon: number,
-  radiusKm: number = 0.5
-): { lat: number; lon: number } => {
-  // Conversion du rayon en degrés (approximation)
-  // 1 degré ≈ 111 km
-  const radiusInDegrees = radiusKm / 111;
+export const OBFUSCATION_GRID_STEP_LAT_DEG = 0.009;
 
-  // Génération d'un angle aléatoire
-  const angle = Math.random() * 2 * Math.PI;
+/**
+ * Amplitude du décalage intra-cellule, en fraction de la taille de cellule.
+ * 0.5 → décalage de ±25 % de la cellule autour de son centre : le point affiché
+ * reste dans la cellule, à ~1 km au plus de la position réelle.
+ */
+const OBFUSCATION_JITTER_RATIO = 0.5;
 
-  // Génération d'une distance aléatoire dans le rayon
-  const distance = Math.random() * radiusInDegrees;
-
-  // Calcul des nouvelles coordonnées
-  const deltaLat = distance * Math.cos(angle);
-  const deltaLon =
-    (distance * Math.sin(angle)) / Math.cos((lat * Math.PI) / 180);
-
-  return {
-    lat: lat + deltaLat,
-    lon: lon + deltaLon
-  };
+/**
+ * Finaliseur `fmix32` de MurmurHash3 : avalanche complète sur 32 bits.
+ */
+const fmix32 = (h: number): number => {
+  let x = h;
+  x ^= x >>> 16;
+  x = Math.imul(x, 0x85ebca6b);
+  x ^= x >>> 13;
+  x = Math.imul(x, 0xc2b2ae35);
+  x ^= x >>> 16;
+  return x >>> 0;
 };
 
 /**
- * Randomise les coordonnées avec une variation plus réaliste
- * @param lat Latitude originale
- * @param lon Longitude originale
- * @param minRadiusKm Rayon minimum en km
- * @param maxRadiusKm Rayon maximum en km
- * @returns Coordonnées randomisées
+ * Hash FNV-1a 32 bits + finaliseur `fmix32`, ramené dans [0, 1). Pur JS (pas
+ * de `node:crypto`, ce module est aussi importé côté client) et stable d'une
+ * exécution à l'autre.
+ *
+ * FNV-1a seul diffuse mal les variations des derniers caractères : les hash de
+ * `${seed}:lat` et `${seed}:lon` restaient corrélés (r ≈ 0,66) et les extras
+ * d'une même cellule s'alignaient sur une diagonale. `fmix32` casse ce lien.
  */
-export const randomizeCoordinatesAdvanced = (
+const hashToUnitInterval = (input: string): number => {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return fmix32(hash) / 0x100000000;
+};
+
+/**
+ * Brouille une position (domicile d'un extra) de façon déterministe avant de
+ * l'exposer à un tiers. Fonction pure : même entrée → même sortie.
+ *
+ * 1. Accrochage à une grille d'≈ 1 km : la position réelle est remplacée par
+ *    le centre de sa cellule. Le pas en longitude dépend de la latitude de la
+ *    *rangée* (et non de la latitude réelle), sinon la grille glisserait avec
+ *    la position réelle et en laisserait fuiter une partie.
+ * 2. Décalage déterministe dans la cellule, dérivé de `seed` (ex. `user.id`),
+ *    uniquement pour que les extras d'une même cellule ne s'empilent pas sur
+ *    la carte. La position réelle étant déjà effacée à l'étape 1, ce décalage
+ *    peut dériver d'une donnée publique : aucune clé secrète n'est requise.
+ *
+ * Tout ce qui est exposé (coordonnées, distance, filtre de rayon, tri) doit
+ * être calculé à partir du résultat de cette fonction, jamais de l'entrée.
+ */
+export const obfuscateCoordinates = (
   lat: number,
   lon: number,
-  minRadiusKm: number = 0.1,
-  maxRadiusKm: number = 0.8
+  seed: string
 ): { lat: number; lon: number } => {
-  const radiusKm = Math.random() * (maxRadiusKm - minRadiusKm) + minRadiusKm;
-  return randomizeCoordinates(lat, lon, radiusKm);
+  const stepLat = OBFUSCATION_GRID_STEP_LAT_DEG;
+  const rowCenterLat = (Math.floor(lat / stepLat) + 0.5) * stepLat;
+
+  // Cellules ~carrées : le pas en longitude s'élargit avec la latitude.
+  const cosLat = Math.max(Math.cos((rowCenterLat * Math.PI) / 180), 0.01);
+  const stepLon = stepLat / cosLat;
+  const cellCenterLon = (Math.floor(lon / stepLon) + 0.5) * stepLon;
+
+  const offsetLat =
+    (hashToUnitInterval(`${seed}:lat`) - 0.5) *
+    stepLat *
+    OBFUSCATION_JITTER_RATIO;
+  const offsetLon =
+    (hashToUnitInterval(`${seed}:lon`) - 0.5) *
+    stepLon *
+    OBFUSCATION_JITTER_RATIO;
+
+  return {
+    lat: rowCenterLat + offsetLat,
+    lon: cellCenterLon + offsetLon
+  };
 };

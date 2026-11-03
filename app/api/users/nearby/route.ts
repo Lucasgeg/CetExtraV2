@@ -3,8 +3,20 @@ import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import {
   calculateDistance,
-  randomizeCoordinatesAdvanced
+  obfuscateCoordinates
 } from "@/utils/distance.utils";
+
+/**
+ * Lecture stricte d'un paramètre numérique : absent ou vide → `fallback`,
+ * sinon `Number()` (refuse "12abc", contrairement à `parseFloat`).
+ */
+const parseNumberParam = (
+  value: string | null,
+  fallback = Number.NaN
+): number => {
+  if (value === null || value.trim() === "") return fallback;
+  return Number(value);
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,20 +26,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
     const { searchParams } = new URL(request.url);
-    const lat = parseFloat(searchParams.get("lat") || "0");
-    const lon = parseFloat(searchParams.get("lon") || "0");
-    const radius = parseFloat(searchParams.get("radius") || "50");
-    const preservePrivacy = searchParams.get("privacy") !== "false"; // Par défaut true
-    const limit = parseInt(searchParams.get("limit") || "100", 10); // Limite de résultats
-    const page = parseInt(searchParams.get("page") || "1", 10); // Page pour pagination
-    const skip = (page - 1) * limit;
+    const lat = parseNumberParam(searchParams.get("lat"));
+    const lon = parseNumberParam(searchParams.get("lon"));
+    const radius = parseNumberParam(searchParams.get("radius"), 50);
+    const limit = parseNumberParam(searchParams.get("limit"), 100); // Limite de résultats
+    const page = parseNumberParam(searchParams.get("page"), 1); // Page pour pagination
 
-    if (!lat || !lon) {
+    if (
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lon) ||
+      lat < -90 ||
+      lat > 90 ||
+      lon < -180 ||
+      lon > 180
+    ) {
       return NextResponse.json(
-        { error: "Coordonnées latitude et longitude requises" },
+        {
+          error:
+            "Coordonnées latitude ([-90, 90]) et longitude ([-180, 180]) requises"
+        },
         { status: 400 }
       );
     }
+    if (!Number.isFinite(radius) || radius <= 0) {
+      return NextResponse.json(
+        { error: "Le rayon doit être un nombre strictement positif" },
+        { status: 400 }
+      );
+    }
+    if (
+      !Number.isSafeInteger(limit) ||
+      limit < 1 ||
+      !Number.isSafeInteger(page) ||
+      page < 1
+    ) {
+      return NextResponse.json(
+        { error: "limit et page doivent être des entiers ≥ 1" },
+        { status: 400 }
+      );
+    }
+    const skip = (page - 1) * limit;
 
     // Récupérer les utilisateurs avec filtrage optimisé
     const users = await prisma.user.findMany({
@@ -57,63 +95,60 @@ export async function GET(request: NextRequest) {
       take: limit,
       skip: skip
     });
-    // Filtre et traitement des utilisateurs
-    const nearbyUsers = users
-      .filter((user) => {
-        if (!user.userLocation) return false;
-        const userLat = Number(user.userLocation.lat);
-        const userLon = Number(user.userLocation.lon);
-        // Calculer la distance et vérifier si elle est dans le rayon
 
-        const distance = calculateDistance(lat, lon, userLat, userLon);
-        return distance <= radius;
-      })
-      .map((user) => {
-        if (!user.userLocation) {
-          return null; // Ignorer les utilisateurs sans localisation
-        }
-        const userLat = Number(user.userLocation.lat);
-        const userLon = Number(user.userLocation.lon);
-        const distance = calculateDistance(lat, lon, userLat, userLon);
+    // RGPD : `userLocation` est le domicile de l'extra. La position exacte ne
+    // sort jamais de cette boucle : coordonnées, distance, filtre de rayon et
+    // tri sont tous calculés sur la position brouillée (grille ~1 km).
+    const nearbyUsers = users.flatMap((user) => {
+      if (!user.userLocation) return [];
 
-        const displayCoordinates = preservePrivacy
-          ? randomizeCoordinatesAdvanced(userLat, userLon, 0.1, 0.8)
-          : {
-              lat: userLat,
-              lon: userLon
-            };
-        const firstName = user.extra?.first_name || "";
-        const lastName = user.extra?.last_name || "";
-        const profilePictureUrl = user.profilePictureUrl || "";
+      // Colonnes `String` en base : "" ou valeur illisible → extra ignoré.
+      // On trace l'id seulement, jamais les valeurs (domicile).
+      const exactLat = Number.parseFloat(user.userLocation.lat);
+      const exactLon = Number.parseFloat(user.userLocation.lon);
+      if (!Number.isFinite(exactLat) || !Number.isFinite(exactLon)) {
+        console.warn(
+          `[users/nearby] Localisation illisible, extra ignoré : ${user.id}`
+        );
+        return [];
+      }
 
-        return {
+      const displayed = obfuscateCoordinates(exactLat, exactLon, user.id);
+      const distance =
+        Math.round(
+          calculateDistance(lat, lon, displayed.lat, displayed.lon) * 10
+        ) / 10;
+
+      if (!(distance <= radius)) return [];
+
+      const firstName = user.extra?.first_name || "";
+      const lastName = user.extra?.last_name || "";
+
+      return [
+        {
           id: user.id,
           name: `${firstName} ${lastName}`.trim(),
           firstName,
           lastName,
-          lat: displayCoordinates.lat,
-          lon: displayCoordinates.lon,
+          lat: displayed.lat,
+          lon: displayed.lon,
           distance,
           job: Array.isArray(user.extra?.missionJobs)
             ? user.extra.missionJobs.join(", ")
             : user.extra?.missionJobs || "Non spécifié",
-          isPrivacyProtected: preservePrivacy,
-          profileImageUrl: profilePictureUrl
-        };
-      });
+          profileImageUrl: user.profilePictureUrl || ""
+        }
+      ];
+    });
 
-    // Trier par distance et renvoyer
-    const filteredNearbyUsers = nearbyUsers.filter(
-      (user): user is NonNullable<typeof user> => user !== null
-    );
+    // Trier par distance (brouillée) et renvoyer
     return NextResponse.json({
-      users: filteredNearbyUsers.sort((a, b) => a.distance - b.distance),
-      total: filteredNearbyUsers.length,
+      users: nearbyUsers.sort((a, b) => a.distance - b.distance),
+      total: nearbyUsers.length,
       page,
       limit,
       radius,
-      center: { lat, lon },
-      privacyProtected: preservePrivacy
+      center: { lat, lon }
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs:", error);

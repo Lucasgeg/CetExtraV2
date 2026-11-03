@@ -1,4 +1,5 @@
 "use client";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   BarChart3,
@@ -9,17 +10,21 @@ import {
   MapPin,
   MessageSquare,
   Plus,
+  UserCheck,
   Users
 } from "lucide-react";
 import Link from "next/link";
 import type { ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/Loader/Loader";
-import useFetch from "@/hooks/useFetch";
 import useStore from "@/hooks/useStore";
-import type { EnumMissionJob } from "@/store/types";
+import type { EnumMissionJob, PrismaMissionJob } from "@/store/types";
 import { useCurrentUserStore } from "@/store/useCurrentUserStore";
-import { getJobLabel } from "@/utils/enum";
+import type { CompanyMissionEmployee } from "@/types/api";
+import { apiFetch } from "@/utils/apiFetch";
+import { convertToFrontendMissionJob, getJobLabel } from "@/utils/enum";
+import { type CompanyMissionsFilters, queryKeys } from "@/utils/queryKeys";
+import { formatFullName } from "@/utils/string";
 
 type DashboardMission = {
   id: string;
@@ -28,15 +33,8 @@ type DashboardMission = {
   status: "pending" | "active" | "completed" | "cancelled";
   missionLocation?: { fullName?: string };
   requiredPositions?: { id: string; jobType: string; quantity: number }[];
-  employees?: {
-    id: string;
-    status: "pending" | "accepted" | "refused" | "cancelled";
-    missionJob: keyof typeof EnumMissionJob;
-    user?: {
-      email?: string;
-      extra?: { first_name?: string; last_name?: string } | null;
-    };
-  }[];
+  // Coordonnées présentes uniquement pour `accepted` (masquées côté API)
+  employees?: CompanyMissionEmployee<keyof typeof EnumMissionJob>[];
   invitations?: {
     id: string;
     email: string;
@@ -45,6 +43,41 @@ type DashboardMission = {
 };
 
 type MissionsResponse = { missions: DashboardMission[]; total: number };
+
+const INCOMING_FILTERS = {
+  missionSelector: "incoming",
+  take: 5,
+  sortOrder: "asc",
+  fields:
+    "id,name,missionStartDate,status,missionLocation.fullName,requiredPositions,employees,invitations"
+} satisfies CompanyMissionsFilters;
+
+const PAST_FILTERS = {
+  missionSelector: "past",
+  take: 1,
+  fields: "id"
+} satisfies CompanyMissionsFilters;
+
+const useCompanyMissions = (
+  companyId: string,
+  filters: CompanyMissionsFilters
+) =>
+  useQuery({
+    queryKey: queryKeys.companies.missions(companyId, filters),
+    queryFn: ({ signal }) => {
+      const params = new URLSearchParams(
+        Object.entries(filters).map(([key, value]) => [key, String(value)])
+      );
+      return apiFetch<MissionsResponse>(
+        `/api/companies/${companyId}/missions?${params}`,
+        { signal }
+      );
+    },
+    // Toujours revalidé au montage (le cache s'affiche pendant ce temps) :
+    // création, édition et annulation de mission ne passent pas encore par
+    // TanStack Query et n'invalident donc pas ces listes
+    staleTime: 0
+  });
 
 const formatMissionDate = (date: string) =>
   new Date(date).toLocaleDateString("fr-FR", {
@@ -63,7 +96,7 @@ const KpiCard = ({
   label: string;
   value: number;
 }) => (
-  <div className="flex items-center gap-4 rounded-2xl border border-employer-border bg-white p-5 shadow-sm">
+  <div className="flex items-center gap-4 rounded-2xl border border-employer-border bg-white p-5 shadow-xs">
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-employer-surface text-employer-primary">
       <Icon size={24} />
     </div>
@@ -106,7 +139,7 @@ const SectionCard = ({
   action?: React.ReactNode;
   children: React.ReactNode;
 }) => (
-  <section className="flex flex-col rounded-2xl border border-employer-border bg-white shadow-sm">
+  <section className="flex flex-col rounded-2xl border border-employer-border bg-white shadow-xs">
     <header className="flex items-center justify-between gap-2 border-employer-border border-b px-5 py-4">
       <h2 className="font-bold text-base text-employer-text-primary">
         {title}
@@ -147,15 +180,14 @@ const CompanyDashboard = ({
   companyId: string;
   firstName?: string;
 }) => {
-  const { data: incoming, loading: incomingLoading } =
-    useFetch<MissionsResponse>(
-      `/api/companies/${companyId}/missions?missionSelector=incoming&take=5&sortOrder=asc&fields=id,name,missionStartDate,status,missionLocation.fullName,requiredPositions,employees,invitations`
-    );
-  const { data: past } = useFetch<MissionsResponse>(
-    `/api/companies/${companyId}/missions?missionSelector=past&take=1&fields=id`
-  );
+  const {
+    data: incoming,
+    isPending: incomingPending,
+    isError: incomingIsError
+  } = useCompanyMissions(companyId, INCOMING_FILTERS);
+  const { data: past } = useCompanyMissions(companyId, PAST_FILTERS);
 
-  if (incomingLoading && !incoming) {
+  if (incomingPending) {
     return (
       <div className="flex h-64 items-center justify-center">
         <Loader size="lg" text="Chargement de votre espace" variant="dots" />
@@ -172,21 +204,48 @@ const CompanyDashboard = ({
       job: getJobLabel(invitation.missionJob),
       missionName: mission.name
     })),
+    // Extra inscrit invité (`pending`) : pas de coordonnées avant acceptation
+    // (RGPD), on n'affiche que son prénom et son nom
     ...(mission.employees ?? [])
       .filter((employee) => employee.status === "pending")
       .map((employee) => {
-        const extra = employee.user?.extra;
-        const fullName = [extra?.first_name, extra?.last_name]
-          .filter(Boolean)
-          .join(" ");
+        const extra = employee.user.extra;
         return {
           key: `employee-${employee.id}`,
-          label: fullName || employee.user?.email || "Extra invité",
+          label: formatFullName(
+            extra?.first_name,
+            extra?.last_name,
+            "Extra invité"
+          ),
           job: getJobLabel(employee.missionJob),
           missionName: mission.name
         };
       })
   ]);
+
+  // Limite connue : seules les 5 prochaines missions sont chargées ici ; les
+  // candidatures sur des missions plus lointaines restent visibles depuis la
+  // liste des missions et l'email de notification
+  const applicationsToReview = missions.flatMap((mission) =>
+    (mission.employees ?? [])
+      .filter((employee) => employee.status === "requested")
+      .map((employee) => {
+        const extra = employee.user.extra;
+        return {
+          key: `application-${employee.id}`,
+          missionId: mission.id,
+          label: formatFullName(
+            extra?.first_name,
+            extra?.last_name,
+            "Candidat"
+          ),
+          job: convertToFrontendMissionJob(
+            employee.missionJob as unknown as PrismaMissionJob
+          ),
+          missionName: mission.name
+        };
+      })
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -216,6 +275,16 @@ const CompanyDashboard = ({
           </Link>
         </Button>
       </section>
+
+      {incomingIsError && (
+        <p
+          role="alert"
+          className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 text-sm"
+        >
+          Impossible de charger vos prochaines missions pour le moment, veuillez
+          réessayer.
+        </p>
+      )}
 
       {/* KPIs */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -276,6 +345,9 @@ const CompanyDashboard = ({
                   const confirmed = (mission.employees ?? []).filter(
                     (employee) => employee.status === "accepted"
                   ).length;
+                  const applications = (mission.employees ?? []).filter(
+                    (employee) => employee.status === "requested"
+                  ).length;
                   return (
                     <li key={mission.id}>
                       <Link
@@ -302,6 +374,13 @@ const CompanyDashboard = ({
                           </div>
                         </div>
                         <div className="flex shrink-0 items-center gap-3">
+                          {applications > 0 && (
+                            <span className="flex items-center gap-1.5 rounded-full bg-employer-surface px-2.5 py-0.5 font-semibold text-employer-accent text-xs">
+                              <UserCheck size={14} />
+                              {applications} candidature
+                              {applications > 1 ? "s" : ""}
+                            </span>
+                          )}
                           {required > 0 && (
                             <span className="flex items-center gap-1.5 text-employer-text-secondary text-sm tabular-nums">
                               <Users size={16} />
@@ -320,6 +399,43 @@ const CompanyDashboard = ({
         </div>
 
         <div className="flex flex-col gap-6">
+          {/* Candidatures à traiter : affiché seulement s'il y a une action à faire */}
+          {applicationsToReview.length > 0 && (
+            <SectionCard title="Candidatures à traiter">
+              <ul className="divide-y divide-employer-border/60">
+                {applicationsToReview.slice(0, 5).map((application) => (
+                  <li key={application.key}>
+                    <Link
+                      href={`/company/missions/${application.missionId}`}
+                      className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-employer-surface/50"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-employer-surface text-employer-accent">
+                        <UserCheck size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-employer-text-primary text-sm">
+                          {application.label}
+                        </p>
+                        <p className="truncate text-employer-text-secondary text-xs">
+                          {application.job} · {application.missionName}
+                        </p>
+                      </div>
+                      <ArrowRight
+                        size={16}
+                        className="ml-auto shrink-0 text-employer-text-secondary"
+                      />
+                    </Link>
+                  </li>
+                ))}
+                {applicationsToReview.length > 5 && (
+                  <li className="px-5 py-3 text-employer-text-secondary text-xs">
+                    +{applicationsToReview.length - 5} autres candidatures
+                  </li>
+                )}
+              </ul>
+            </SectionCard>
+          )}
+
           {/* Invitations en attente */}
           <SectionCard title="Invitations en attente">
             {pendingInvitations.length === 0 ? (

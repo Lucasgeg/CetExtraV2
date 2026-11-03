@@ -2,14 +2,14 @@ import type { MissionJob } from "@prisma/client";
 
 /**
  * Type représentant un utilisateur enregistré invité à une mission
- * avec statut 'pending' (via UserMission)
+ * avec statut 'pending' (via UserMission).
+ * RGPD : ni email ni identifiant utilisateur tant que l'extra n'a pas accepté
+ * (cf. `CONTACT_VISIBLE_USER_MISSION_STATUSES`) ; prénom, nom et photo seulement.
  */
 export interface PendingEmployee {
+  /** UserMission.id */
   id: string;
   user: {
-    id: string;
-    email: string;
-
     firstName: string | null;
     lastName: string | null;
 

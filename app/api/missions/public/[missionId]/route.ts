@@ -1,20 +1,15 @@
 import { NextResponse } from "next/server";
-import prisma from "@/app/lib/prisma";
-import {
-  getOpenPositions,
-  publicMissionSelect,
-  publicMissionVisibilityWhere
-} from "@/utils/missionVisibility.util";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
+import { getPublicMission } from "@/utils/publicMissions.server";
 
 /**
  * Handles GET requests for the public detail of a mission (unauthenticated).
  *
- * Applies the full public visibility predicate (see docs/adr/0002): any
+ * Applies the full public visibility predicate (see docs/adr/0002) via
+ * `getPublicMission` (shared with the `/missions/[missionId]` page): any
  * mission that is unknown, opted out, cancelled, already started or fully
  * staffed returns the same opaque 404 — never reveal that a hidden mission
- * exists. Feeds the public detail page and its JSON-LD JobPosting
- * (createdAt is exposed as the future datePosted source).
+ * exists. createdAt is exposed as the JSON-LD JobPosting datePosted source.
  *
  * @param _req - The Next.js API request object (unused).
  * @param props - Route parameters containing `missionId`.
@@ -27,10 +22,7 @@ export async function GET(
   try {
     const { missionId } = await props.params;
 
-    const mission = await prisma.mission.findFirst({
-      where: { id: missionId, ...publicMissionVisibilityWhere() },
-      select: publicMissionSelect
-    });
+    const mission = await getPublicMission(missionId);
 
     if (!mission) {
       return NextResponse.json(
@@ -39,28 +31,7 @@ export async function GET(
       );
     }
 
-    const openPositions = getOpenPositions(
-      mission.requiredPositions,
-      mission.employees
-    );
-
-    if (openPositions.length === 0) {
-      return NextResponse.json(
-        { message: "Mission not found" },
-        { status: 404 }
-      );
-    }
-
-    const {
-      employees: _employees,
-      requiredPositions: _required,
-      ...rest
-    } = mission;
-
-    return NextResponse.json(
-      { ...rest, requiredPositions: openPositions },
-      { status: 200 }
-    );
+    return NextResponse.json(mission, { status: 200 });
   } catch (error) {
     const { message } = handlePrismaError(error, "GetPublicMissionDetail");
     console.error("Error fetching public mission detail:", message);

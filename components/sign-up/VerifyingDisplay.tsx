@@ -1,9 +1,14 @@
-import { useSignUp } from "@clerk/nextjs";
+import { useClerk, useSignUp } from "@clerk/nextjs";
 import { isClerkAPIResponseError } from "@clerk/nextjs/errors";
 import type { ClerkAPIError } from "@clerk/types";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { EnumRole } from "@/store/types";
 import { useSignUpStore } from "@/store/useSignUpstore";
+import {
+  clearSignUpMission,
+  consumeSignUpMissionPath
+} from "@/utils/signUpMissionTarget";
 import { Input } from "../ui/input";
 
 // Type pour les réponses d'erreur API
@@ -23,8 +28,34 @@ export const VerifyingDisplay = () => {
   const [apiError, setApiError] = React.useState<string | undefined>();
 
   const { signUp } = useSignUp();
+  const clerk = useClerk();
   const { user, extra, company, profilePhoto } = useSignUpStore();
   const router = useRouter();
+
+  // Le rôle (`publicMetadata.role`) est posé par /api/users/sign-up APRÈS la
+  // création de la session Clerk (à la vérification du code) : le jeton de
+  // session et l'utilisateur en cache côté client peuvent encore l'ignorer.
+  // On les rafraîchit avant de naviguer pour que le middleware (claims du
+  // cookie) et `useUser()` (formulaire de candidature) voient le rôle.
+  const refreshRoleClaims = async () => {
+    try {
+      await clerk.session?.getToken({ skipCache: true });
+      await clerk.user?.reload();
+    } catch (error) {
+      console.error("Rafraîchissement de la session Clerk:", error);
+    }
+  };
+
+  // Extra venu de la vitrine : retour sur la mission ciblée pour y choisir
+  // son poste. Entreprise : valeur ignorée et oubliée, accueil (le
+  // middleware redirige ensuite vers l'espace du rôle).
+  const getPostSignUpPath = () => {
+    if (user?.role !== EnumRole.EXTRA) {
+      clearSignUpMission();
+      return "/";
+    }
+    return consumeSignUpMissionPath() ?? "/";
+  };
 
   const getClerkVerificationErrorMessage = (error: ClerkAPIError): string => {
     switch (error.code) {
@@ -112,7 +143,8 @@ export const VerifyingDisplay = () => {
                 setApiError("Erreur de session après vérification");
                 return;
               }
-              router.push("/");
+              await refreshRoleClaims();
+              router.push(getPostSignUpPath());
             } else {
               // Type safety pour la réponse d'erreur
               const errorData: ApiErrorResponse = await response.json();
@@ -224,7 +256,7 @@ export const VerifyingDisplay = () => {
             id="code"
             name="code"
             onChange={handleCodeChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-xs focus:border-blue-500 focus:outline-hidden focus:ring-blue-500 sm:text-sm"
             placeholder="123456"
             maxLength={6}
             disabled={isLoading}
@@ -235,7 +267,7 @@ export const VerifyingDisplay = () => {
           <button
             type="submit"
             disabled={isLoading || !code.trim()}
-            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 font-medium text-sm text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 font-medium text-sm text-white shadow-xs hover:bg-blue-600 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">

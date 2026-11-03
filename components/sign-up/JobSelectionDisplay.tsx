@@ -146,7 +146,7 @@ export const JobSelectionDisplay = ({
                   key={star}
                   type="button"
                   onClick={() => setExperienceLevel(star)}
-                  className="rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="rounded-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   aria-label={`${star} étoile${star > 1 ? "s" : ""}`}
                 >
                   <StarIcon

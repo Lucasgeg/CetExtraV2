@@ -1,8 +1,10 @@
 import {
   type ColumnDef,
+  columnSizingFeature,
+  columnVisibilityFeature,
   flexRender,
-  getCoreRowModel,
-  useReactTable
+  tableFeatures,
+  useTable
 } from "@tanstack/react-table";
 import classNames from "classnames";
 import { Loader } from "lucide-react";
@@ -11,7 +13,14 @@ export type GenericRow<T> = {
   [P in keyof T]: T[P];
 };
 
-type GenericColumn<T> = ColumnDef<GenericRow<T>>;
+// Stable reference: only the features used by the table are bundled (v9).
+// columnSizingFeature: `size` / `getSize()`; columnVisibilityFeature: `row.getVisibleCells()`.
+const features = tableFeatures({
+  columnSizingFeature,
+  columnVisibilityFeature
+});
+
+export type GenericColumn<T> = ColumnDef<typeof features, GenericRow<T>>;
 
 interface CustomTableProps<T> {
   rows: GenericRow<T>[];
@@ -28,14 +37,13 @@ export default function CustomTable<T>({
   title,
   loading
 }: CustomTableProps<T>) {
-  const table = useReactTable({
+  const table = useTable({
+    features,
     defaultColumn: {
-      enableResizing: false,
       size: 200
     },
     columns,
-    data: rows,
-    getCoreRowModel: getCoreRowModel()
+    data: rows
   });
 
   if (loading) {

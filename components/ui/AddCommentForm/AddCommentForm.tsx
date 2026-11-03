@@ -43,7 +43,7 @@ export default function AddCommentForm({ postId }: { postId: string }) {
         value={author}
         onChange={(e) => setAuthor(e.target.value)}
         required
-        className="rounded border px-2 py-1"
+        className="rounded-sm border px-2 py-1"
       />
       <label className="font-semibold">Commentaire</label>
       <textarea
@@ -51,12 +51,12 @@ export default function AddCommentForm({ postId }: { postId: string }) {
         onChange={(e) => setContent(e.target.value)}
         required
         rows={3}
-        className="rounded border px-2 py-1"
+        className="rounded-sm border px-2 py-1"
       />
       <button
         type="submit"
         disabled={loading}
-        className="mt-2 rounded bg-[#FDBA3B] px-4 py-2 font-bold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
+        className="mt-2 rounded-sm bg-[#FDBA3B] px-4 py-2 font-bold text-[#22345E] transition hover:bg-[#F15A29] hover:text-white"
       >
         {loading ? "Envoi..." : "Ajouter le commentaire"}
       </button>
