@@ -31,7 +31,10 @@ async function validateRequest(request: Request) {
     throw new Error("Missing required headers");
   }
   const wh = new Webhook(webhookSecret);
-  return wh.verify(payloadString, svixHeaders) as WebhookEvent;
+  // svix v2: verify() lève en cas de signature invalide mais ne retourne plus
+  // le payload (void) ; on parse donc le corps brut une fois la signature validée.
+  wh.verify(payloadString, svixHeaders);
+  return JSON.parse(payloadString) as WebhookEvent;
 }
 
 export async function POST(request: Request) {
