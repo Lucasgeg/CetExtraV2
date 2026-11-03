@@ -14,6 +14,7 @@ import {
   Tailwind,
   Text
 } from "@react-email/components";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 type NewBlogPostTemplateProps = {
   title: string;
@@ -32,7 +33,7 @@ export const NewBlogPostTemplate = ({
       <Tailwind>
         <Img
           alt="logo Cet Extra"
-          src="https://cetextra.fr/cetextralogo.jpeg"
+          src={absoluteUrl("/cetextralogo.jpeg")}
           className="mx-auto h-[10rem] w-[10rem] rounded-md"
         />
         <Preview>Un nouvel article, c’est extra ! {title}</Preview>
@@ -79,7 +80,7 @@ export const NewBlogPostTemplate = ({
                     Vous recevez cet email car vous êtes abonné au blog{" "}
                     <strong>Cet Extra</strong>.<br />
                     <a
-                      href="https://cetextra.fr/blog/unsubscribe"
+                      href={absoluteUrl("/blog/unsubscribe")}
                       className="text-[#F15A29] underline"
                     >
                       Se désinscrire
@@ -101,5 +102,5 @@ NewBlogPostTemplate.PreviewProps = {
   title: "5 astuces pour réussir vos extras",
   shortDesc:
     "Découvrez comment optimiser vos missions événementielles avec nos conseils pratiques.",
-  url: "https://cetextra.fr/blog/5-astuces-extras"
+  url: absoluteUrl("/blog/5-astuces-extras")
 };

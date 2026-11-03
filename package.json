@@ -15,8 +15,7 @@
     "studio": "prisma studio",
     "format": "bunx biome format --write .",
     "format:check": "bunx biome format .",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build && next-sitemap",
-    "postbuild": "next-sitemap",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "email": "email dev --dir components/MailTemplate"
   },
   "dependencies": {
@@ -53,7 +52,6 @@
     "lucide-react": "^1.0.0",
     "next": "^16.2.6",
     "next-cloudinary": "^6.16.0",
-    "next-sitemap": "^4.2.3",
     "pg": "^8.13.1",
     "react": "^19.0.0",
     "react-day-picker": "^10.0.0",

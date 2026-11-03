@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/PublicNavbar";
+
+// Canonical propre à l'accueil (relatif : résolu par le `metadataBase` du
+// layout racine, qui ne déclare plus de canonical global)
+export const metadata: Metadata = {
+  alternates: { canonical: "/" }
+};
 
 const proSteps = [
   {

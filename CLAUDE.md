@@ -16,7 +16,7 @@ This repo uses **Bun** (lockfile is `bun.lock`; hooks call `bun`/`bunx`).
 - Lint: `bun run lint`
 - Type-check: `bun tsc --noEmit`
 - Build (runs Biome check, then `next build`): `bun run build`
-- Production build (Vercel, runs Prisma migrate + sitemap): `bun run vercel-build`
+- Production build (Vercel, runs Prisma migrate): `bun run vercel-build` — sitemap/robots are native App Router routes (`app/sitemap.ts`, `app/robots.ts`), no post-build step
 - Format: `bun run format`
 - Check formatting only: `bun run format:check`
 - Prisma Studio: `bun run studio`
@@ -62,4 +62,4 @@ There is no test runner configured in `package.json` — no unit/integration tes
 
 ## Critical environment variables
 
-`DATABASE_URL`, `DIRECT_URL`, `CLERK_SECRET_KEY`, `ADMIN_USER_ID`, `SVIX_SECRET_WEBHOOKS`, `X_CRON_SECRET`, `RESEND_API_KEY`, `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET`/`INFISICAL_WORKSPACE_ID`, `VERCEL_ENV`.
+`DATABASE_URL`, `DIRECT_URL`, `CLERK_SECRET_KEY`, `ADMIN_USER_ID`, `SVIX_SECRET_WEBHOOKS`, `X_CRON_SECRET`, `RESEND_API_KEY`, `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET`/`INFISICAL_WORKSPACE_ID`, `VERCEL_ENV`, `NEXT_PUBLIC_SITE_URL` (optional canonical host, defaults to `https://cetextra.fr`; read only through `utils/siteUrl.ts`).

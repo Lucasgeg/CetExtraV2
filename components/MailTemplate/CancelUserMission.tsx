@@ -13,6 +13,7 @@ import {
   Tailwind,
   Text
 } from "@react-email/components";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 export type CancelUserMisionProps = {
   /**
@@ -50,7 +51,7 @@ export const CancelUserMision = ({
       <Tailwind>
         <Img
           alt="logo Cet Extra"
-          src="https://cetextra.fr/cetextralogo.jpeg"
+          src={absoluteUrl("/cetextralogo.jpeg")}
           className="mx-auto h-[10rem] w-[10rem] rounded-md"
         />
         <Preview>Mission annulée chez {companyName} via Cet Extra</Preview>

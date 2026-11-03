@@ -5,6 +5,7 @@ import {
   remainingPlacesLabel
 } from "@/utils/publicMission.format";
 import type { PublicMissionDetail } from "@/utils/publicMissions.server";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 /**
  * Décompose une adresse libre « [rue], 69001 Lyon, France » (format produit
@@ -56,8 +57,12 @@ export const buildMissionDescription = (mission: PublicMissionDetail) => {
 
 /**
  * Données structurées schema.org `JobPosting` d'une mission visible
- * publiquement. `url` est omise (facultative) : aucune base d'URL absolue
- * n'est configurable aujourd'hui, la page porte déjà son canonical.
+ * publiquement. `url` = URL canonique absolue de la fiche (même hôte que le
+ * canonical et le sitemap).
+ *
+ * Pas de `hiringOrganization.logo` : il désigne le logo de l'employeur (la
+ * company), pas celui de Cet Extra, et aucun logo d'entreprise n'est encore
+ * exploitable (aucun flux n'alimente `Company.logoId`).
  */
 export const buildMissionJobPosting = (mission: PublicMissionDetail) => {
   const hasRateRange =
@@ -68,6 +73,7 @@ export const buildMissionJobPosting = (mission: PublicMissionDetail) => {
     "@type": "JobPosting",
     title: mission.name,
     description: buildMissionDescription(mission),
+    url: absoluteUrl(`/missions/${mission.id}`),
     identifier: {
       "@type": "PropertyValue",
       name: mission.creator.company_name,

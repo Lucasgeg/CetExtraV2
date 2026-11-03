@@ -12,6 +12,7 @@ import {
   publicMissionVisibilityWhere
 } from "@/utils/missionVisibility.util";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -155,7 +156,7 @@ export async function POST(
         missionDate: mission.missionStartDate.toISOString(),
         missionLocation:
           mission.missionLocation?.fullName ?? "Lieu non précisé",
-        ctaUrl: `https://cetextra.fr/company/missions/${mission.id}`
+        ctaUrl: absoluteUrl(`/company/missions/${mission.id}`)
       });
 
       // Resend ne lève pas sur une erreur API : il la renvoie dans `error`

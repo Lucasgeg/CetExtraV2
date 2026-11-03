@@ -15,6 +15,7 @@ import {
   Text
 } from "@react-email/components";
 import { formatDuration } from "@/utils/date";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 export type MissionInvitationProps = {
   receiverEmail: string;
@@ -40,8 +41,8 @@ export const MissionInvitation = ({
 }: MissionInvitationProps) => {
   // Définir l’URL et le texte du bouton selon le statut
   const buttonUrl = isAllreadyRegistered
-    ? "https://cetextra.fr/sign-in"
-    : ctaUrl || "https://cetextra.fr/sign-up";
+    ? absoluteUrl("/sign-in")
+    : ctaUrl || absoluteUrl("/sign-up");
   const buttonText = isAllreadyRegistered
     ? "Me connecter et voir la mission 🚀"
     : "Créer mon compte et voir la mission 🚀";
@@ -57,7 +58,7 @@ export const MissionInvitation = ({
           <Container className="mx-auto my-2 max-w-[600px] rounded-lg border border-[#EFD08C] bg-white p-0 shadow-md">
             <Img
               alt="logo Cet Extra"
-              src="https://cetextra.fr/cetextralogo.jpeg"
+              src={absoluteUrl("/cetextralogo.jpeg")}
               className="mx-auto h-[10rem] w-[10rem] rounded-md"
             />
             <Preview>
@@ -171,5 +172,5 @@ MissionInvitation.PreviewProps = {
   duration: 1000 * 60 * 60 * 3,
   missionDate: "2024-05-15T18:00:00Z",
   isAllreadyRegistered: true,
-  ctaUrl: "https://cetextra.fr/login"
+  ctaUrl: absoluteUrl("/login")
 };

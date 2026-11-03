@@ -16,6 +16,7 @@ import {
 } from "@/utils/engagement.util";
 import { convertToFrontendMissionJob } from "@/utils/enum";
 import { handlePrismaError } from "@/utils/prismaErrors.util";
+import { absoluteUrl } from "@/utils/siteUrl";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -260,7 +261,7 @@ export async function PATCH(
         react: cancelUserMissionEmail,
         text: await render(cancelUserMissionEmail),
         headers: {
-          "List-Unsubscribe": "<https://cetextra.fr/blog/unsubscribe>"
+          "List-Unsubscribe": `<${absoluteUrl("/blog/unsubscribe")}>`
         }
       });
       if (sendError) {

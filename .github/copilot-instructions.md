@@ -10,7 +10,7 @@ Use Bun in this repository (lockfile is `bun.lock`, hooks call `bun`/`bunx`).
 - Lint: `bun run lint`
 - Type-check: `bun tsc --noEmit`
 - Build (includes Prettier check before Next build): `bun run build`
-- Production build with Prisma migration + sitemap (Vercel script): `bun run vercel-build`
+- Production build with Prisma migration (Vercel script): `bun run vercel-build`
 - Format all files: `bun run format`
 - Check formatting only: `bun run format:check`
 

@@ -2,6 +2,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
+import { arePublicMissionsOpen, isProductionDeployment } from "@/utils/launch";
 
 // Définition des routes publiques selon l'environnement
 const basePublicRoutes = [
@@ -16,15 +17,14 @@ const basePublicRoutes = [
   "/public(.*)", // Ressources publiques
   "/sitemap(.*)", // Sitemap
   "/robots.txt",
-  "/api/private/webhooks(.*)" // Webhooks privés
+  "/api/private/webhooks(.*)", // Webhooks privés
+  // Vitrine publique des missions : fermée en prod jusqu'au lancement. Même
+  // drapeau que le sitemap (utils/launch.ts), qui ne l'annonce qu'une fois ouverte
+  ...(arePublicMissionsOpen ? ["/missions(.*)"] : [])
 ];
 
 // Les routes publiques additionnelles pour dev/rec
-const devPublicRoutes = [
-  "/sign-up(.*)",
-  "/api/users/sign-up",
-  "/missions(.*)" // Vitrine publique des missions (ouverte en prod au lancement)
-];
+const devPublicRoutes = ["/sign-up(.*)", "/api/users/sign-up"];
 
 const protectedRoutes = [
   "/company(.*)", // Routes de l'entreprise
@@ -37,7 +37,7 @@ const protectedRoutes = [
 ];
 
 // Détection de l'environnement
-const isProd = process.env.VERCEL_ENV === "production";
+const isProd = isProductionDeployment;
 
 // Création du matcher selon l'environnement
 const isPublicRoute = createRouteMatcher(
