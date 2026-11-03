@@ -96,7 +96,7 @@ const KpiCard = ({
   label: string;
   value: number;
 }) => (
-  <div className="flex items-center gap-4 rounded-2xl border border-employer-border bg-white p-5 shadow-sm">
+  <div className="flex items-center gap-4 rounded-2xl border border-employer-border bg-white p-5 shadow-xs">
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-employer-surface text-employer-primary">
       <Icon size={24} />
     </div>
@@ -139,7 +139,7 @@ const SectionCard = ({
   action?: React.ReactNode;
   children: React.ReactNode;
 }) => (
-  <section className="flex flex-col rounded-2xl border border-employer-border bg-white shadow-sm">
+  <section className="flex flex-col rounded-2xl border border-employer-border bg-white shadow-xs">
     <header className="flex items-center justify-between gap-2 border-employer-border border-b px-5 py-4">
       <h2 className="font-bold text-base text-employer-text-primary">
         {title}

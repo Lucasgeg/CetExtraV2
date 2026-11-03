@@ -52,7 +52,7 @@ export const CompanyNavbar = () => {
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "whitespace-nowrap rounded-lg px-2.5 py-2 font-semibold text-xs transition-colors sm:px-4 sm:text-sm",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDBA3B]",
+                  "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[#FDBA3B]",
                   isActive
                     ? "bg-white/15 text-white"
                     : "text-white/70 hover:bg-white/10 hover:text-white",

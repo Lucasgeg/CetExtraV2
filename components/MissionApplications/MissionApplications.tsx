@@ -288,7 +288,7 @@ function DecisionDialog({
               </label>
               <textarea
                 id={fieldId}
-                className="min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                className="min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
                 maxLength={REFUSAL_REASON_MAX_LENGTH}
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}

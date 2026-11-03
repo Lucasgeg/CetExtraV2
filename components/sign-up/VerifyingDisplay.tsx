@@ -224,7 +224,7 @@ export const VerifyingDisplay = () => {
             id="code"
             name="code"
             onChange={handleCodeChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-xs focus:border-blue-500 focus:outline-hidden focus:ring-blue-500 sm:text-sm"
             placeholder="123456"
             maxLength={6}
             disabled={isLoading}
@@ -235,7 +235,7 @@ export const VerifyingDisplay = () => {
           <button
             type="submit"
             disabled={isLoading || !code.trim()}
-            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 font-medium text-sm text-white shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-md border border-transparent bg-blue-500 px-4 py-2 font-medium text-sm text-white shadow-xs hover:bg-blue-600 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">

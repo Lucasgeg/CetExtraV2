@@ -46,7 +46,7 @@ export const MissionPublicationCard = ({
   rateErrorMessage,
   rateFloor = null
 }: MissionPublicationCardProps) => (
-  <Card className="flex flex-shrink-0 flex-col">
+  <Card className="flex shrink-0 flex-col">
     <CardHeader className="flex flex-row items-center justify-start gap-2 pb-2">
       <div
         className={cn(
@@ -93,7 +93,7 @@ export const MissionPublicationCard = ({
                 />
                 <span
                   aria-hidden="true"
-                  className="relative h-6 w-11 flex-shrink-0 rounded-full bg-gray-300 transition-colors after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:bg-employer-primary peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-employer-primary peer-focus-visible:ring-offset-2"
+                  className="relative h-6 w-11 shrink-0 rounded-full bg-gray-300 transition-colors after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:bg-employer-primary peer-checked:after:translate-x-5 peer-focus-visible:ring-2 peer-focus-visible:ring-employer-primary peer-focus-visible:ring-offset-2"
                 />
               </label>
               <p id="isPublic-help" className="text-muted-foreground text-xs">

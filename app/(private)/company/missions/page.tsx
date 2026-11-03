@@ -119,14 +119,14 @@ export default function CompanyMissionsPage() {
         cell: ({ row }) => (
           <div className="flex justify-end gap-2">
             <Link
-              className="rounded p-1 text-blue-600 hover:bg-blue-100"
+              className="rounded-sm p-1 text-blue-600 hover:bg-blue-100"
               title="Voir les détails"
               href={`/company/missions/${row.original.id}`}
             >
               <MagnifyingGlassIcon className="h-4 w-4" />
             </Link>
             <button
-              className="rounded p-1 text-red-600 hover:bg-red-100"
+              className="rounded-sm p-1 text-red-600 hover:bg-red-100"
               title="Supprimer"
               type="button"
               onClick={() => setMissionToCancel(row.original.id)}
@@ -320,7 +320,7 @@ export default function CompanyMissionsPage() {
       </div>
 
       {error && (
-        <div className="rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
+        <div className="rounded-sm border border-red-400 bg-red-100 px-4 py-3 text-red-700">
           <strong className="font-bold">Erreur: </strong>
           <span className="block sm:inline">{error}</span>
         </div>
@@ -329,7 +329,7 @@ export default function CompanyMissionsPage() {
       {warning && (
         <div
           role="status"
-          className="rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-800"
+          className="rounded-sm border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-800"
         >
           <strong className="font-bold">Attention : </strong>
           <span className="block sm:inline">{warning}</span>

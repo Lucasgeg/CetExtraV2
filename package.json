@@ -72,6 +72,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.0",
+    "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.18",
     "@types/node": "^26.0.0",
     "@types/react": "^19",
@@ -82,7 +83,7 @@
     "prisma": "^7.0.0",
     "react-email": "6.6.3",
     "studio": "prisma/studio",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.3.4",
     "tsx": "^4.19.2",
     "typescript": "^6.0.0"
   }

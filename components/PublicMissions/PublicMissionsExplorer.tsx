@@ -218,7 +218,7 @@ export function PublicMissionsExplorer({
               onChange={(event) =>
                 handleRadiusChange(Number(event.target.value) as RadiusOptionKm)
               }
-              className="h-10 rounded-md border border-employer-border bg-white px-3 text-employer-text-primary text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary"
+              className="h-10 rounded-md border border-employer-border bg-white px-3 text-employer-text-primary text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary"
             >
               {RADIUS_OPTIONS_KM.map((radius) => (
                 <option key={radius} value={radius}>
@@ -270,7 +270,7 @@ export function PublicMissionsExplorer({
           id="missions-results-heading"
           ref={resultsHeadingRef}
           tabIndex={-1}
-          className="mb-2 font-bold text-employer-primary text-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary"
+          className="mb-2 font-bold text-employer-primary text-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary"
         >
           Missions à pourvoir
         </h2>
@@ -358,7 +358,7 @@ export function PublicMissionsExplorer({
                 href={missionsPageHref({ ...filters, page: filters.page - 1 })}
                 onClick={(event) => handlePageLink(event, filters.page - 1)}
                 rel="prev"
-                className="rounded-lg border border-employer-primary px-4 py-2 font-semibold text-employer-primary text-sm hover:bg-employer-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary"
+                className="rounded-lg border border-employer-primary px-4 py-2 font-semibold text-employer-primary text-sm hover:bg-employer-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary"
               >
                 ← Page précédente
               </a>
@@ -373,7 +373,7 @@ export function PublicMissionsExplorer({
                 href={missionsPageHref({ ...filters, page: filters.page + 1 })}
                 onClick={(event) => handlePageLink(event, filters.page + 1)}
                 rel="next"
-                className="rounded-lg border border-employer-primary px-4 py-2 font-semibold text-employer-primary text-sm hover:bg-employer-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary"
+                className="rounded-lg border border-employer-primary px-4 py-2 font-semibold text-employer-primary text-sm hover:bg-employer-surface focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary"
               >
                 Page suivante →
               </a>

@@ -112,7 +112,7 @@ export default async function PublicMissionPage(props: {
       <div className="mx-auto max-w-3xl">
         <Link
           href="/missions"
-          className="inline-flex items-center gap-1 rounded font-semibold text-employer-text-secondary text-sm transition-colors hover:text-employer-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary"
+          className="inline-flex items-center gap-1 rounded-sm font-semibold text-employer-text-secondary text-sm transition-colors hover:text-employer-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary"
         >
           ← Toutes les missions
         </Link>

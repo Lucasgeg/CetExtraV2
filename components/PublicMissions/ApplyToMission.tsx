@@ -73,7 +73,7 @@ const errorMessageFor = (error: unknown) => {
 };
 
 const linkClassName =
-  "inline-flex items-center justify-center rounded-lg px-6 py-3 font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-employer-secondary focus-visible:ring-offset-2";
+  "inline-flex items-center justify-center rounded-lg px-6 py-3 font-semibold text-sm transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-employer-secondary focus-visible:ring-offset-2";
 
 /**
  * Appel à l'action « Candidater » de la page publique d'une mission.

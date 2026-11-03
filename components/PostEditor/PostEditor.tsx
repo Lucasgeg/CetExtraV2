@@ -119,14 +119,14 @@ export default function PostEditor({
           placeholder="Titre de l'article"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded border px-3 py-2"
+          className="w-full rounded-sm border px-3 py-2"
           required
         />
         <textarea
           placeholder="Description courte de l'article"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full resize-none rounded border px-3 py-2"
+          className="w-full resize-none rounded-sm border px-3 py-2"
           rows={3}
         />
         <KeywordInput keywords={keywords} setKeywords={setKeywords} />
@@ -135,14 +135,14 @@ export default function PostEditor({
           placeholder="Titre pour l'email (optionnel)"
           value={emailSubject}
           onChange={handleEmailSubjectChange}
-          className="mt-4 w-full rounded border px-3 py-2"
+          className="mt-4 w-full rounded-sm border px-3 py-2"
         />
         <Input
           type="text"
           placeholder="URL courte (optionnel)"
           value={shortUrl}
           onChange={(e) => setShortUrl(e.target.value)}
-          className="mt-4 w-full rounded border px-3 py-2"
+          className="mt-4 w-full rounded-sm border px-3 py-2"
         />
         <CldUploadWidget
           uploadPreset="image_blog"
@@ -185,7 +185,7 @@ export default function PostEditor({
           />
           <Button
             type="submit"
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="rounded-sm bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Publier
           </Button>

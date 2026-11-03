@@ -221,7 +221,7 @@ export function PendingInvitations({ missionId }: PendingInvitationsProps) {
       <DialogTrigger asChild>
         <button
           type="button"
-          className="flex items-center justify-center gap-1 rounded-full border border-employer-border bg-employer-primary p-2 text-extra-primary shadow-md transition-colors hover:bg-employer-secondary focus:outline-none focus:ring-0"
+          className="flex items-center justify-center gap-1 rounded-full border border-employer-border bg-employer-primary p-2 text-extra-primary shadow-md transition-colors hover:bg-employer-secondary focus:outline-hidden focus:ring-0"
         >
           <span>{invitesData.counts.total}</span>
           <EnveloppeClock height={24} color="#f7b742" />

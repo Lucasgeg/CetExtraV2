@@ -505,7 +505,7 @@ const MultipleSelector = React.forwardRef<
                   <button
                     type="button"
                     className={cn(
-                      "ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                      "ml-1 rounded-full outline-hidden ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
                       (disabled || option.fixed) && "hidden"
                     )}
                     onKeyDown={(e) => {
@@ -551,7 +551,7 @@ const MultipleSelector = React.forwardRef<
                   : placeholder
               }
               className={cn(
-                "relative flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
+                "relative flex-1 bg-transparent outline-hidden placeholder:text-muted-foreground",
                 {
                   "w-full": hidePlaceholderWhenSelected,
                   "px-3 py-2": selected.length === 0,
@@ -607,14 +607,14 @@ const MultipleSelector = React.forwardRef<
                 }}
                 placeholder="Rechercher..."
                 className={cn(
-                  "relative flex-1 bg-popover text-popover-foreground outline-none placeholder:text-muted-foreground",
+                  "relative flex-1 bg-popover text-popover-foreground outline-hidden placeholder:text-muted-foreground",
                   inputProps?.className
                 )}
                 visible={withSearch}
               />
 
               <CommandList
-                className="top-1 z-10 max-h-52 w-full animate-in overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md outline-none"
+                className="top-1 z-10 max-h-52 w-full animate-in overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md outline-hidden"
                 onMouseLeave={() => {
                   setOnScrollbar(false);
                 }}
