@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { ApplyToMission } from "@/components/PublicMissions/ApplyToMission";
+import { MissionLocationMap } from "@/components/PublicMissions/MissionLocationMap";
 import {
   buildMissionDescription,
   buildMissionJobPosting,
@@ -187,6 +188,14 @@ export default async function PublicMissionPage(props: {
               </>
             )}
           </dl>
+
+          {mission.missionLocation && (
+            <MissionLocationMap
+              lat={mission.missionLocation.lat}
+              lon={mission.missionLocation.lon}
+              label={mission.missionLocation.fullName}
+            />
+          )}
         </section>
 
         <section aria-labelledby="mission-positions-heading" className="mt-10">
