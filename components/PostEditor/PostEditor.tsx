@@ -157,7 +157,7 @@ export default function PostEditor({
         >
           {({ open }) => {
             uploadWidgetRef.current = { open };
-            return null;
+            return <></>;
           }}
         </CldUploadWidget>
         <ReactMde
